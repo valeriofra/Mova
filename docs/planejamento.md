@@ -1,0 +1,728 @@
+# MOVA --- Documento de visão e planejamento do projeto
+
+**Versão:** 0.1\
+**Data:** 10 de novembro de 2026\
+**Status:** Planejamento --- nenhum código implementado
+
+------------------------------------------------------------------------
+
+## 1. Visão geral
+
+O **MOVA** é um aplicativo de gerenciamento e download de mídia, pensado
+inicialmente para **uso pessoal**. A primeira plataforma será Android,
+com desenvolvimento nativo. Depois de validado no Android, o projeto
+poderá ganhar uma versão para Windows.
+
+A proposta é oferecer uma experiência simples: o usuário cola ou
+compartilha um link, o aplicativo identifica automaticamente a origem e
+apresenta apenas as ações que forem realmente possíveis para aquele
+conteúdo.
+
+O projeto poderá futuramente ser disponibilizado a outras pessoas
+mediante uma **licença vitalícia, com pagamento único**, sem assinatura
+mensal. A comercialização é secundária: a prioridade é construir uma
+ferramenta que atenda bem ao uso pessoal do desenvolvedor.
+
+## 2. Decisões já definidas
+
+  ---------------------------------------------------------------------
+  Tema                               Decisão
+  ---------------------------------- ----------------------------------
+  Nome provisório                    **MOVA**
+
+  Finalidade inicial                 Uso pessoal
+
+  Primeira plataforma                Android nativo
+
+  Plataforma futura                  Windows
+
+  Aparência                          Dark
+
+  Direção visual                     Limpa, intuitiva, moderna e
+                                     minimalista
+
+  Identidade                         Nome e ícone abstratos, simples e
+                                     fáceis de reconhecer
+
+  Cor de destaque sugerida           Azul elétrico, com detalhes em
+                                     ciano
+
+  Nome anterior                      MediaDown --- substituído por MOVA
+                                     como nome provisório
+
+  Cadastro                           Não previsto na primeira versão
+
+  Anúncios                           Não previstos
+
+  Servidor de mídia                  Não previsto; processamento
+                                     prioritariamente local
+
+  Distribuição inicial               Projeto/site no GitHub, usando
+                                     endereço gratuito
+
+  Site                               GitHub Pages, inicialmente
+
+  Monetização futura                 Licença vitalícia, pagamento
+                                     único, opcional para terceiros
+
+  Assinatura mensal                  Não
+
+  Qualidade-alvo de vídeo            Até 1080p, quando disponível e
+                                     permitido
+
+  Contas das redes sociais           Não exigir login; autenticação
+                                     oficial poderá ser considerada
+                                     apenas se indispensável e
+                                     autorizada
+  ---------------------------------------------------------------------
+
+As definições comerciais e de distribuição ainda são uma intenção de
+planejamento. Não foi decidido que o código-fonte será open source, nem
+que ficará público. Essa escolha deverá ser feita antes de publicar o
+repositório.
+
+## 3. Experiência principal do usuário
+
+O fluxo desejado é:
+
+1.  O usuário cola um link no aplicativo ou compartilha o link a partir
+    de outro aplicativo Android.
+2.  O MOVA reconhece automaticamente a plataforma, sem pedir que o
+    usuário escolha a rede social.
+3.  O aplicativo analisa o conteúdo e identifica as informações e ações
+    disponíveis.
+4.  O usuário toca em **Download**.
+5.  Só então o aplicativo apresenta as opções compatíveis com aquele
+    conteúdo.
+6.  O usuário escolhe o que deseja obter e acompanha a tarefa na fila de
+    downloads.
+7.  O arquivo concluído aparece na biblioteca local.
+
+Se o link não for reconhecido ou não houver uma forma autorizada de
+obter o conteúdo, o MOVA deverá explicar isso de maneira clara e
+oferecer, quando possível, a opção de abrir a página original.
+
+### 3.1 Opções contextuais
+
+A tela de opções deverá mostrar somente o que for aplicável:
+
+-   Vídeo, com qualidades disponíveis até 1080p.
+-   Áudio separado, por exemplo MP3 ou M4A, quando houver uma fonte e
+    autorização compatíveis.
+-   Seleção de itens individuais.
+-   Download de vários itens ou de uma coleção completa, quando a
+    plataforma e as permissões permitirem.
+
+Não se deve presumir que todo link represente uma playlist ou que toda
+plataforma permita download em lote.
+
+### 3.2 Conteúdos com vários itens
+
+O aplicativo deverá distinguir, quando conseguir identificar:
+
+-   Um vídeo individual.
+-   Uma publicação com vários vídeos.
+-   Uma playlist ou coleção.
+-   Uma sequência de Stories ou conteúdo temporário.
+
+Quando houver vários itens acessíveis, a experiência ideal é permitir
+selecionar um, alguns ou todos. Se a origem não disponibilizar a lista
+de itens, o MOVA não deverá inventar essa possibilidade nem prometer que
+conseguirá baixar a sequência.
+
+**Instagram Stories:** a identificação e obtenção de Stories não é
+garantida por um simples link. A disponibilidade depende do acesso
+permitido, da natureza pública ou privada do conteúdo, da validade do
+link e dos meios oficiais disponíveis. Conteúdo privado, expirado ou sem
+autorização não será contornado.
+
+## 4. Plataformas pretendidas
+
+As plataformas que se deseja reconhecer na arquitetura são:
+
+1.  YouTube
+2.  Facebook
+3.  Instagram
+4.  TikTok
+5.  Kwai
+6.  Pinterest
+7.  Vimeo
+
+A presença de uma plataforma na lista significa que o MOVA deverá
+reconhecer e classificar seus links. **Não significa que o download
+estará disponível para todos os links.**
+
+Cada plataforma possui regras, APIs, permissões e limitações próprias. O
+suporte efetivo será implementado e validado individualmente, usando
+mecanismos oficiais ou outras fontes expressamente autorizadas pelo
+titular do conteúdo.
+
+O MOVA não deverá: - Contornar DRM ou mecanismos de proteção. - Acessar
+conteúdo privado sem autorização. - Burlar autenticação, controles de
+acesso ou restrições de download. - Extrair áudio ou vídeo de serviços
+quando isso contrariar seus termos ou direitos aplicáveis. - Prometer
+suporte universal a playlists, Stories ou downloads em lote.
+
+Quando o download não for permitido, o aplicativo poderá reconhecer a
+plataforma e orientar o usuário a abrir o conteúdo no serviço original
+ou utilizar as opções oficiais disponíveis.
+
+## 5. Funcionalidades planejadas para o Android
+
+### 5.1 Tela inicial
+
+-   Campo central para colar link.
+-   Reconhecimento automático da plataforma.
+-   Ação principal para analisar o link.
+-   Downloads recentes.
+-   Recebimento de links pelo menu Compartilhar do Android.
+
+### 5.2 Preparação do download
+
+-   Título e miniatura, quando disponíveis.
+-   Identificação do tipo de conteúdo.
+-   Opções de formato e qualidade realmente disponíveis.
+-   Seleção de um ou vários itens, quando suportada.
+-   Explicação clara quando não houver download autorizado.
+
+### 5.3 Fila de downloads
+
+-   Tarefas em andamento, pendentes e concluídas.
+-   Progresso por item.
+-   Pausar, retomar quando tecnicamente suportado e cancelar.
+-   Controle de downloads simultâneos.
+-   Tratamento de falhas e tentativas.
+
+### 5.4 Biblioteca
+
+-   Organização de vídeos e áudios.
+-   Histórico de downloads.
+-   Informações básicas dos arquivos.
+-   Abertura e compartilhamento dos arquivos.
+-   Organização local, sem necessidade de conta.
+
+### 5.5 Conversão de áudio
+
+-   Conversão local de arquivos que o usuário tenha direito de
+    processar.
+-   Formatos possíveis a avaliar: MP3, M4A e WAV.
+-   A conversão não deve ser confundida com autorização para extrair
+    áudio de qualquer plataforma.
+
+### 5.6 Ajustes
+
+-   Qualidade preferida.
+-   Pasta ou local de armazenamento.
+-   Preferência por Wi-Fi.
+-   Downloads simultâneos.
+-   Limpeza de arquivos temporários.
+-   Preferências de conversão.
+
+## 6. Navegação e direção visual
+
+A proposta inicial é uma navegação inferior com quatro áreas:
+
+1.  **Baixar:** campo de link e downloads recentes.
+2.  **Fila:** tarefas pendentes e em andamento.
+3.  **Biblioteca:** arquivos salvos.
+4.  **Ajustes:** preferências do aplicativo.
+
+A análise do link e a seleção das opções poderão abrir telas próprias,
+sem sobrecarregar a tela inicial.
+
+### Princípios de interface
+
+-   Uma ação principal por tela.
+-   Poucos elementos e linguagem simples.
+-   Não exigir que o usuário selecione a plataforma.
+-   Mostrar opções somente depois da análise e da ação de download.
+-   Evitar configurações avançadas antes de serem necessárias.
+-   Informar limitações e erros com clareza.
+-   Não incluir anúncios nem telas de cadastro na primeira versão.
+
+### Identidade visual
+
+-   Tema escuro.
+-   Fundo grafite ou quase preto.
+-   Superfícies em cinza escuro.
+-   Azul elétrico como destaque e ciano como cor secundária.
+-   Tipografia legível e ícones consistentes.
+-   Símbolo abstrato e geométrico, evitando depender de uma seta de
+    download genérica.
+
+O nome **MOVA** é provisório. Antes de adotá-lo comercialmente, será
+necessário verificar disponibilidade de marca, domínio e nomes nas lojas
+de aplicativos.
+
+## 7. Arquitetura técnica --- direção inicial
+
+A primeira versão será Android nativa. A recomendação técnica inicial é:
+
+  ---------------------------------------------------------------------
+  Área                               Tecnologia ou abordagem proposta
+  ---------------------------------- ----------------------------------
+  Linguagem                          Kotlin
+
+  Interface                          Jetpack Compose
+
+  Arquitetura de apresentação        MVVM
+
+  Organização                        Separação entre apresentação,
+                                     domínio e dados
+
+  Concorrência                       Kotlin Coroutines
+
+  Tarefas persistentes               WorkManager, quando adequado ao
+                                     tipo de tarefa
+
+  Rede                               Cliente HTTP, por exemplo OkHttp,
+                                     para fontes autorizadas
+
+  Banco local                        Room, se o histórico e as tarefas
+                                     exigirem persistência estruturada
+
+  Preferências                       DataStore
+
+  Armazenamento                      MediaStore e Storage Access
+                                     Framework, conforme o caso
+
+  Conversão                          FFmpeg ou alternativa compatível,
+                                     após avaliar licenças e manutenção
+
+  Injeção de dependência             A decidir quando a complexidade
+                                     justificar
+  ---------------------------------------------------------------------
+
+As versões exatas de Android Gradle Plugin, Gradle, Kotlin, Compose e
+SDK deverão ser escolhidas em conjunto e verificadas na documentação
+oficial no momento de iniciar a implementação. Este documento não fixa
+números de versão.
+
+### 7.1 Módulos conceituais
+
+Evitar criar muitos módulos vazios logo no início. A separação pode
+começar simples e crescer conforme a implementação exigir:
+
+-   **app-android:** ponto de entrada, integração com o Android e
+    navegação.
+-   **presentation:** telas, componentes e estados da interface.
+-   **domain:** regras de negócio, modelos e casos de uso.
+-   **data:** repositórios e persistência local.
+-   **download:** fila, tarefas, progresso e transferência de arquivos.
+-   **providers:** reconhecimento de plataformas e capacidades de cada
+    origem.
+-   **media:** inspeção de arquivos e conversão local.
+-   **design-system:** cores, tipografia, ícones e componentes visuais.
+
+Cada provider deverá informar o que consegue fazer de forma legítima e
+tecnicamente comprovada. O restante do aplicativo não deverá depender de
+detalhes específicos de uma rede social.
+
+### 7.2 Preparação para Windows
+
+A versão Windows virá depois que o Android estiver funcional e validado.
+A lógica de negócio deverá ser mantida tão independente quanto razoável
+das APIs Android.
+
+Kotlin Multiplatform poderá ser avaliado para compartilhar modelos e
+regras de negócio. A interface, armazenamento e integração com o sistema
+operacional serão específicos de cada plataforma. A decisão final sobre
+tecnologia desktop ficará para uma etapa posterior.
+
+## 8. Escopo recomendado do MVP
+
+O MVP deve priorizar uma base confiável, em vez de tentar entregar todos
+os adaptadores de redes sociais ao mesmo tempo.
+
+### Entregas prioritárias
+
+-   Aplicativo Android nativo com tema dark.
+-   Navegação principal e telas essenciais.
+-   Colar e compartilhar links.
+-   Reconhecimento das sete plataformas, quando possível.
+-   Mensagens claras para links não reconhecidos ou sem ações
+    disponíveis.
+-   Motor de download para arquivos e URLs diretas cuja obtenção seja
+    autorizada.
+-   Fila, progresso, cancelamento e armazenamento local.
+-   Biblioteca e histórico.
+-   Testes com arquivos de exemplo e fontes autorizadas.
+
+### Entregas graduais
+
+-   Integração específica com cada plataforma, após análise de
+    permissões e termos.
+-   Download de playlists ou coleções.
+-   Seleção de vários itens.
+-   Conversão de áudio.
+-   Melhorias de retomada e downloads em segundo plano.
+
+A implementação de um provider não deve ser considerada concluída apenas
+porque reconhece uma URL: é necessário comprovar quais metadados e ações
+são realmente acessíveis.
+
+## 9. Etapas de desenvolvimento
+
+### Etapa 0 --- Planejamento e decisões
+
+-   Consolidar este documento.
+-   Definir identidade visual e nome final.
+-   Decidir política de código-fonte e licença de distribuição.
+-   Confirmar requisitos técnicos e restrições de cada plataforma.
+
+### Etapa 1 --- Fundação Android
+
+-   Criar o projeto nativo.
+-   Configurar Gradle e dependências.
+-   Definir tema, cores, tipografia e componentes.
+-   Construir navegação e telas principais.
+-   Implementar estados vazios, carregamento e mensagens de erro.
+-   Não iniciar integração de download de redes sociais antes de a base
+    estar definida.
+
+### Etapa 2 --- Núcleo de downloads
+
+-   Implementar transferência de arquivos por fontes autorizadas.
+-   Criar fila e persistência de tarefas.
+-   Gerenciar progresso, cancelamento e erros.
+-   Salvar arquivos usando as APIs adequadas do Android.
+
+### Etapa 3 --- Reconhecimento e providers
+
+-   Criar reconhecimento de URLs.
+-   Adicionar os providers individualmente.
+-   Documentar capacidades, limitações e permissões de cada plataforma.
+-   Testar com conteúdo próprio ou expressamente autorizado.
+
+### Etapa 4 --- Biblioteca e mídia
+
+-   Histórico e organização local.
+-   Inspeção de arquivos.
+-   Conversão de arquivos locais, se necessária.
+-   Seleção de vários itens quando suportada.
+
+### Etapa 5 --- Validação e distribuição pessoal
+
+-   Testar em diferentes versões e aparelhos Android.
+-   Corrigir falhas.
+-   Gerar APK de teste e documentar instalação.
+-   Validar consumo de bateria, armazenamento e execução em segundo
+    plano.
+
+### Etapa 6 --- Site e distribuição a terceiros
+
+-   Criar o site estático no GitHub Pages.
+-   Publicar documentação e versões oficiais.
+-   Configurar domínio próprio somente se desejado.
+-   Integrar pagamento e emissão de licenças apenas quando houver
+    decisão de comercializar.
+
+### Etapa 7 --- Windows
+
+-   Reavaliar a arquitetura compartilhável.
+-   Implementar interface e integrações próprias do Windows.
+-   Testar a licença multiplataforma, caso esse modelo seja adotado.
+
+## 10. Site oficial e GitHub
+
+A intenção é começar com um endereço gratuito do GitHub Pages, por
+exemplo:
+
+`https://<usuario>.github.io/<repositorio>/`
+
+O endereço definitivo dependerá do nome de usuário e do repositório
+escolhidos.
+
+O site poderá conter: - Apresentação do MOVA. - Funcionalidades e
+limitações. - Plataformas e sistemas compatíveis. - Capturas de tela. -
+Perguntas frequentes. - Links para versões oficiais. - Informações de
+licença e suporte.
+
+O GitHub Pages hospeda conteúdo estático. Não processa pagamentos nem
+emite chaves por conta própria. Se a venda for implementada, será
+necessário integrar um provedor de pagamento e um serviço seguro de
+emissão ou validação de licenças.
+
+SEO poderá incluir títulos e descrições adequados, conteúdo útil,
+sitemap e metadados. A indexação e a posição no Google não são
+garantidas.
+
+## 11. Modelo de distribuição e licença --- proposta futura
+
+A intenção comercial atual é:
+
+-   O desenvolvedor utiliza o MOVA gratuitamente para seu próprio uso.
+-   Outras pessoas poderão adquirir uma licença vitalícia por pagamento
+    único.
+-   Não haverá assinatura mensal.
+-   Uma licença poderá, se essa decisão for mantida, cobrir Android e
+    Windows.
+-   O número de dispositivos e as regras de transferência da licença
+    ainda precisam ser definidos.
+-   A comercialização não é requisito para o MVP pessoal.
+
+### Distinção importante: código público e licença
+
+-   **Repositório público:** qualquer pessoa pode visualizar o código.
+-   **Código open source:** o código é distribuído sob uma licença que
+    concede direitos de uso, modificação e redistribuição conforme seus
+    termos.
+-   **Código proprietário:** os direitos de uso, cópia e redistribuição
+    são limitados pela licença do titular.
+-   **Aplicativo compilado:** APK ou instalador que o usuário instala.
+
+Se a intenção for cobrar pelo direito de usar o aplicativo, mantendo
+controle sobre cópia e redistribuição, uma licença proprietária é mais
+coerente. O código pode permanecer privado ou ser publicado sob termos
+proprietários específicos, mas disponibilizar o código publicamente não
+impede que terceiros o copiem; os termos e a proteção jurídica precisam
+ser considerados.
+
+A decisão entre repositório privado, código público proprietário ou open
+source permanece **em aberto**. Não publicar o código antes de escolher
+e incluir a licença adequada.
+
+## 12. Licenciamento técnico --- pontos a avaliar
+
+Se a comercialização avançar: - Emitir chaves únicas após confirmação do
+pagamento. - Assinar licenças digitalmente para permitir validação
+offline. - Evitar incluir segredos privados no aplicativo. - Definir
+procedimento de recuperação e transferência de licença. - Definir limite
+de dispositivos. - Considerar validação online periódica apenas se
+realmente necessária. - Prever uso gratuito do desenvolvedor por uma
+autorização separada.
+
+Uma chave assinada pode permitir validação local sem manter um servidor
+de mídia. Ainda assim, emissão, pagamentos, suporte e eventual revogação
+podem exigir um pequeno serviço externo.
+
+## 13. Critérios de qualidade
+
+A primeira versão deverá ser testada para confirmar:
+
+-   Reconhecimento correto de URLs conhecidas.
+-   Mensagem adequada para URL desconhecida.
+-   Recebimento de links pelo compartilhamento Android.
+-   Download bem-sucedido de arquivos autorizados.
+-   Progresso e cancelamento confiáveis.
+-   Retomada quando a origem e o mecanismo permitirem.
+-   Tratamento de falta de espaço.
+-   Histórico preservado após fechar e reabrir o app.
+-   Arquivos salvos em local acessível ao usuário.
+-   Nenhuma promessa de download para conteúdo sem permissão ou suporte.
+
+## 14. Decisões ainda pendentes
+
+1.  Nome MOVA definitivo e verificação de marca.
+2.  Desenho final do ícone e identidade visual.
+3.  Repositório público ou privado.
+4.  Licença proprietária ou open source.
+5.  Política de distribuição dos APKs e instaladores.
+6.  Limite de dispositivos por licença, se houver venda.
+7.  Provedor de pagamento e emissão de licença.
+8.  Quais plataformas terão integrações efetivas e por quais meios
+    autorizados.
+9.  Tecnologia final para a versão Windows.
+10. Formatos de áudio e detalhes de conversão.
+
+## 15. Princípios que orientam o projeto
+
+1.  **Uso pessoal primeiro:** construir algo útil para o próprio
+    desenvolvedor antes de investir em comercialização.
+2.  **Simplicidade:** a experiência deve ser limpa e intuitiva.
+3.  **Transparência:** explicar o que é possível e o que não é.
+4.  **Respeito às permissões:** não contornar DRM, privacidade ou
+    restrições de acesso.
+5.  **Processamento local:** evitar servidores e coleta de dados
+    desnecessários.
+6.  **Arquitetura evolutiva:** preparar a base para Windows sem
+    complicar o MVP.
+7.  **Custo controlado:** adiar domínio, pagamentos e infraestrutura
+    comercial até que sejam necessários.
+
+------------------------------------------------------------------------
+
+**Resumo:** o MOVA será desenvolvido primeiro como uma ferramenta
+Android nativa para uso pessoal, com interface dark minimalista,
+reconhecimento automático de links, opções contextuais e gerenciamento
+local de downloads autorizados. O Windows, o site público e a licença
+vitalícia para terceiros são evoluções planejadas, não pré-requisitos
+para a primeira versão.
+
+------------------------------------------------------------------------
+
+# Atualização 1 --- Identidade visual e mockups
+
+**Data:** 10 de novembro de 2026\
+**Status:** Direção visual definida; detalhes sujeitos a refinamento.
+
+## 16. Logo e ícone do MOVA
+
+A direção escolhida é **abstrata e minimalista**. O mesmo símbolo será
+utilizado como ícone do Android, ícone do Windows, marca no site e
+elemento de identificação nas telas.
+
+O conceito visual combina movimento, fluxo e conteúdo digital por meio
+de uma forma geométrica integrada. Deve ser reconhecível sem o nome
+MOVA, funcionar em tamanhos pequenos e também ter versões
+monocromáticas.
+
+### Direção de cores
+
+-   Fundo principal: grafite muito escuro, próximo de `#0B0F1A`.
+-   Azul principal: próximo de `#2563EB`.
+-   Ciano de apoio: próximo de `#06B6D4`.
+-   Texto principal: branco suave.
+-   Texto secundário: cinza frio.
+
+Esses códigos são referências iniciais, não uma paleta técnica final. O
+Design System deverá centralizá-los e garantir contraste e legibilidade.
+
+### Regras para o logo
+
+-   Evitar detalhes finos demais.
+-   Não depender de sombras ou brilhos para reconhecer o símbolo.
+-   Manter boa leitura em ícone adaptativo Android.
+-   Criar versões colorida, monocromática clara e monocromática escura.
+-   Não inserir o nome dentro do ícone.
+-   Evitar uma seta tradicional de download como símbolo principal.
+
+O nome MOVA permanece provisório até a verificação de disponibilidade de
+marca e domínio.
+
+## 17. Mockups e estrutura das telas
+
+A proposta visual inicial contempla cinco telas principais no fluxo de
+download e uma versão desktop conceitual.
+
+### 17.1 Tela inicial --- Baixar
+
+**Objetivo:** permitir começar rapidamente, sem escolher a plataforma.
+
+Elementos: - Logo e nome MOVA no cabeçalho. - Acesso discreto às
+configurações. - Campo central para colar um link. - Ação principal
+**Download** ou **Analisar link**, conforme o estado. - Atalhos para
+Downloads, Histórico, Configurações e Licença, se o módulo de licença
+vier a ser implementado. - Lista curta de downloads recentes, quando
+existirem.
+
+A plataforma é reconhecida automaticamente. Não mostrar uma grade de
+redes sociais para o usuário selecionar. O compartilhamento Android
+deverá preencher o campo, sem iniciar download automaticamente.
+
+### 17.2 Tela de análise
+
+**Objetivo:** informar que o aplicativo está verificando o link.
+
+Elementos: - Indicador visual de análise. - Mensagem curta, como
+"Analisando o link...". - Texto auxiliar informando que a origem e os
+conteúdos disponíveis estão sendo identificados.
+
+Estados: analisando, origem reconhecida, origem não reconhecida,
+conteúdo indisponível, acesso não permitido e erro temporário.
+
+Reconhecer uma plataforma não significa que o download será possível.
+
+### 17.3 Tela de opções de download
+
+**Objetivo:** apresentar ações disponíveis somente depois da análise e
+da intenção de baixar.
+
+Elementos possíveis: - Miniatura e título, quando disponíveis. - Tipo de
+conteúdo e duração, quando disponíveis. - Vídeo com seletor de qualidade
+até 1080p, se disponível. - Somente áudio, com formatos compatíveis. -
+Playlist/Coleção, quando suportada. - Selecionar itens, quando houver
+vários conteúdos identificados. - Botão principal para confirmar o
+download.
+
+As opções devem ser contextuais. Não mostrar opções indisponíveis ou
+incompatíveis com a origem.
+
+### 17.4 Tela de seleção de itens
+
+**Objetivo:** permitir escolher exatamente o que será baixado de uma
+publicação ou coleção com vários itens.
+
+Elementos: - Lista de itens identificados. - Miniatura por item, quando
+disponível. - Nome, duração e tamanho estimado, quando disponíveis. -
+Seleção individual. - Ação "Selecionar todos". - Botão "Baixar
+selecionados", com a quantidade selecionada.
+
+O aplicativo deve distinguir vídeo individual, publicação com vários
+vídeos, playlist/coleção e sequência de conteúdo temporário. Não deve
+presumir que uma sequência de Stories possa ser listada ou baixada por
+meio de um link comum.
+
+### 17.5 Tela de downloads
+
+**Objetivo:** acompanhar tarefas e acessar arquivos concluídos.
+
+Elementos: - Seção Em andamento. - Progresso individual. - Nome e
+miniatura do arquivo, quando disponíveis. - Ações de pausar, retomar
+quando suportado e cancelar. - Seção Concluídos. - Acesso ao arquivo
+salvo.
+
+Estados: aguardando, em andamento, pausado, concluído ou com erro.
+
+### 17.6 Biblioteca
+
+A biblioteca organizará vídeos, áudios e outros arquivos compatíveis,
+com histórico e filtros quando úteis.
+
+Evitar duplicar funções: - Downloads: tarefas e progresso. - Biblioteca:
+arquivos já salvos. - Histórico: registro das atividades anteriores.
+
+### 17.7 Configurações
+
+Configurações essenciais: - Qualidade preferida. - Preferência de rede
+Wi-Fi. - Local de armazenamento. - Downloads simultâneos. - Preferências
+de áudio. - Limpeza de temporários. - Informações e versão do
+aplicativo.
+
+Configurações avançadas devem ficar agrupadas e não ocupar a tela
+inicial.
+
+## 18. Navegação recomendada
+
+A navegação principal terá quatro destinos: 1. **Baixar** --- tela
+inicial e entrada de links. 2. **Fila** --- downloads em andamento e
+pendentes. 3. **Biblioteca** --- arquivos concluídos. 4. **Ajustes** ---
+configurações e informações.
+
+A análise, as opções e a seleção de itens são etapas do fluxo e não
+precisam ocupar espaço permanente na barra inferior.
+
+## 19. Regras de experiência visual
+
+-   Uma ação principal por tela.
+-   Pouco texto e linguagem cotidiana.
+-   Não solicitar seleção manual da plataforma.
+-   Não apresentar opções antes de saber o que está disponível.
+-   Usar ícones acompanhados de rótulos quando a ação não for óbvia.
+-   Manter estados vazios úteis e explicativos.
+-   Dar retorno claro para carregamento, sucesso e erro.
+-   Respeitar tamanhos de fonte e contraste do Android.
+-   Não depender apenas de cor para comunicar estados.
+-   Manter consistência entre Android, Windows e site, adaptando cada
+    interface ao seu contexto.
+
+## 20. Referência visual
+
+Foi criada uma prancha conceitual com símbolo e nome MOVA, direção de
+cores, tela inicial, análise, opções de download, seleção de itens,
+progresso e um esboço Windows.
+
+A prancha é uma referência de direção visual, não uma especificação
+pixel a pixel nem uma interface implementada. Textos pequenos e detalhes
+gerados em imagens conceituais devem ser revisados durante o desenho
+final.
+
+## 21. Próximo passo de design
+
+Antes da implementação, refinar cada tela individualmente e validar
+hierarquia visual, dimensões, espaçamentos, estados vazios e de erro,
+comportamento em diferentes tamanhos de Android, acessibilidade e
+contraste.
+
+A identidade e os mockups são aprovados como **direção visual inicial**,
+mantendo liberdade para ajustes de usabilidade.

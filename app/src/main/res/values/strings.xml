@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MOVA</string>
+    <string name="share_target_label">Baixar com MOVA</string>
+
+    <!-- Navegação -->
+    <string name="nav_download">Baixar</string>
+    <string name="nav_queue">Fila</string>
+    <string name="nav_library">Biblioteca</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Ações -->
+    <string name="action_back">Voltar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_clear">Limpar</string>
+    <string name="action_continue">Continuar</string>
+    <string name="action_delete">Excluir</string>
+    <string name="action_download">Download</string>
+    <string name="action_keep">Manter</string>
+    <string name="action_more">Mais opções</string>
+    <string name="action_open">Abrir</string>
+    <string name="action_pause">Pausar</string>
+    <string name="action_resume">Retomar</string>
+    <string name="action_retry">Tentar novamente</string>
+    <string name="action_share">Compartilhar</string>
+
+    <!-- Tela inicial -->
+    <string name="home_title">Baixe e organize com simplicidade</string>
+    <string name="home_subtitle">Cole ou compartilhe um link. O MOVA reconhece a origem automaticamente.</string>
+    <string name="home_field_placeholder">Cole o link aqui…</string>
+    <string name="home_paste">Colar</string>
+    <string name="home_clear">Limpar campo</string>
+    <string name="home_analyze">Analisar link</string>
+    <string name="home_preview_platform">%1$s · %2$s</string>
+    <string name="home_preview_site">Site: %1$s</string>
+    <string name="home_preview_no_link">Nenhum link encontrado no texto</string>
+    <plurals name="home_preview_multiple">
+        <item quantity="one">%d link encontrado</item>
+        <item quantity="other">%d links encontrados</item>
+    </plurals>
+    <string name="home_recent">Recentes</string>
+    <string name="home_recent_empty">Seus downloads aparecerão aqui.</string>
+    <string name="home_see_library">Ver biblioteca</string>
+
+    <!-- Análise -->
+    <string name="analysis_title">Análise do link</string>
+    <string name="analysis_loading_title">Analisando o link…</string>
+    <string name="analysis_loading_message">Identificando a origem e os conteúdos disponíveis.</string>
+    <string name="analysis_found">Conteúdo encontrado</string>
+    <string name="analysis_origin">Origem: %1$s</string>
+    <string name="analysis_no_resume">Este servidor não permite retomar downloads. Se a conexão cair, o arquivo recomeça do início.</string>
+    <string name="analysis_recognized">Origem reconhecida</string>
+    <string name="analysis_no_download_message">O MOVA reconheceu este link, mas só baixa conteúdos por meios oficiais ou autorizados. A integração com %1$s ainda está em análise, então o download não está disponível.</string>
+    <string name="analysis_note_story">Stories são conteúdos temporários: podem expirar, ser privados ou não estar acessíveis por um link comum.</string>
+    <string name="analysis_note_short_link">É um link encurtado: o conteúdo exato só é conhecido ao abri-lo na plataforma.</string>
+    <string name="analysis_note_multiple">Este link pode reunir vários itens. A seleção de itens só aparece quando a origem permite listá-los.</string>
+    <string name="analysis_open_in">Abrir no %1$s</string>
+    <string name="analysis_open_browser">Abrir no navegador</string>
+    <string name="analysis_other_link">Analisar outro link</string>
+    <string name="analysis_page_title">Origem não reconhecida</string>
+    <string name="analysis_page_message">Este link leva a uma página de %1$s, não a um arquivo de mídia. Você pode abri-la no navegador.</string>
+    <string name="analysis_streaming_title">Formato de transmissão</string>
+    <string name="analysis_streaming_message">Este link é uma transmissão em partes (HLS/DASH), um formato que o MOVA ainda não baixa.</string>
+    <string name="analysis_unavailable_title">Conteúdo indisponível</string>
+    <string name="analysis_unavailable_message">O conteúdo não foi encontrado ou foi removido (código %1$d).</string>
+    <string name="analysis_denied_title">Acesso não permitido</string>
+    <string name="analysis_denied_message">A origem recusou o acesso (código %1$d). O MOVA não contorna restrições de acesso.</string>
+    <string name="analysis_error_title">Não foi possível analisar agora</string>
+    <string name="analysis_error_message">Verifique sua conexão e tente novamente em instantes.</string>
+    <string name="analysis_no_link_title">Nenhum link encontrado</string>
+    <string name="analysis_no_link_message">Confira se o texto colado contém um endereço que começa com http:// ou https://.</string>
+    <plurals name="analysis_links_analyzed">
+        <item quantity="one">%d link analisado</item>
+        <item quantity="other">%d links analisados</item>
+    </plurals>
+    <plurals name="analysis_downloadable_count">
+        <item quantity="one">%d disponível para download</item>
+        <item quantity="other">%d disponíveis para download</item>
+    </plurals>
+    <string name="result_ready">Disponível</string>
+    <string name="result_no_download">Sem download</string>
+    <string name="result_page">Página</string>
+    <string name="result_streaming">Transmissão</string>
+    <string name="result_unavailable">Indisponível</string>
+    <string name="result_denied">Sem acesso</string>
+    <string name="result_error">Erro</string>
+
+    <!-- Opções de download -->
+    <string name="options_title">O que deseja baixar?</string>
+    <string name="options_original_quality">Qualidade original</string>
+    <string name="options_all_items">Todos os itens</string>
+    <string name="options_select_items">Selecionar itens</string>
+    <string name="options_select_items_hint">Escolha um, alguns ou todos</string>
+    <string name="options_download_now">Baixar agora</string>
+    <plurals name="files_count">
+        <item quantity="one">%d arquivo</item>
+        <item quantity="other">%d arquivos</item>
+    </plurals>
+
+    <!-- Seleção de itens -->
+    <string name="selection_title">Selecionar itens</string>
+    <string name="selection_found">Conteúdos encontrados (%1$d)</string>
+    <string name="selection_select_all">Selecionar todos</string>
+    <plurals name="selection_download">
+        <item quantity="one">Baixar selecionado (%d)</item>
+        <item quantity="other">Baixar selecionados (%d)</item>
+    </plurals>
+    <plurals name="enqueued_message">
+        <item quantity="one">%d download adicionado à fila</item>
+        <item quantity="other">%d downloads adicionados à fila</item>
+    </plurals>
+
+    <!-- Fila -->
+    <string name="queue_title">Fila</string>
+    <string name="queue_empty_title">Nenhum download na fila</string>
+    <string name="queue_empty_message">Cole ou compartilhe um link para começar. O progresso aparece aqui.</string>
+    <string name="queue_empty_action">Colar um link</string>
+    <string name="queue_nothing_active">Nenhum download em andamento.</string>
+    <string name="queue_section_running">Em andamento</string>
+    <string name="queue_section_queued">Na fila</string>
+    <string name="queue_section_paused">Pausados</string>
+    <string name="queue_section_failed">Com erro</string>
+    <string name="queue_section_completed">Concluídos recentemente</string>
+    <string name="queue_progress_of">%1$s de %2$s</string>
+    <string name="queue_remaining">faltam %1$s</string>
+    <string name="queue_status_waiting">Aguardando conexão</string>
+    <string name="queue_waiting_wifi">Aguardando uma rede Wi-Fi para começar (opção \"Somente Wi-Fi\" ativada).</string>
+    <string name="queue_waiting_network">Aguardando conexão com a internet para começar.</string>
+    <string name="queue_no_resume_note">Este servidor não permite retomar: ao continuar, o download recomeça do início.</string>
+    <string name="queue_cancel_title">Cancelar download?</string>
+    <string name="queue_cancel_message">O progresso de \"%1$s\" será descartado.</string>
+    <string name="queue_cancel_confirm">Cancelar download</string>
+
+    <!-- Estados -->
+    <string name="status_queued">Na fila</string>
+    <string name="status_running">Baixando</string>
+    <string name="status_paused">Pausado</string>
+    <string name="status_completed">Concluído</string>
+    <string name="status_failed">Falhou</string>
+    <string name="status_canceled">Cancelado</string>
+
+    <!-- Erros -->
+    <string name="error_network">Conexão interrompida</string>
+    <string name="error_server">O servidor não respondeu corretamente</string>
+    <string name="error_not_found">Arquivo não encontrado na origem</string>
+    <string name="error_access_denied">Acesso recusado pela origem</string>
+    <string name="error_storage_full">Espaço insuficiente no aparelho</string>
+    <string name="error_storage">Não foi possível salvar o arquivo</string>
+    <string name="error_unknown">Erro inesperado</string>
+
+    <!-- Tipos de conteúdo -->
+    <string name="kind_video">Vídeo</string>
+    <string name="kind_short_video">Vídeo curto</string>
+    <string name="kind_post">Publicação</string>
+    <string name="kind_story">Story</string>
+    <string name="kind_story_highlight">Destaque de Stories</string>
+    <string name="kind_playlist">Playlist</string>
+    <string name="kind_collection">Coleção</string>
+    <string name="kind_profile">Perfil ou canal</string>
+    <string name="kind_live">Transmissão ao vivo</string>
+    <string name="kind_short_link">Link curto</string>
+    <string name="kind_file">Arquivo</string>
+    <string name="kind_page">Página</string>
+    <string name="kind_unknown">Link</string>
+
+    <string name="media_video">Vídeo</string>
+    <string name="media_audio">Áudio</string>
+    <string name="media_image">Imagem</string>
+    <string name="media_document">Documento</string>
+    <string name="media_other">Arquivo</string>
+
+    <!-- Biblioteca -->
+    <string name="library_title">Biblioteca</string>
+    <string name="library_tab_files">Arquivos</string>
+    <string name="library_tab_history">Histórico</string>
+    <string name="filter_all">Todos</string>
+    <string name="filter_video">Vídeos</string>
+    <string name="filter_audio">Áudios</string>
+    <string name="filter_image">Imagens</string>
+    <string name="filter_other">Outros</string>
+    <string name="library_empty_title">Biblioteca vazia</string>
+    <string name="library_empty_message">Os arquivos baixados ficam aqui e na pasta Download/MOVA do aparelho.</string>
+    <string name="library_filter_empty">Nenhum arquivo deste tipo.</string>
+    <string name="library_history_empty_title">Sem histórico</string>
+    <string name="library_history_empty_message">Downloads concluídos, cancelados e com erro aparecem aqui.</string>
+    <string name="library_delete_title">Excluir arquivo?</string>
+    <string name="library_delete_message">\"%1$s\" será apagado do aparelho. O registro continua no histórico.</string>
+    <string name="library_deleted">Arquivo excluído</string>
+    <string name="library_delete_failed">Não foi possível excluir. Tente pelo gerenciador de arquivos.</string>
+    <string name="library_file_missing">O arquivo não existe mais no aparelho</string>
+    <string name="library_no_app">Nenhum app instalado abre este tipo de arquivo</string>
+    <string name="library_clear_history">Limpar histórico</string>
+    <string name="library_clear_history_message">Remove os registros cancelados, com erro ou de arquivos excluídos. Os arquivos da biblioteca são mantidos.</string>
+    <string name="library_history_cleared">Histórico limpo</string>
+    <string name="history_file_removed">Arquivo excluído</string>
+    <string name="history_remove">Remover do histórico</string>
+
+    <!-- Ajustes -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_section_downloads">Downloads</string>
+    <string name="settings_wifi_only">Somente Wi-Fi</string>
+    <string name="settings_wifi_only_hint">Baixa apenas em redes não tarifadas, para economizar dados móveis.</string>
+    <string name="settings_concurrent">Downloads simultâneos</string>
+    <string name="settings_concurrent_hint">Quantos arquivos baixar ao mesmo tempo.</string>
+    <string name="settings_section_storage">Armazenamento</string>
+    <string name="settings_folder">Local de salvamento</string>
+    <string name="settings_folder_custom">Pasta escolhida</string>
+    <string name="settings_folder_choose">Escolher pasta</string>
+    <string name="settings_folder_default">Usar padrão</string>
+    <string name="settings_temp">Arquivos temporários</string>
+    <string name="settings_temp_hint">Partes de downloads incompletos: %1$s</string>
+    <string name="settings_temp_cleaned">%1$s liberados</string>
+    <string name="settings_section_notifications">Notificações</string>
+    <string name="settings_notifications">Progresso e conclusão</string>
+    <string name="settings_notifications_on">Ativadas</string>
+    <string name="settings_notifications_off">Desativadas — você não verá o progresso fora do app</string>
+    <string name="settings_notifications_enable">Ativar</string>
+    <string name="settings_section_platforms">Plataformas</string>
+    <string name="settings_platforms_intro">O MOVA reconhece os links destas plataformas. O download de cada uma só será liberado depois de validado por meios oficiais ou autorizados.</string>
+    <string name="platform_available">Download disponível</string>
+    <string name="platform_recognition_only">Reconhece links</string>
+    <string name="platform_direct_links">Links diretos de arquivos</string>
+    <string name="settings_section_about">Sobre</string>
+    <string name="settings_version">Versão %1$s (%2$d)</string>
+    <string name="settings_about_text">Uso pessoal. Sem anúncios, sem cadastro e sem servidor: tudo é processado no próprio aparelho. O MOVA não contorna DRM, privacidade ou restrições de acesso.</string>
+
+    <!-- Notificações -->
+    <string name="notif_channel_progress">Downloads em andamento</string>
+    <string name="notif_channel_finished">Downloads concluídos</string>
+    <string name="notif_preparing">Preparando downloads…</string>
+    <string name="notif_downloading_one">Baixando %1$s</string>
+    <plurals name="notif_downloading_many">
+        <item quantity="one">Baixando %d arquivo</item>
+        <item quantity="other">Baixando %d arquivos</item>
+    </plurals>
+    <string name="notif_progress_detail">%1$s de %2$s</string>
+    <string name="notif_completed_title">Download concluído</string>
+    <string name="notif_failed_title">Falha no download</string>
+</resources>

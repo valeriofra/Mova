@@ -1,0 +1,20 @@
+# Gradle / build
+.gradle/
+build/
+.kotlin/
+/local.properties
+/captures/
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Assinatura: a chave NUNCA vai para o repositório
+*.jks
+*.keystore
+keystore.properties
+signing/
+
+# Logs
+*.log

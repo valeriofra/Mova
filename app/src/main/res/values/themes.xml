@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tema base (escuro). A interface é desenhada em Compose. -->
+    <style name="Theme.Mova" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/mova_background</item>
+        <item name="android:colorBackground">@color/mova_background</item>
+    </style>
+
+    <!-- Tela de abertura: fundo grafite com o símbolo do MOVA. -->
+    <style name="Theme.Mova.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/mova_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Mova</item>
+    </style>
+</resources>

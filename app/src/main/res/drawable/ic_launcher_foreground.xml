@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gerado por tools/gen_icon.py: símbolo MOVA. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:pathData="M36.67,30.00L53.51,38.79L46.72,72.76L36.67,78.00Z" android:strokeWidth="5.0" android:strokeLineJoin="round">
+        <aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="36.67" android:startY="30.00" android:endX="46.72" android:endY="78.00"><item android:offset="0" android:color="#FF67E8F9"/><item android:offset="1" android:color="#FF06B6D4"/></gradient></aapt:attr>
+        <aapt:attr name="android:strokeColor"><gradient android:type="linear" android:startX="36.67" android:startY="30.00" android:endX="46.72" android:endY="78.00"><item android:offset="0" android:color="#FF67E8F9"/><item android:offset="1" android:color="#FF06B6D4"/></gradient></aapt:attr>
+    </path>
+    <path android:pathData="M62.56,43.51L82.67,54.00L57.88,66.93Z" android:strokeWidth="5.0" android:strokeLineJoin="round">
+        <aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="62.56" android:startY="43.51" android:endX="82.67" android:endY="78.00"><item android:offset="0" android:color="#FF3B82F6"/><item android:offset="1" android:color="#FF1D4ED8"/></gradient></aapt:attr>
+        <aapt:attr name="android:strokeColor"><gradient android:type="linear" android:startX="62.56" android:startY="43.51" android:endX="82.67" android:endY="78.00"><item android:offset="0" android:color="#FF3B82F6"/><item android:offset="1" android:color="#FF1D4ED8"/></gradient></aapt:attr>
+    </path>
+</vector>

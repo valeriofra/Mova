@@ -1,0 +1,126 @@
+name: Android
+
+# Compila, testa e gera o APK assinado SEMPRE com a mesma chave, para que cada
+# nova versão instale por cima da anterior.
+#
+# Segredos necessários (Settings → Secrets and variables → Actions):
+#   MOVA_KEYSTORE_BASE64   conteúdo do mova-release.jks em base64
+#   MOVA_KEYSTORE_PASSWORD senha do keystore
+#   MOVA_KEY_ALIAS         alias da chave (mova)
+#   MOVA_KEY_PASSWORD      senha da chave
+# Sem eles, o workflow apenas compila e testa (nenhum APK é publicado).
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Impressão digital (SHA-256) do certificado oficial do MOVA. Se um APK sair
+  # assinado com outra chave, o workflow falha — assim nunca é publicada uma
+  # versão que não instala por cima.
+  MOVA_CERT_SHA256: 663cc93bd3c8aa45e4a08ba2b73517e27983e6372e0a85dbdc5f0713b0739e84
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # versionCode sempre crescente: cada execução gera um número maior.
+      MOVA_VERSION_CODE: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Testes
+        run: ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug --stacktrace
+
+      - name: Capturas de tela das telas
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: capturas-de-tela
+          path: app/build/outputs/roborazzi/*.png
+          if-no-files-found: ignore
+
+      - name: Preparar chave de assinatura
+        id: signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.MOVA_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Segredos de assinatura não configurados: o APK de release não será gerado."
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/mova-release.jks"
+          echo "MOVA_KEYSTORE_FILE=$RUNNER_TEMP/mova-release.jks" >> "$GITHUB_ENV"
+          echo "available=true" >> "$GITHUB_OUTPUT"
+
+      - name: Compilar (sem assinatura)
+        if: steps.signing.outputs.available != 'true'
+        run: ./gradlew :app:assembleDebug
+
+      - name: APK de release assinado
+        if: steps.signing.outputs.available == 'true'
+        env:
+          MOVA_KEYSTORE_PASSWORD: ${{ secrets.MOVA_KEYSTORE_PASSWORD }}
+          MOVA_KEY_ALIAS: ${{ secrets.MOVA_KEY_ALIAS }}
+          MOVA_KEY_PASSWORD: ${{ secrets.MOVA_KEY_PASSWORD }}
+        run: ./gradlew :app:assembleRelease
+
+      - name: Conferir assinatura fixa
+        if: steps.signing.outputs.available == 'true'
+        run: |
+          APK=app/build/outputs/apk/release/app-release.apk
+          BUILD_TOOLS=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)
+          "$ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner" verify --print-certs "$APK" | tee certs.txt
+          if ! grep -qi "SHA-256 digest: $MOVA_CERT_SHA256" certs.txt; then
+            echo "::error::O APK não foi assinado com a chave oficial do MOVA."
+            exit 1
+          fi
+          VERSION_NAME=$(sed -n 's/^val movaVersionName = "\(.*\)"/\1/p' app/build.gradle.kts)
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          cp "$APK" "MOVA-$VERSION_NAME-build$MOVA_VERSION_CODE.apk"
+
+      - name: Guardar APK
+        if: steps.signing.outputs.available == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: MOVA-${{ env.VERSION_NAME }}-build${{ github.run_number }}
+          path: MOVA-*.apk
+
+      - name: Publicar versão para instalar no celular
+        if: >-
+          steps.signing.outputs.available == 'true' && github.event_name != 'pull_request' &&
+          (github.ref_name == github.event.repository.default_branch ||
+           startsWith(github.ref, 'refs/tags/v') ||
+           github.event_name == 'workflow_dispatch')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="build-$MOVA_VERSION_CODE"
+          PRERELEASE=""
+          if [ "${{ github.ref_name }}" != "${{ github.event.repository.default_branch }}" ] && [[ "${{ github.ref }}" != refs/tags/v* ]]; then
+            PRERELEASE="--prerelease"
+          fi
+          gh release create "$TAG" MOVA-*.apk \
+            --target "$GITHUB_SHA" \
+            --title "MOVA $VERSION_NAME (build $MOVA_VERSION_CODE)" \
+            --notes "APK assinado com a chave fixa do MOVA: instala por cima da versão anterior. Branch: ${{ github.ref_name }} · commit ${GITHUB_SHA::7}." \
+            $PRERELEASE

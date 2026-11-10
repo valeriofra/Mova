@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gerado por tools/gen_icon.py: símbolo MOVA. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="56.00" android:viewportHeight="56.00">
+    <path android:pathData="M5.00,4.00L21.84,12.79L15.05,46.76L5.00,52.00Z" android:fillColor="#FFFFFFFF" android:strokeColor="#FFFFFFFF" android:strokeWidth="5.0" android:strokeLineJoin="round" />
+    <path android:pathData="M30.90,17.51L51.00,28.00L26.21,40.93Z" android:fillColor="#FFFFFFFF" android:strokeColor="#FFFFFFFF" android:strokeWidth="5.0" android:strokeLineJoin="round" />
+</vector>
