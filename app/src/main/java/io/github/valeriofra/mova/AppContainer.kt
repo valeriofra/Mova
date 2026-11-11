@@ -3,6 +3,7 @@ package io.github.valeriofra.mova
 import android.content.Context
 import io.github.valeriofra.mova.core.analysis.LinkAnalyzer
 import io.github.valeriofra.mova.data.DownloadRepository
+import io.github.valeriofra.mova.data.SavedFiles
 import io.github.valeriofra.mova.data.db.MovaDatabase
 import io.github.valeriofra.mova.data.settings.SettingsRepository
 import io.github.valeriofra.mova.download.DownloadNotifier
@@ -14,6 +15,7 @@ import io.github.valeriofra.mova.download.NetworkMonitor
 import io.github.valeriofra.mova.download.OkHttpProbe
 import io.github.valeriofra.mova.download.PartialFiles
 import io.github.valeriofra.mova.download.PlatformExtractor
+import io.github.valeriofra.mova.download.PublisherSavedFiles
 import io.github.valeriofra.mova.download.WebVideoFinder
 import io.github.valeriofra.mova.download.YtDlpEngine
 import io.github.valeriofra.mova.ui.components.ThumbnailLoader
@@ -38,6 +40,7 @@ class AppContainer(context: Context) {
     val partialFiles = PartialFiles(appContext)
     val notifier = DownloadNotifier(appContext)
     val publisher = FilePublisher(appContext)
+    val savedFiles: SavedFiles = PublisherSavedFiles(publisher)
     val thumbnails by lazy { ThumbnailLoader(appContext) { httpClient } }
 
     val httpClient: OkHttpClient by lazy {

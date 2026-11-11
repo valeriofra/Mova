@@ -112,6 +112,23 @@ interface DownloadDao {
     @Query("DELETE FROM downloads WHERE id = :id")
     suspend fun delete(id: Long)
 
+    @Query("DELETE FROM downloads WHERE id IN (:ids)")
+    suspend fun deleteAll(ids: List<Long>): Int
+
+    /** Concluídos com arquivo salvo, terminados antes de [cutoff] (exclusão automática). */
+    @Query(
+        "SELECT * FROM downloads WHERE status = 'COMPLETED' AND fileMissing = 0 " +
+            "AND COALESCE(completedAt, updatedAt) < :cutoff",
+    )
+    suspend fun completedBefore(cutoff: Long): List<DownloadEntity>
+
+    /** Registros do histórico sem arquivo (erro, cancelado ou apagado), anteriores a [cutoff]. */
+    @Query(
+        "SELECT id FROM downloads WHERE (status IN ('FAILED','CANCELED') OR (status = 'COMPLETED' AND fileMissing = 1)) " +
+            "AND COALESCE(completedAt, updatedAt) < :cutoff",
+    )
+    suspend fun historyIdsBefore(cutoff: Long): List<Long>
+
     /** Limpa registros encerrados sem arquivo. Arquivos da biblioteca são preservados. */
     @Query("DELETE FROM downloads WHERE status IN ('FAILED','CANCELED') OR (status = 'COMPLETED' AND fileMissing = 1)")
     suspend fun clearHistory(): Int

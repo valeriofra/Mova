@@ -121,7 +121,7 @@ S = {
 "settings_section_appearance": "Apariencia",
 "settings_theme": "Tema", "settings_theme_hint": "El oscuro es el aspecto predeterminado de MOVA.",
 "settings_theme_dark": "Oscuro", "settings_theme_light": "Claro", "settings_theme_system": "Sistema",
-"settings_language": "Idioma", "settings_language_system": "Usar el del sistema", "settings_language_change": "Cambiar",
+"settings_language": "Idioma", "settings_language_system": "Automático", "settings_language_change": "Cambiar",
 "settings_language_unsupported": "En Android 12 o anterior, MOVA usa el idioma del sistema. Para cambiarlo, cambia el idioma del dispositivo.",
 "settings_section_downloads": "Descargas",
 "settings_wifi_only": "Solo Wi-Fi",
@@ -167,6 +167,14 @@ S = {
 "notif_progress_detail": "%1$s de %2$s",
 "notif_completed_title": "Descarga completada",
 "notif_failed_title": "Error en la descarga",
+"settings_language_auto_current": "Automático · %1$s",
+"settings_language_auto_hint": "Automático usa el idioma del dispositivo. Si no está disponible, usa el de tu país y, en último caso, el inglés.",
+"language_name": "Español",
+"settings_auto_delete": "Eliminación automática",
+"settings_auto_delete_off_hint": "Los archivos descargados se quedan en el dispositivo hasta que los borres.",
+"settings_auto_delete_confirm_title": "¿Activar la eliminación automática?",
+"settings_auto_delete_confirm": "Activar",
+"settings_auto_delete_enabled": "Eliminación automática activada",
 }
 P = {
 "home_preview_multiple": {"one": "%d enlace encontrado", "many": "%d enlaces encontrados", "other": "%d enlaces encontrados"},
@@ -176,4 +184,9 @@ P = {
 "selection_download": {"one": "Descargar seleccionado (%d)", "many": "Descargar seleccionados (%d)", "other": "Descargar seleccionados (%d)"},
 "enqueued_message": {"one": "%d descarga añadida a la cola", "many": "%d descargas añadidas a la cola", "other": "%d descargas añadidas a la cola"},
 "notif_downloading_many": {"one": "Descargando %d archivo", "many": "Descargando %d archivos", "other": "Descargando %d archivos"},
+"settings_auto_delete_days": {"one": "%d día", "many": "%d días", "other": "%d días"},
+"settings_auto_delete_on": {"one": "Borra del dispositivo los archivos descargados hace más de %d día y limpia el historial.", "many": "Borra del dispositivo los archivos descargados hace más de %d días y limpia el historial.", "other": "Borra del dispositivo los archivos descargados hace más de %d días y limpia el historial."},
+"settings_auto_delete_confirm_message": {"one": "Los archivos descargados hace más de %d día se borrarán del dispositivo y saldrán del historial de MOVA. No se puede deshacer. Las descargas en curso no se ven afectadas.", "many": "Los archivos descargados hace más de %d días se borrarán del dispositivo y saldrán del historial de MOVA. No se puede deshacer. Las descargas en curso no se ven afectadas.", "other": "Los archivos descargados hace más de %d días se borrarán del dispositivo y saldrán del historial de MOVA. No se puede deshacer. Las descargas en curso no se ven afectadas."},
+"settings_auto_delete_done": {"one": "Eliminación automática activada: %d archivo antiguo borrado", "many": "Eliminación automática activada: %d archivos antiguos borrados", "other": "Eliminación automática activada: %d archivos antiguos borrados"},
+"library_auto_delete_notice": {"one": "Eliminación automática activada: se borran los archivos de más de %d día.", "many": "Eliminación automática activada: se borran los archivos de más de %d días.", "other": "Eliminación automática activada: se borran los archivos de más de %d días."},
 }

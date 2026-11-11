@@ -121,7 +121,7 @@ S = {
 "settings_section_appearance": "Appearance",
 "settings_theme": "Theme", "settings_theme_hint": "Dark is MOVA's default look.",
 "settings_theme_dark": "Dark", "settings_theme_light": "Light", "settings_theme_system": "System",
-"settings_language": "Language", "settings_language_system": "System default", "settings_language_change": "Change",
+"settings_language": "Language", "settings_language_system": "Automatic", "settings_language_change": "Change",
 "settings_language_unsupported": "On Android 12 or earlier, MOVA uses the system language. To change it, change the device language.",
 "settings_section_downloads": "Downloads",
 "settings_wifi_only": "Wi-Fi only",
@@ -167,6 +167,14 @@ S = {
 "notif_progress_detail": "%1$s of %2$s",
 "notif_completed_title": "Download complete",
 "notif_failed_title": "Download failed",
+"settings_language_auto_current": "Automatic · %1$s",
+"settings_language_auto_hint": "Automatic uses the device language. If it isn't available, it uses your country's language and, as a last resort, English.",
+"language_name": "English",
+"settings_auto_delete": "Auto-delete",
+"settings_auto_delete_off_hint": "Downloaded files stay on the device until you delete them.",
+"settings_auto_delete_confirm_title": "Turn on auto-delete?",
+"settings_auto_delete_confirm": "Turn on",
+"settings_auto_delete_enabled": "Auto-delete turned on",
 }
 P = {
 "home_preview_multiple": {"one": "%d link found", "other": "%d links found"},
@@ -176,4 +184,9 @@ P = {
 "selection_download": {"one": "Download selected (%d)", "other": "Download selected (%d)"},
 "enqueued_message": {"one": "%d download added to the queue", "other": "%d downloads added to the queue"},
 "notif_downloading_many": {"one": "Downloading %d file", "other": "Downloading %d files"},
+"settings_auto_delete_days": {"one": "%d day", "other": "%d days"},
+"settings_auto_delete_on": {"one": "Deletes files downloaded more than %d day ago from the device and clears the history.", "other": "Deletes files downloaded more than %d days ago from the device and clears the history."},
+"settings_auto_delete_confirm_message": {"one": "Files downloaded more than %d day ago will be deleted from the device and removed from MOVA's history. This can't be undone. Downloads in progress aren't affected.", "other": "Files downloaded more than %d days ago will be deleted from the device and removed from MOVA's history. This can't be undone. Downloads in progress aren't affected."},
+"settings_auto_delete_done": {"one": "Auto-delete turned on: %d old file deleted", "other": "Auto-delete turned on: %d old files deleted"},
+"library_auto_delete_notice": {"one": "Auto-delete is on: files older than %d day are deleted.", "other": "Auto-delete is on: files older than %d days are deleted."},
 }

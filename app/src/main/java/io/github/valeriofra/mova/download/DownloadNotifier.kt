@@ -16,14 +16,18 @@ import io.github.valeriofra.mova.MainActivity
 import io.github.valeriofra.mova.R
 import io.github.valeriofra.mova.core.format.Formatters
 import io.github.valeriofra.mova.data.db.DownloadEntity
+import io.github.valeriofra.mova.ui.settings.CountryLanguage
 
 /** Notificações de progresso e de conclusão dos downloads. */
-class DownloadNotifier(private val context: Context) {
+class DownloadNotifier(private val base: Context) {
 
-    private val manager = NotificationManagerCompat.from(context)
+    /** Textos no idioma do app, incluindo o idioma pelo país (ver [CountryLanguage]). */
+    private val context: Context get() = CountryLanguage.localize(base)
+
+    private val manager = NotificationManagerCompat.from(base)
 
     fun createChannels() {
-        val system = context.getSystemService(NotificationManager::class.java)
+        val system = base.getSystemService(NotificationManager::class.java)
         system.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_PROGRESS,
@@ -62,7 +66,7 @@ class DownloadNotifier(private val context: Context) {
         val title = context.getString(
             if (success) R.string.notif_completed_title else R.string.notif_failed_title,
         )
-        val notification = NotificationCompat.Builder(context, CHANNEL_FINISHED)
+        val notification = NotificationCompat.Builder(base, CHANNEL_FINISHED)
             .setSmallIcon(R.drawable.ic_stat_mova)
             .setColor(ContextCompat.getColor(context, R.color.mova_blue))
             .setContentTitle(title)
@@ -75,7 +79,7 @@ class DownloadNotifier(private val context: Context) {
     }
 
     private fun progressNotification(running: List<DownloadEntity>) =
-        NotificationCompat.Builder(context, CHANNEL_PROGRESS)
+        NotificationCompat.Builder(base, CHANNEL_PROGRESS)
             .setSmallIcon(R.drawable.ic_stat_mova)
             .setColor(ContextCompat.getColor(context, R.color.mova_blue))
             .setOngoing(true)
@@ -123,11 +127,11 @@ class DownloadNotifier(private val context: Context) {
             .build()
 
     private fun openApp(destination: String): PendingIntent {
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(base, MainActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             .putExtra(MainActivity.EXTRA_DESTINATION, destination)
         return PendingIntent.getActivity(
-            context,
+            base,
             destination.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,

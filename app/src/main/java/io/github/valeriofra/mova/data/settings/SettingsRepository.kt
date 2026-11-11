@@ -15,6 +15,21 @@ import kotlinx.coroutines.flow.map
 /** Tema da interface. O escuro é a identidade principal do MOVA. */
 enum class ThemeMode { DARK, LIGHT, SYSTEM }
 
+/** Exclusão automática dos downloads concluídos, depois de [days] dias. */
+enum class AutoDelete(val days: Int) {
+    OFF(0),
+    DAYS_3(3),
+    DAYS_15(15),
+    DAYS_30(30),
+    ;
+
+    val enabled: Boolean get() = days > 0
+
+    companion object {
+        fun fromDays(days: Int?): AutoDelete = entries.firstOrNull { it.days == days } ?: OFF
+    }
+}
+
 data class MovaSettings(
     val wifiOnly: Boolean = false,
     val maxConcurrent: Int = DEFAULT_CONCURRENT,
@@ -23,6 +38,7 @@ data class MovaSettings(
     val storageTreeName: String? = null,
     val notificationsAsked: Boolean = false,
     val themeMode: ThemeMode = ThemeMode.DARK,
+    val autoDelete: AutoDelete = AutoDelete.OFF,
 ) {
     companion object {
         const val DEFAULT_CONCURRENT = 2
@@ -41,6 +57,7 @@ class SettingsRepository(private val context: Context) {
         val treeName = stringPreferencesKey("storage_tree_name")
         val notificationsAsked = booleanPreferencesKey("notifications_asked")
         val themeMode = stringPreferencesKey("theme_mode")
+        val autoDeleteDays = intPreferencesKey("auto_delete_days")
     }
 
     val settings: Flow<MovaSettings> = context.dataStore.data
@@ -69,6 +86,8 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setThemeMode(mode: ThemeMode) = context.dataStore.edit { it[Keys.themeMode] = mode.name }
 
+    suspend fun setAutoDelete(value: AutoDelete) = context.dataStore.edit { it[Keys.autoDeleteDays] = value.days }
+
     private fun Preferences.toSettings() = MovaSettings(
         wifiOnly = this[Keys.wifiOnly] ?: false,
         maxConcurrent = (this[Keys.maxConcurrent] ?: MovaSettings.DEFAULT_CONCURRENT)
@@ -78,5 +97,6 @@ class SettingsRepository(private val context: Context) {
         notificationsAsked = this[Keys.notificationsAsked] ?: false,
         themeMode = this[Keys.themeMode]?.let { name -> ThemeMode.entries.firstOrNull { it.name == name } }
             ?: ThemeMode.DARK,
+        autoDelete = AutoDelete.fromDays(this[Keys.autoDeleteDays]),
     )
 }

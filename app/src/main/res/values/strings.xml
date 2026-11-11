@@ -206,8 +206,11 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_language">Language</string>
-    <string name="settings_language_system">System default</string>
+    <string name="settings_language_system">Automatic</string>
     <string name="settings_language_change">Change</string>
+    <string name="settings_language_auto_current">Automatic · %1$s</string>
+    <string name="settings_language_auto_hint">Automatic uses the device language. If it isn\'t available, it uses your country\'s language and, as a last resort, English.</string>
+    <string name="language_name">English</string>
     <string name="settings_language_unsupported">On Android 12 or earlier, MOVA uses the system language. To change it, change the device language.</string>
     <string name="settings_section_downloads">Downloads</string>
     <string name="settings_wifi_only">Wi-Fi only</string>
@@ -232,6 +235,31 @@
     <string name="settings_temp">Temporary files</string>
     <string name="settings_temp_hint">Parts of unfinished downloads: %1$s</string>
     <string name="settings_temp_cleaned">%1$s freed</string>
+    <string name="settings_auto_delete">Auto-delete</string>
+    <string name="settings_auto_delete_off_hint">Downloaded files stay on the device until you delete them.</string>
+    <plurals name="settings_auto_delete_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="settings_auto_delete_on">
+        <item quantity="one">Deletes files downloaded more than %d day ago from the device and clears the history.</item>
+        <item quantity="other">Deletes files downloaded more than %d days ago from the device and clears the history.</item>
+    </plurals>
+    <string name="settings_auto_delete_confirm_title">Turn on auto-delete?</string>
+    <plurals name="settings_auto_delete_confirm_message">
+        <item quantity="one">Files downloaded more than %d day ago will be deleted from the device and removed from MOVA\'s history. This can\'t be undone. Downloads in progress aren\'t affected.</item>
+        <item quantity="other">Files downloaded more than %d days ago will be deleted from the device and removed from MOVA\'s history. This can\'t be undone. Downloads in progress aren\'t affected.</item>
+    </plurals>
+    <string name="settings_auto_delete_confirm">Turn on</string>
+    <string name="settings_auto_delete_enabled">Auto-delete turned on</string>
+    <plurals name="settings_auto_delete_done">
+        <item quantity="one">Auto-delete turned on: %d old file deleted</item>
+        <item quantity="other">Auto-delete turned on: %d old files deleted</item>
+    </plurals>
+    <plurals name="library_auto_delete_notice">
+        <item quantity="one">Auto-delete is on: files older than %d day are deleted.</item>
+        <item quantity="other">Auto-delete is on: files older than %d days are deleted.</item>
+    </plurals>
     <string name="settings_section_notifications">Notifications</string>
     <string name="settings_notifications">Progress and completion</string>
     <string name="settings_notifications_on">On</string>

@@ -23,27 +23,29 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.icons.Icons
-import io.github.valeriofra.mova.data.settings.ThemeMode
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.Language
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoDelete
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CleaningServices
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Wifi
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -59,9 +61,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -75,7 +79,9 @@ import io.github.valeriofra.mova.R
 import io.github.valeriofra.mova.core.format.Formatters
 import io.github.valeriofra.mova.core.provider.IntegrationStatus
 import io.github.valeriofra.mova.core.provider.ProviderRegistry
+import io.github.valeriofra.mova.data.settings.AutoDelete
 import io.github.valeriofra.mova.data.settings.MovaSettings
+import io.github.valeriofra.mova.data.settings.ThemeMode
 import io.github.valeriofra.mova.download.FilePublisher
 import io.github.valeriofra.mova.download.YtDlpEngine
 import io.github.valeriofra.mova.ui.components.AccentTextButton
@@ -93,12 +99,14 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
     val freed by viewModel.freedBytes.collectAsStateWithLifecycle()
     val engineState by viewModel.engineState.collectAsStateWithLifecycle()
     val engineUpdate by viewModel.engineUpdate.collectAsStateWithLifecycle()
+    val cleanup by viewModel.cleanup.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val resources = LocalResources.current
 
     var notificationsGranted by remember { mutableStateOf(context.notificationsGranted()) }
     var language by remember { mutableStateOf(AppLanguage.current(context)) }
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var confirmAutoDelete by remember { mutableStateOf<AutoDelete?>(null) }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         notificationsGranted = context.notificationsGranted()
         viewModel.refreshTemporarySize()
@@ -118,6 +126,17 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
         val bytes = freed ?: return@LaunchedEffect
         viewModel.freedMessageShown()
         snackbarHost.showSnackbar(resources.getString(R.string.settings_temp_cleaned, Formatters.bytes(bytes)))
+    }
+
+    LaunchedEffect(cleanup) {
+        val result = cleanup ?: return@LaunchedEffect
+        viewModel.cleanupShown()
+        val text = if (result.filesDeleted > 0) {
+            resources.getQuantityString(R.plurals.settings_auto_delete_done, result.filesDeleted, result.filesDeleted)
+        } else {
+            resources.getString(R.string.settings_auto_delete_enabled)
+        }
+        snackbarHost.showSnackbar(text)
     }
 
     val notificationLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -157,6 +176,12 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
             viewModel.useDefaultStorage()
         },
         onCleanTemporary = viewModel::cleanTemporaryFiles,
+        onAutoDelete = { option ->
+            val current = settings?.autoDelete ?: AutoDelete.OFF
+            // Pede confirmação quando a mudança passa a apagar mais arquivos.
+            val deletesMore = option.enabled && (!current.enabled || option.days < current.days)
+            if (deletesMore) confirmAutoDelete = option else viewModel.setAutoDelete(option)
+        },
         onEnableNotifications = {
             if (Build.VERSION.SDK_INT >= 33) {
                 notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -176,6 +201,21 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
             onDismiss = { showLanguageDialog = false },
         )
     }
+    confirmAutoDelete?.let { option ->
+        AlertDialog(
+            onDismissRequest = { confirmAutoDelete = null },
+            title = { Text(stringResource(R.string.settings_auto_delete_confirm_title)) },
+            text = { Text(pluralStringResource(R.plurals.settings_auto_delete_confirm_message, option.days, option.days)) },
+            confirmButton = {
+                AccentTextButton(stringResource(R.string.settings_auto_delete_confirm), onClick = {
+                    confirmAutoDelete = null
+                    viewModel.setAutoDelete(option)
+                })
+            },
+            dismissButton = { AccentTextButton(stringResource(R.string.action_cancel), onClick = { confirmAutoDelete = null }) },
+            containerColor = MovaColors.SurfaceHigh,
+        )
+    }
 }
 
 @Composable
@@ -189,9 +229,15 @@ private fun LanguageDialog(
         title = { Text(stringResource(R.string.settings_language)) },
         text = {
             if (!AppLanguage.supported) {
-                Text(stringResource(R.string.settings_language_unsupported))
+                Text(stringResource(R.string.settings_language_unsupported) + "\n\n" + stringResource(R.string.settings_language_auto_hint))
             } else {
                 Column(Modifier.selectableGroup()) {
+                    Text(
+                        stringResource(R.string.settings_language_auto_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MovaColors.TextSecondary,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
                     AppLanguage.entries.forEach { option ->
                         Row(
                             modifier = Modifier
@@ -237,6 +283,7 @@ fun SettingsContent(
     onChooseFolder: () -> Unit,
     onDefaultFolder: () -> Unit,
     onCleanTemporary: () -> Unit,
+    onAutoDelete: (AutoDelete) -> Unit,
     onEnableNotifications: () -> Unit,
 ) {
     Column(Modifier.fillMaxSize()) {
@@ -282,7 +329,8 @@ fun SettingsContent(
                         RowIcon(Icons.Rounded.Language)
                         TitleAndSubtitleWrap(
                             stringResource(R.string.settings_language),
-                            language.nativeName ?: stringResource(R.string.settings_language_system),
+                            language.nativeName
+                                ?: stringResource(R.string.settings_language_auto_current, stringResource(R.string.language_name)),
                             Modifier.weight(1f),
                         )
                         AccentTextButton(stringResource(R.string.settings_language_change), onChooseLanguage)
@@ -305,17 +353,8 @@ fun SettingsContent(
                             stringResource(R.string.settings_wifi_only_hint),
                             Modifier.weight(1f),
                         )
-                        Switch(
-                            checked = settings.wifiOnly,
-                            onCheckedChange = null,
-                            colors = SwitchDefaults.colors(
-                                checkedTrackColor = MovaColors.Blue,
-                                checkedThumbColor = MovaColors.TextPrimary,
-                                uncheckedTrackColor = MovaColors.SurfaceHighest,
-                                uncheckedThumbColor = MovaColors.TextSecondary,
-                                uncheckedBorderColor = MovaColors.OutlineStrong,
-                            ),
-                        )
+                        Spacer(Modifier.width(12.dp))
+                        Switch(checked = settings.wifiOnly, onCheckedChange = null, colors = switchColors())
                     }
                 }
             }
@@ -404,6 +443,63 @@ fun SettingsContent(
                             Modifier.weight(1f),
                         )
                         AccentTextButton(stringResource(R.string.action_clear), onCleanTemporary)
+                    }
+                }
+            }
+            item {
+                val policy = settings.autoDelete
+                MovaCard(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.toggleable(
+                                value = policy.enabled,
+                                // Ao ligar, começa pelo período mais longo (o que apaga menos).
+                                onValueChange = { on -> onAutoDelete(if (on) AutoDelete.DAYS_30 else AutoDelete.OFF) },
+                                role = Role.Switch,
+                            ),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RowIcon(Icons.Rounded.AutoDelete)
+                            TitleAndSubtitleWrap(
+                                stringResource(R.string.settings_auto_delete),
+                                if (policy.enabled) {
+                                    pluralStringResource(R.plurals.settings_auto_delete_on, policy.days, policy.days)
+                                } else {
+                                    stringResource(R.string.settings_auto_delete_off_hint)
+                                },
+                                Modifier.weight(1f),
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Switch(checked = policy.enabled, onCheckedChange = null, colors = switchColors())
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.padding(start = 36.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            AutoDelete.entries.filter { it.enabled }.forEach { option ->
+                                val selected = policy == option
+                                FilterChip(
+                                    selected = selected,
+                                    onClick = { onAutoDelete(option) },
+                                    label = {
+                                        Text(pluralStringResource(R.plurals.settings_auto_delete_days, option.days, option.days))
+                                    },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        containerColor = MovaColors.Surface,
+                                        labelColor = MovaColors.TextSecondary,
+                                        selectedContainerColor = MovaColors.Blue.copy(alpha = 0.22f),
+                                        selectedLabelColor = MovaColors.Accent,
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        enabled = true,
+                                        selected = selected,
+                                        borderColor = MovaColors.Outline,
+                                        selectedBorderColor = MovaColors.BlueBright,
+                                    ),
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -524,6 +620,15 @@ private fun segmentedColors() = SegmentedButtonDefaults.colors(
     inactiveContainerColor = MovaColors.Surface,
     inactiveContentColor = MovaColors.TextSecondary,
     inactiveBorderColor = MovaColors.OutlineStrong,
+)
+
+@Composable
+private fun switchColors() = SwitchDefaults.colors(
+    checkedTrackColor = MovaColors.Blue,
+    checkedThumbColor = Color.White,
+    uncheckedTrackColor = MovaColors.SurfaceHighest,
+    uncheckedThumbColor = MovaColors.TextSecondary,
+    uncheckedBorderColor = MovaColors.OutlineStrong,
 )
 
 @Composable

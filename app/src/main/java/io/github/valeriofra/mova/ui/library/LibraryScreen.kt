@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoDelete
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.DeleteOutline
@@ -57,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,6 +68,7 @@ import io.github.valeriofra.mova.data.db.DownloadEntity
 import io.github.valeriofra.mova.data.db.DownloadStatus
 import io.github.valeriofra.mova.ui.components.AccentTextButton
 import io.github.valeriofra.mova.ui.components.EmptyState
+import io.github.valeriofra.mova.ui.components.InfoBanner
 import io.github.valeriofra.mova.ui.components.MediaThumbnail
 import io.github.valeriofra.mova.ui.components.MovaCard
 import io.github.valeriofra.mova.ui.components.MovaTopBar
@@ -269,6 +272,16 @@ private fun FilesTab(
             )
         }
         LazyColumn(contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)) {
+            if (state.autoDeleteDays > 0) {
+                item(key = "auto-delete") {
+                    InfoBanner(
+                        icon = Icons.Rounded.AutoDelete,
+                        text = pluralStringResource(R.plurals.library_auto_delete_notice, state.autoDeleteDays, state.autoDeleteDays),
+                        color = MovaColors.Warning,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                }
+            }
             items(state.files, key = { it.id }) { item ->
                 FileRow(item, onOpen, onShare, onDelete)
             }

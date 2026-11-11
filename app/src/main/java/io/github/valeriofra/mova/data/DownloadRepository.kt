@@ -11,7 +11,10 @@ import io.github.valeriofra.mova.data.db.DownloadEntity
 import io.github.valeriofra.mova.data.db.DownloadStatus
 import io.github.valeriofra.mova.download.DownloadScheduler
 import io.github.valeriofra.mova.download.PartialFiles
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 /** Ponto único para criar e controlar tarefas de download. */
 class DownloadRepository(
@@ -115,4 +118,39 @@ class DownloadRepository(
     }
 
     fun temporaryFilesSize(): Long = partialFiles.totalSize()
+
+    /**
+     * Exclusão automática: apaga do aparelho os arquivos baixados há mais de [days]
+     * dias e tira do app os registros desse período (concluídos, com erro ou
+     * cancelados). Downloads na fila, em andamento ou pausados não são tocados.
+     */
+    suspend fun deleteOlderThan(days: Int, files: SavedFiles): CleanupResult {
+        if (days <= 0) return CleanupResult.NONE
+        val cutoff = clock() - TimeUnit.DAYS.toMillis(days.toLong())
+        return withContext(Dispatchers.IO) {
+            var deleted = 0
+            val remove = mutableListOf<Long>()
+            for (item in dao.completedBefore(cutoff)) {
+                val uri = item.outputUri
+                when {
+                    uri == null -> remove += item.id
+                    files.delete(uri) -> {
+                        deleted++
+                        remove += item.id
+                    }
+                    !files.exists(uri) -> remove += item.id
+                    // Sem permissão para apagar (ex.: pasta não autorizada): mantém e tenta de novo depois.
+                }
+            }
+            remove += dao.historyIdsBefore(cutoff)
+            remove.chunked(SQL_BATCH).forEach { dao.deleteAll(it) }
+            remove.forEach { partialFiles.delete(it) }
+            CleanupResult(deleted, remove.size)
+        }
+    }
+
+    private companion object {
+        /** Limite seguro de parâmetros por comando no SQLite. */
+        const val SQL_BATCH = 500
+    }
 }

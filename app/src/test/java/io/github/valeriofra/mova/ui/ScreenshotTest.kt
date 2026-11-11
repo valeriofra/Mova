@@ -240,7 +240,7 @@ class ScreenshotTest {
     fun settings() = shot("11_ajustes") {
         SettingsContent(
             MovaSettings(), AppLanguage.SYSTEM, {}, {}, YtDlpEngine.EngineState.Ready("2026.11.04"), {},
-            12 * mb, true, {}, {}, {}, {}, {}, {},
+            12 * mb, true, {}, {}, {}, {}, {}, {}, {},
         )
     }
 
@@ -315,7 +315,7 @@ class ScreenshotTest {
     fun settingsLight() = shot("23_ajustes_claro", dark = false) {
         SettingsContent(
             MovaSettings(themeMode = io.github.valeriofra.mova.data.settings.ThemeMode.LIGHT), AppLanguage.PORTUGUESE, {}, {},
-            YtDlpEngine.EngineState.Ready("2026.11.04"), {}, 12 * mb, true, {}, {}, {}, {}, {}, {},
+            YtDlpEngine.EngineState.Ready("2026.11.04"), {}, 12 * mb, true, {}, {}, {}, {}, {}, {}, {},
         )
     }
 
@@ -323,9 +323,20 @@ class ScreenshotTest {
     @Config(qualifiers = "pt-rBR-w393dp-h2300dp-xxhdpi")
     fun settingsFullPage() = shot("24_ajustes_completo") {
         SettingsContent(
-            MovaSettings(), AppLanguage.SYSTEM, {}, {}, YtDlpEngine.EngineState.Ready("2026.11.04"), {},
-            12 * mb, true, {}, {}, {}, {}, {}, {},
+            MovaSettings(autoDelete = io.github.valeriofra.mova.data.settings.AutoDelete.DAYS_15), AppLanguage.SYSTEM, {}, {}, YtDlpEngine.EngineState.Ready("2026.11.04"), {},
+            12 * mb, true, {}, {}, {}, {}, {}, {}, {},
         )
+    }
+
+    @Test
+    fun libraryAutoDelete() {
+        val files = recent.filter { it.status == DownloadStatus.COMPLETED }
+        shot("25_biblioteca_exclusao_automatica", dark = false) {
+            LibraryContent(
+                LibraryUiState(files = files, totalFiles = files.size, loaded = true, autoDeleteDays = 15),
+                {}, {}, {}, {}, {}, {}, {}, {},
+            )
+        }
     }
 
     // --- Inglês (idioma padrão) -------------------------------------------------
@@ -347,7 +358,7 @@ class ScreenshotTest {
     fun settingsSpanish() = shot("32_ajustes_espanol") {
         SettingsContent(
             MovaSettings(), AppLanguage.SPANISH, {}, {}, YtDlpEngine.EngineState.Ready("2026.11.04"), {},
-            12 * mb, true, {}, {}, {}, {}, {}, {},
+            12 * mb, true, {}, {}, {}, {}, {}, {}, {},
         )
     }
 

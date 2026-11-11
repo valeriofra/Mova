@@ -212,8 +212,11 @@
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_system">Sistema</string>
     <string name="settings_language">Idioma</string>
-    <string name="settings_language_system">Usar el del sistema</string>
+    <string name="settings_language_system">Automático</string>
     <string name="settings_language_change">Cambiar</string>
+    <string name="settings_language_auto_current">Automático · %1$s</string>
+    <string name="settings_language_auto_hint">Automático usa el idioma del dispositivo. Si no está disponible, usa el de tu país y, en último caso, el inglés.</string>
+    <string name="language_name">Español</string>
     <string name="settings_language_unsupported">En Android 12 o anterior, MOVA usa el idioma del sistema. Para cambiarlo, cambia el idioma del dispositivo.</string>
     <string name="settings_section_downloads">Descargas</string>
     <string name="settings_wifi_only">Solo Wi-Fi</string>
@@ -238,6 +241,36 @@
     <string name="settings_temp">Archivos temporales</string>
     <string name="settings_temp_hint">Partes de descargas incompletas: %1$s</string>
     <string name="settings_temp_cleaned">%1$s liberados</string>
+    <string name="settings_auto_delete">Eliminación automática</string>
+    <string name="settings_auto_delete_off_hint">Los archivos descargados se quedan en el dispositivo hasta que los borres.</string>
+    <plurals name="settings_auto_delete_days">
+        <item quantity="one">%d día</item>
+        <item quantity="many">%d días</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="settings_auto_delete_on">
+        <item quantity="one">Borra del dispositivo los archivos descargados hace más de %d día y limpia el historial.</item>
+        <item quantity="many">Borra del dispositivo los archivos descargados hace más de %d días y limpia el historial.</item>
+        <item quantity="other">Borra del dispositivo los archivos descargados hace más de %d días y limpia el historial.</item>
+    </plurals>
+    <string name="settings_auto_delete_confirm_title">¿Activar la eliminación automática?</string>
+    <plurals name="settings_auto_delete_confirm_message">
+        <item quantity="one">Los archivos descargados hace más de %d día se borrarán del dispositivo y saldrán del historial de MOVA. No se puede deshacer. Las descargas en curso no se ven afectadas.</item>
+        <item quantity="many">Los archivos descargados hace más de %d días se borrarán del dispositivo y saldrán del historial de MOVA. No se puede deshacer. Las descargas en curso no se ven afectadas.</item>
+        <item quantity="other">Los archivos descargados hace más de %d días se borrarán del dispositivo y saldrán del historial de MOVA. No se puede deshacer. Las descargas en curso no se ven afectadas.</item>
+    </plurals>
+    <string name="settings_auto_delete_confirm">Activar</string>
+    <string name="settings_auto_delete_enabled">Eliminación automática activada</string>
+    <plurals name="settings_auto_delete_done">
+        <item quantity="one">Eliminación automática activada: %d archivo antiguo borrado</item>
+        <item quantity="many">Eliminación automática activada: %d archivos antiguos borrados</item>
+        <item quantity="other">Eliminación automática activada: %d archivos antiguos borrados</item>
+    </plurals>
+    <plurals name="library_auto_delete_notice">
+        <item quantity="one">Eliminación automática activada: se borran los archivos de más de %d día.</item>
+        <item quantity="many">Eliminación automática activada: se borran los archivos de más de %d días.</item>
+        <item quantity="other">Eliminación automática activada: se borran los archivos de más de %d días.</item>
+    </plurals>
     <string name="settings_section_notifications">Notificaciones</string>
     <string name="settings_notifications">Progreso y finalización</string>
     <string name="settings_notifications_on">Activadas</string>

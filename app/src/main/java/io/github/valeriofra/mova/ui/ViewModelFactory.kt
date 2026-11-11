@@ -5,6 +5,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import io.github.valeriofra.mova.MovaApplication
+import io.github.valeriofra.mova.download.AutoCleanupWorker
 import io.github.valeriofra.mova.ui.analysis.AnalysisViewModel
 import io.github.valeriofra.mova.ui.home.HomeViewModel
 import io.github.valeriofra.mova.ui.library.LibraryViewModel
@@ -25,11 +26,14 @@ object MovaViewModels {
         }
         initializer {
             val c = movaApplication().container
-            LibraryViewModel(c.downloads, c.publisher)
+            LibraryViewModel(c.downloads, c.publisher, c.settings)
         }
         initializer {
             val c = movaApplication().container
-            SettingsViewModel(c.settings, c.downloads, c.ytDlp)
+            val app = movaApplication()
+            SettingsViewModel(c.settings, c.downloads, c.ytDlp, c.savedFiles) { enabled ->
+                AutoCleanupWorker.schedule(app, enabled)
+            }
         }
     }
 

@@ -4,7 +4,7 @@ Aplicativo Android nativo para **reconhecer links, baixar e organizar mídia**,
 pensado inicialmente para uso pessoal. Interface dark e minimalista, sem
 anúncios, sem cadastro e sem servidor: tudo roda no aparelho.
 
-> Status: **versão 0.3**: download das plataformas via yt-dlp, tema claro e 4 idiomas (ver `docs/planejamento.md`, Atualizações 2 e 3).
+> Status: **versão 0.3.1**: download das plataformas via yt-dlp, tema claro e 4 idiomas (ver `docs/planejamento.md`, Atualizações 2 e 3).
 > Código proprietário. Todos os direitos reservados (a licença ainda será definida).
 
 ## O que já funciona
@@ -24,7 +24,8 @@ anúncios, sem cadastro e sem servidor: tudo roda no aparelho.
 | Extração de áudio | ✅ MP3 ou M4A a partir do vídeo (FFmpeg) |
 | Mecanismo sempre atualizado | ✅ O yt-dlp se atualiza sozinho 1x por dia (ou em Ajustes → Atualizar) |
 | Tema | ✅ Escuro (padrão), claro ou seguir o sistema (Ajustes → Aparência) |
-| Idiomas | ✅ Inglês (padrão), português, espanhol e francês; segue o aparelho ou escolha em Ajustes (Android 13+) |
+| Idiomas | ✅ Inglês, português, espanhol e francês. Automático: idioma do aparelho; se não houver tradução, o do país do usuário; por último, inglês. Escolha manual em Ajustes (Android 13+) |
+| Exclusão automática | ✅ Desligada, 3, 15 ou 30 dias: apaga do aparelho os arquivos baixados há mais tempo e limpa o histórico |
 
 Os arquivos são salvos em **Download/MOVA** (ou na pasta que você escolher em Ajustes).
 

@@ -2,7 +2,10 @@ package io.github.valeriofra.mova.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.valeriofra.mova.data.CleanupResult
 import io.github.valeriofra.mova.data.DownloadRepository
+import io.github.valeriofra.mova.data.SavedFiles
+import io.github.valeriofra.mova.data.settings.AutoDelete
 import io.github.valeriofra.mova.data.settings.MovaSettings
 import io.github.valeriofra.mova.data.settings.SettingsRepository
 import io.github.valeriofra.mova.data.settings.ThemeMode
@@ -20,6 +23,9 @@ class SettingsViewModel(
     private val settings: SettingsRepository,
     private val downloads: DownloadRepository,
     private val engine: YtDlpEngine,
+    private val savedFiles: SavedFiles,
+    /** Liga/desliga a exclusão automática diária (WorkManager). */
+    private val scheduleAutoCleanup: (Boolean) -> Unit,
 ) : ViewModel() {
 
     /** Estado do mecanismo de download (yt-dlp). */
@@ -68,6 +74,22 @@ class SettingsViewModel(
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { settings.setThemeMode(mode) }
+    }
+
+    private val _cleanup = MutableStateFlow<CleanupResult?>(null)
+    /** Resultado da exclusão feita ao ativar a opção (para exibir uma confirmação). */
+    val cleanup: StateFlow<CleanupResult?> = _cleanup.asStateFlow()
+
+    fun setAutoDelete(value: AutoDelete) {
+        viewModelScope.launch {
+            settings.setAutoDelete(value)
+            scheduleAutoCleanup(value.enabled)
+            if (value.enabled) _cleanup.value = downloads.deleteOlderThan(value.days, savedFiles)
+        }
+    }
+
+    fun cleanupShown() {
+        _cleanup.value = null
     }
 
     fun setMaxConcurrent(value: Int) {

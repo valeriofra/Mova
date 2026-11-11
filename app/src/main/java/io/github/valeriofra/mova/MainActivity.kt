@@ -1,5 +1,6 @@
 package io.github.valeriofra.mova
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -14,6 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.valeriofra.mova.data.settings.ThemeMode
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.github.valeriofra.mova.ui.MovaApp
+import io.github.valeriofra.mova.ui.settings.CountryLanguage
 import io.github.valeriofra.mova.ui.theme.MovaTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +35,11 @@ class MainActivity : ComponentActivity() {
 
     private val incoming = MutableStateFlow<IncomingEvent?>(null)
     private val incomingEvents = incoming.asStateFlow()
+
+    // Idioma do país quando o do aparelho não tem tradução (ex.: alemão no Brasil → português).
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(CountryLanguage.localize(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()

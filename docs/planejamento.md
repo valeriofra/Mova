@@ -913,10 +913,19 @@ Data: 11 de novembro de 2026 · App 0.3.0
 
 ## 29. Idiomas
 
-O app passa a ter quatro idiomas: **inglês** (padrão para qualquer
-idioma não suportado), **português**, **espanhol** e **francês**. Segue
-o idioma do aparelho; no Android 13+ dá para escolher outro só para o
-MOVA (Ajustes → Idioma). O APK leva apenas esses quatro idiomas, para
+O app passa a ter quatro idiomas: **inglês**, **português**, **espanhol**
+e **francês**. No modo **Automático** (padrão), a ordem é:
+
+1.  o idioma do aparelho, se tiver tradução;
+2.  senão, o **idioma do país do usuário** (pelo chip, pela rede móvel
+    ou pela região do aparelho), por exemplo: aparelho em alemão no
+    Brasil abre em português; em catalão na Espanha, em espanhol; em
+    árabe no Marrocos, em francês (a partir da 0.3.1);
+3.  por último, o inglês.
+
+Quem deixou o aparelho em inglês continua vendo o app em inglês. No
+Android 13+ dá para escolher outro idioma só para o MOVA (Ajustes →
+Idioma). O APK leva apenas esses quatro idiomas, para
 que nenhuma tela misture textos de bibliotecas em outras línguas.
 
 Os textos de referência são os em português (`values-pt`). As traduções
@@ -996,3 +1005,19 @@ desenvolvedor no Android Developer Console e registrar o pacote
 3.  Verificação de desenvolvedor do Android antes de 2027.
 4.  Decidir o modelo comercial (seção 11): o volume está em mercados que
     pagam pouco, e a Play não é opção.
+
+## 32. Exclusão automática (0.3.1)
+
+Em Ajustes → Armazenamento: interruptor **Exclusão automática** e
+períodos de **3, 15 ou 30 dias** (desligada por padrão; ao ligar, começa
+em 30 dias).
+
+-   Apaga do aparelho os arquivos baixados há mais tempo que o período e
+    tira do app os registros desse período (concluídos, com erro ou
+    cancelados).
+-   Downloads na fila, em andamento ou pausados não são tocados.
+-   Se um arquivo não puder ser apagado (ex.: a pasta deixou de estar
+    autorizada), o registro fica e a exclusão tenta de novo depois.
+-   Roda ao abrir o app e uma vez por dia em segundo plano (WorkManager).
+-   Ao ligar ou ao encurtar o período, o app pede confirmação; a
+    Biblioteca mostra um aviso enquanto a opção estiver ligada.

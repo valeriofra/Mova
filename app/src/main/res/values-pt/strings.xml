@@ -236,8 +236,12 @@
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_system">Sistema</string>
     <string name="settings_language">Idioma</string>
-    <string name="settings_language_system">Seguir o sistema</string>
+    <string name="settings_language_system">Automático</string>
     <string name="settings_language_change">Alterar</string>
+    <string name="settings_language_auto_current">Automático · %1$s</string>
+    <string name="settings_language_auto_hint">Automático usa o idioma do aparelho. Se ele não estiver disponível, usa o do seu país e, por último, o inglês.</string>
+    <!-- Nome do idioma em que o app está sendo exibido (cada tradução usa o próprio nome). -->
+    <string name="language_name">Português</string>
     <string name="settings_language_unsupported">No Android 12 ou anterior, o MOVA usa o idioma do sistema. Para trocar, mude o idioma do aparelho.</string>
     <string name="settings_section_downloads">Downloads</string>
     <string name="settings_wifi_only">Somente Wi-Fi</string>
@@ -262,6 +266,36 @@
     <string name="settings_temp">Arquivos temporários</string>
     <string name="settings_temp_hint">Partes de downloads incompletos: %1$s</string>
     <string name="settings_temp_cleaned">%1$s liberados</string>
+    <string name="settings_auto_delete">Exclusão automática</string>
+    <string name="settings_auto_delete_off_hint">Os arquivos baixados ficam no aparelho até você apagar.</string>
+    <plurals name="settings_auto_delete_days">
+        <item quantity="one">%d dia</item>
+        <item quantity="many">%d dias</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+    <plurals name="settings_auto_delete_on">
+        <item quantity="one">Apaga do aparelho os arquivos baixados há mais de %d dia e limpa o histórico.</item>
+        <item quantity="many">Apaga do aparelho os arquivos baixados há mais de %d dias e limpa o histórico.</item>
+        <item quantity="other">Apaga do aparelho os arquivos baixados há mais de %d dias e limpa o histórico.</item>
+    </plurals>
+    <string name="settings_auto_delete_confirm_title">Ativar a exclusão automática?</string>
+    <plurals name="settings_auto_delete_confirm_message">
+        <item quantity="one">Os arquivos baixados há mais de %d dia serão apagados do aparelho e sairão do histórico do MOVA. Não é possível desfazer. Downloads em andamento não são afetados.</item>
+        <item quantity="many">Os arquivos baixados há mais de %d dias serão apagados do aparelho e sairão do histórico do MOVA. Não é possível desfazer. Downloads em andamento não são afetados.</item>
+        <item quantity="other">Os arquivos baixados há mais de %d dias serão apagados do aparelho e sairão do histórico do MOVA. Não é possível desfazer. Downloads em andamento não são afetados.</item>
+    </plurals>
+    <string name="settings_auto_delete_confirm">Ativar</string>
+    <string name="settings_auto_delete_enabled">Exclusão automática ativada</string>
+    <plurals name="settings_auto_delete_done">
+        <item quantity="one">Exclusão automática ativada: %d arquivo antigo apagado</item>
+        <item quantity="many">Exclusão automática ativada: %d arquivos antigos apagados</item>
+        <item quantity="other">Exclusão automática ativada: %d arquivos antigos apagados</item>
+    </plurals>
+    <plurals name="library_auto_delete_notice">
+        <item quantity="one">Exclusão automática ligada: arquivos com mais de %d dia são apagados.</item>
+        <item quantity="many">Exclusão automática ligada: arquivos com mais de %d dias são apagados.</item>
+        <item quantity="other">Exclusão automática ligada: arquivos com mais de %d dias são apagados.</item>
+    </plurals>
     <string name="settings_section_notifications">Notificações</string>
     <string name="settings_notifications">Progresso e conclusão</string>
     <string name="settings_notifications_on">Ativadas</string>

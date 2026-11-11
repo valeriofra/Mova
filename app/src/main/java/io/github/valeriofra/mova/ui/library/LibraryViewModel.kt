@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.valeriofra.mova.core.model.MediaKind
 import io.github.valeriofra.mova.data.DownloadRepository
 import io.github.valeriofra.mova.data.db.DownloadEntity
+import io.github.valeriofra.mova.data.settings.SettingsRepository
 import io.github.valeriofra.mova.download.FilePublisher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,11 +30,14 @@ data class LibraryUiState(
     val totalFiles: Int = 0,
     val history: List<DownloadEntity> = emptyList(),
     val loaded: Boolean = false,
+    /** Dias da exclusão automática (0 = desligada). */
+    val autoDeleteDays: Int = 0,
 )
 
 class LibraryViewModel(
     private val downloads: DownloadRepository,
     private val publisher: FilePublisher,
+    settings: SettingsRepository,
 ) : ViewModel() {
 
     private val tab = MutableStateFlow(LibraryTab.FILES)
@@ -44,7 +48,8 @@ class LibraryViewModel(
         downloads.history,
         tab,
         filter,
-    ) { library, history, currentTab, currentFilter ->
+        settings.settings,
+    ) { library, history, currentTab, currentFilter, prefs ->
         LibraryUiState(
             tab = currentTab,
             filter = currentFilter,
@@ -52,6 +57,7 @@ class LibraryViewModel(
             totalFiles = library.size,
             history = history,
             loaded = true,
+            autoDeleteDays = prefs.autoDelete.days,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LibraryUiState())
 
