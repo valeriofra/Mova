@@ -845,6 +845,27 @@ aplicativo.
 Esta tabela é uma expectativa. O suporte real deve ser confirmado em
 testes no aparelho e documentado.
 
+### 26.1 Testes no aparelho
+
+  -----------------------------------------------------------------------
+  Data          Versão    Plataforma    Resultado
+  ------------- --------- ------------- ---------------------------------
+  11/11/2026    0.2.3     Instagram     ✅ Funciona (Reels públicos, sem
+                                        login)
+
+  11/11/2026    0.2.3     Pinterest     ✅ Funciona
+
+  11/11/2026    0.2.3     Facebook      ✅ Funciona
+
+  ---           ---       YouTube       ⏳ A testar
+
+  ---           ---       TikTok        ⏳ A testar
+
+  ---           ---       Vimeo         ⏳ A testar
+
+  ---           ---       Kwai          ⏳ A testar
+  -----------------------------------------------------------------------
+
 ## 27. Próximos passos
 
 1.  Integrar o yt-dlp no app Android (análise, formatos, fila,
