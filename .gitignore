@@ -23,3 +23,6 @@ __pycache__/
 # Flatpak: cópias feitas pelo CI antes do flatpak-builder
 desktop/packaging/flatpak/mova-app/
 desktop/packaging/flatpak/mova.png
+
+# Instaladores copiados para baixar pelo app (não vão para o Git)
+instaladores/
