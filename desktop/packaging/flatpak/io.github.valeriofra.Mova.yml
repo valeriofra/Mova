@@ -1,0 +1,43 @@
+# Flatpak do MOVA para Linux.
+#
+# Empacota o app-image gerado pelo Compose/jpackage (Java já incluso). O CI copia:
+#   desktop/build/compose/binaries/main-release/app/MOVA -> mova-app/
+#   desktop/packaging/mova.png                           -> mova.png
+# e roda: flatpak-builder --repo=repo build io.github.valeriofra.Mova.yml
+id: io.github.valeriofra.Mova
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: mova
+finish-args:
+  - --share=network        # baixar conteúdo e o mecanismo (yt-dlp, FFmpeg, QuickJS)
+  - --share=ipc
+  - --socket=x11           # a interface Java/Compose usa X11 (XWayland no Wayland)
+  - --device=dri           # aceleração gráfica (Skia)
+  - --filesystem=xdg-download   # pasta padrão: Downloads/MOVA
+  - --filesystem=xdg-videos     # outras pastas que podem ser escolhidas em Ajustes
+  - --filesystem=xdg-music
+modules:
+  - name: mova
+    buildsystem: simple
+    sources:
+      - type: dir
+        path: mova-app
+        dest: MOVA
+      - type: file
+        path: mova.png
+      - type: file
+        path: io.github.valeriofra.Mova.desktop
+      - type: file
+        path: io.github.valeriofra.Mova.metainfo.xml
+      - type: script
+        dest-filename: mova
+        commands:
+          - exec /app/lib/mova/bin/MOVA "$@"
+    build-commands:
+      - mkdir -p /app/lib/mova
+      - cp -a MOVA/. /app/lib/mova/
+      - install -Dm755 mova /app/bin/mova
+      - install -Dm644 mova.png /app/share/icons/hicolor/512x512/apps/io.github.valeriofra.Mova.png
+      - install -Dm644 io.github.valeriofra.Mova.desktop /app/share/applications/io.github.valeriofra.Mova.desktop
+      - install -Dm644 io.github.valeriofra.Mova.metainfo.xml /app/share/metainfo/io.github.valeriofra.Mova.metainfo.xml

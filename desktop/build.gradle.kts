@@ -68,6 +68,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.swing)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
+    // Descompacta o FFmpeg do Linux (.tar.xz) sem depender do tar do sistema (ex.: dentro do Flatpak).
+    implementation(libs.xz)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -100,7 +102,8 @@ compose.desktop {
         }
 
         nativeDistributions {
-            targetFormats(TargetFormat.Msi, TargetFormat.Deb)
+            // Linux: o pacote é o Flatpak (desktop/packaging/flatpak), montado a partir do app-image.
+            targetFormats(TargetFormat.Msi)
             packageName = "MOVA"
             packageVersion = "0.1.$movaBuildNumber"
             description = "Baixe e organize vídeos e áudios com simplicidade"

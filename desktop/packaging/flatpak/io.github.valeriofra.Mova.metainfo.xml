@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.valeriofra.Mova</id>
+  <name>MOVA</name>
+  <summary>Download and organize videos and audio with ease</summary>
+  <summary xml:lang="pt">Baixe e organize vídeos e áudios com simplicidade</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <developer id="io.github.valeriofra">
+    <name>MOVA</name>
+  </developer>
+  <description>
+    <p>Paste or drag a link and MOVA detects the source, shows what can be downloaded and lets you choose video up to 1080p, video without audio or audio only (MP3/M4A).</p>
+    <p xml:lang="pt">Cole ou arraste um link: o MOVA reconhece a origem, mostra o que pode ser baixado e deixa escolher vídeo até 1080p, vídeo sem áudio ou somente áudio (MP3/M4A).</p>
+    <p>Personal use. No ads, no sign-up and no server. MOVA does not bypass DRM, privacy or access restrictions.</p>
+    <p xml:lang="pt">Uso pessoal. Sem anúncios, sem cadastro e sem servidor. O MOVA não contorna DRM, privacidade ou restrições de acesso.</p>
+  </description>
+  <launchable type="desktop-id">io.github.valeriofra.Mova.desktop</launchable>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Network</category>
+  </categories>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-11-11"/>
+  </releases>
+</component>

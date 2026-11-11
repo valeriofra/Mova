@@ -124,6 +124,56 @@ class ComponentInstallerTest {
         assertEquals(archive.size.toLong(), reported)
     }
 
+    /** Um .tar.xz mínimo (formato ustar), com um nome longo no padrão GNU. */
+    private fun tarXz(vararg entries: Pair<String, String>): ByteArray {
+        val tar = ByteArrayOutputStream()
+        fun header(name: String, size: Int, type: Char) {
+            val block = ByteArray(512)
+            name.toByteArray().copyInto(block, 0, 0, minOf(100, name.length))
+            "%07o\u0000".format(size).toByteArray().copyInto(block, 124)
+            block[156] = type.code.toByte()
+            "ustar\u000000".toByteArray().copyInto(block, 257)
+            "        ".toByteArray().copyInto(block, 148)
+            val sum = block.sumOf { it.toInt() and 0xff }
+            "%06o\u0000 ".format(sum).toByteArray().copyInto(block, 148)
+            tar.write(block)
+        }
+        fun data(bytes: ByteArray) {
+            tar.write(bytes)
+            tar.write(ByteArray((512 - bytes.size % 512) % 512))
+        }
+        entries.forEach { (name, content) ->
+            if (name.length > 100) {
+                header("././@LongLink", name.length + 1, 'L')
+                data((name + "\u0000").toByteArray())
+            }
+            header(name, content.length, '0')
+            data(content.toByteArray())
+        }
+        tar.write(ByteArray(1024))
+        val out = ByteArrayOutputStream()
+        org.tukaani.xz.XZOutputStream(out, org.tukaani.xz.LZMA2Options()).use { it.write(tar.toByteArray()) }
+        return out.toByteArray()
+    }
+
+    @Test
+    fun installsTarXzWithoutSystemTar() = runTest {
+        val longDir = "ffmpeg-master-latest-linux64-gpl/" + "pasta-muito-comprida/".repeat(5)
+        val archive = tarXz(
+            "ffmpeg-master-latest-linux64-gpl/bin/ffplay" to "nao",
+            "${longDir}bin/ffmpeg" to "binario ffmpeg",
+            "ffmpeg-master-latest-linux64-gpl/bin/ffprobe" to "binario ffprobe",
+        )
+        server.enqueue(MockResponse.Builder().body("${sha256(archive)}  ff.tar.xz\n").build())
+        server.enqueue(MockResponse.Builder().body(Buffer().write(archive)).build())
+        val spec = Components.specsFor(OsInfo(OsInfo.Family.LINUX, OsInfo.Arch.X64))[1]
+            .copy(url = server.url("/ff.tar.xz").toString(), checksumsUrl = server.url("/sums").toString())
+        ComponentInstaller(OkHttpClient(), dir).install(spec) { _, _ -> }
+        assertEquals(listOf("ffmpeg", "ffprobe"), File(dir, "ffmpeg").list()!!.sorted())
+        assertEquals("binario ffmpeg", File(dir, "ffmpeg/ffmpeg").readText())
+        assertTrue(File(dir, "ffmpeg/ffmpeg").canExecute())
+    }
+
     @Test
     fun rejectsWrongChecksum() = runTest {
         server.enqueue(MockResponse.Builder().body("${"0".repeat(64)}  yt-dlp\n").build())

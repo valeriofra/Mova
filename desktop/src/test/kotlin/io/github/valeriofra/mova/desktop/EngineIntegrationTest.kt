@@ -41,7 +41,8 @@ class EngineIntegrationTest {
 
             val layout = Components.Layout(dir, os)
             val runner = ProcessRunner()
-            val ffmpeg = runner.run(listOf(layout.ffmpeg.absolutePath, "-hide_banner", "-version"), keepLines = 5)
+            // Guarda a saída inteira: "ffmpeg version ..." é a primeira linha.
+            val ffmpeg = runner.run(listOf(layout.ffmpeg.absolutePath, "-version"), keepLines = null)
             assertTrue("FFmpeg: ${ffmpeg.combined}", ffmpeg.ok && ffmpeg.stdout.contains("ffmpeg version"))
             val probe = File(layout.ffmpegDir, "ffprobe${os.executableSuffix}")
             assertTrue("ffprobe ausente", probe.isFile)

@@ -255,6 +255,8 @@ class DownloadManager(
                 part
             }
             val saved = publish(downloaded, if (task.source == MediaSource.EXTRACTOR) downloaded.name else task.fileName)
+            // Limpa a pasta de trabalho antes de marcar como concluído.
+            workDir.deleteRecursively()
             val done = store.update(id) {
                 it.copy(
                     status = TaskStatus.COMPLETED, outputPath = saved.absolutePath, fileName = saved.name,
@@ -262,7 +264,6 @@ class DownloadManager(
                     completedAt = clock(), fileMissing = false,
                 )
             }
-            workDir.deleteRecursively()
             done?.let { _events.tryEmit(DownloadEvent.Completed(it)) }
         } catch (e: CancellationException) {
             throw e

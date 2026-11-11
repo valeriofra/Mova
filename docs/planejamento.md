@@ -1081,8 +1081,13 @@ MOVA não redistribui o FFmpeg (licença GPL) no próprio instalador.
     com **código de atualização fixo** --- cada versão nova instala por
     cima, como a assinatura fixa do Android. Também há uma versão
     **portátil (ZIP)**.
--   **Linux:** pacote **.deb** (Debian, Ubuntu, Mint) e versão
-    **portátil (tar.gz)**.
+-   **Linux:** **Flatpak** (funciona em qualquer distribuição; runtime
+    freedesktop 25.08 vindo do Flathub; permissões só de rede, tela, GPU
+    e das pastas Downloads, Vídeos e Músicas) e versão **portátil
+    (tar.gz)**. O .deb foi substituído pelo Flatpak a pedido do usuário.
+    Publicar no Flathub é possível no futuro, mas o Flathub também
+    restringe apps que baixam do YouTube --- por ora, o arquivo
+    `.flatpak` é distribuído direto.
 -   Os arquivos são gerados pelo GitHub Actions num Windows e num Linux
     reais; na branch principal viram uma versão em Releases.
 -   **Sem certificado de assinatura de código**, o Windows mostra o
@@ -1106,7 +1111,7 @@ MOVA não redistribui o FFmpeg (licença GPL) no próprio instalador.
 
 1.  Testar no Windows: instalar o MSI, baixar de YouTube, Instagram,
     TikTok, Facebook, Pinterest, Vimeo e links diretos; registrar.
-2.  Testar no Linux (Ubuntu/Mint) com o .deb.
+2.  Testar no Linux com o Flatpak (Ubuntu, Mint, Fedora).
 3.  Aviso de versão nova dentro do app.
 4.  Certificado de assinatura do Windows, quando houver distribuição a
     terceiros.

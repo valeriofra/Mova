@@ -24,8 +24,6 @@ class ComponentInstallException(message: String, cause: Throwable? = null) : IOE
 class ComponentInstaller(
     private val client: OkHttpClient,
     private val engineDir: File,
-    /** Descompacta .tar.xz (no Linux, com o `tar` do sistema). */
-    private val untar: suspend (archive: File, into: File) -> Unit = ::systemUntar,
 ) {
 
     /** Instala [spec]; [onProgress] recebe bytes baixados e total (quando conhecido). */
@@ -130,25 +128,12 @@ class ComponentInstaller(
         }
     }
 
-    private suspend fun untarFlat(archive: File, into: File, keep: (String) -> Boolean) {
-        val raw = File(into.parentFile, into.name + "-raw").also { it.deleteRecursively(); it.mkdirs() }
-        try {
-            untar(archive, raw)
-            raw.walkTopDown().filter { it.isFile && keep(it.name) }.forEach { file ->
-                Files.move(file.toPath(), File(into, file.name).toPath(), StandardCopyOption.REPLACE_EXISTING)
-            }
-        } finally {
-            raw.deleteRecursively()
-        }
+    private fun untarFlat(archive: File, into: File, keep: (String) -> Boolean) {
+        TarXz.extractFlat(archive, into, keep)
     }
 
     private companion object {
         const val BUFFER = 64 * 1024
         const val REPORT_EVERY = 256L * 1024
-
-        suspend fun systemUntar(archive: File, into: File) {
-            val result = ProcessRunner().run(listOf("tar", "-xJf", archive.absolutePath, "-C", into.absolutePath), keepLines = 20)
-            if (!result.ok) throw ComponentInstallException("Falha ao descompactar ${archive.name}: ${result.combined}")
-        }
     }
 }

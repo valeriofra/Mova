@@ -78,8 +78,8 @@ sistema quando um download termina.
 | --- | --- | --- |
 | Windows 10/11 | `MOVA-Windows-…msi` | Instala só para o usuário (sem administrador) e **por cima** das versões anteriores (código de atualização fixo). Sem certificado de assinatura ainda: o SmartScreen avisa — **Mais informações → Executar assim mesmo**. |
 | Windows | `MOVA-Windows-…-portatil.zip` | Descompacte e abra `MOVA.exe`. |
-| Debian, Ubuntu, Mint | `mova-…-amd64.deb` | `sudo apt install ./mova-…-amd64.deb` |
-| Outras distros | `MOVA-Linux-…-portatil.tar.gz` | Descompacte e rode `MOVA/bin/MOVA`. |
+| Linux (qualquer distro) | `MOVA-Linux-….flatpak` | `flatpak install --user MOVA-Linux-….flatpak` (o runtime vem do Flathub; no Ubuntu, ative antes: `flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`). Depois abra pelo menu ou com `flatpak run io.github.valeriofra.Mova`. |
+| Linux | `MOVA-Linux-…-portatil.tar.gz` | Descompacte e rode `MOVA/bin/MOVA`. |
 
 Os arquivos são gerados pelo GitHub Actions (`.github/workflows/desktop.yml`) num Windows e num Linux reais e ficam nos
 artefatos da execução; na branch principal viram uma versão em **Releases** (`desktop-build-N`).
@@ -89,14 +89,18 @@ projeto yt-dlp) e o QuickJS-ng (resolve os desafios do YouTube) — cerca de 115
 conferidos pelo SHA-256 publicado pelos projetos. No Linux, se o FFmpeg já estiver instalado, ele é usado. O yt-dlp se
 atualiza sozinho 1x por dia.
 
-**Pastas:** dados em `%LOCALAPPDATA%\MOVA` (Windows) ou `~/.local/share/mova` (Linux); arquivos em `Downloads/MOVA`
-(pode ser trocada em Ajustes).
+**Pastas:** dados em `%LOCALAPPDATA%\MOVA` (Windows), `~/.local/share/mova` (Linux portátil) ou
+`~/.var/app/io.github.valeriofra.Mova` (Flatpak); arquivos em `Downloads/MOVA` (pode ser trocada em Ajustes — no Flatpak,
+dentro de Downloads, Vídeos ou Músicas, que são as pastas liberadas para o app).
+
+**Flatpak:** manifesto em `desktop/packaging/flatpak/` (runtime freedesktop 25.08, com o app-image do jpackage e o Java
+já incluso). Permissões: rede, X11, GPU e as pastas Downloads, Vídeos e Músicas.
 
 ```bash
 ./gradlew -Pmova.desktopOnly=true :desktop:run                 # abre o app (não precisa do Android SDK)
 ./gradlew -Pmova.desktopOnly=true :core:test :desktop:test     # testes e capturas (desktop/build/screenshots)
 ./gradlew -Pmova.desktopOnly=true :desktop:packageReleaseMsi   # instalador (no Windows)
-./gradlew -Pmova.desktopOnly=true :desktop:packageReleaseDeb   # pacote .deb (no Linux)
+./gradlew -Pmova.desktopOnly=true :desktop:createReleaseDistributable   # app-image (base do Flatpak e do tar.gz)
 ```
 
 ## Desenvolvimento (Android)

@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+Name=MOVA
+GenericName=Video downloader
+GenericName[pt]=Baixador de vídeos
+GenericName[es]=Descargador de videos
+GenericName[fr]=Téléchargeur de vidéos
+Comment=Download and organize videos and audio with ease
+Comment[pt]=Baixe e organize vídeos e áudios com simplicidade
+Comment[es]=Descarga y organiza videos y audios con facilidad
+Comment[fr]=Téléchargez et organisez vidéos et audios facilement
+Exec=mova
+Icon=io.github.valeriofra.Mova
+Terminal=false
+Categories=AudioVideo;Network;
+Keywords=download;video;audio;youtube;mp3;mp4;
+StartupWMClass=io-github-valeriofra-mova-desktop-MainKt

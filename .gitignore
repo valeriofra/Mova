@@ -19,3 +19,7 @@ signing/
 # Logs
 *.log
 __pycache__/
+
+# Flatpak: cópias feitas pelo CI antes do flatpak-builder
+desktop/packaging/flatpak/mova-app/
+desktop/packaging/flatpak/mova.png

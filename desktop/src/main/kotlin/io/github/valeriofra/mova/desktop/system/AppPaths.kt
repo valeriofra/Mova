@@ -48,8 +48,10 @@ class AppPaths(
 
         internal fun xdgDownloadDir(home: File, env: (String) -> String?): File? {
             env("XDG_DOWNLOAD_DIR")?.takeIf { it.isNotBlank() }?.let { return File(it) }
-            val config = File(env("XDG_CONFIG_HOME")?.takeIf { it.isNotBlank() } ?: File(home, ".config").path, "user-dirs.dirs")
-            if (!config.isFile) return null
+            // No Flatpak, XDG_CONFIG_HOME aponta para a pasta do app; o arquivo do sistema fica em ~/.config.
+            val config = listOfNotNull(env("XDG_CONFIG_HOME")?.takeIf { it.isNotBlank() }, File(home, ".config").path)
+                .map { File(it, "user-dirs.dirs") }
+                .firstOrNull { it.isFile } ?: return null
             val line = runCatching { config.readLines() }.getOrDefault(emptyList())
                 .firstOrNull { it.trim().startsWith("XDG_DOWNLOAD_DIR=") } ?: return null
             val value = line.substringAfter('=').trim().trim('"').replace("\$HOME", home.path)
