@@ -157,6 +157,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v5
         with:
+          # Só os instaladores (as capturas de tela ficam apenas nos artefatos da execução).
+          pattern: MOVA-*
           path: dist
           merge-multiple: true
       - name: Publicar versão para computador
