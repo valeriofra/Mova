@@ -15,6 +15,7 @@ class MovaApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        CrashReporter.install(this)
         container = AppContainer(this)
         container.notifier.createChannels()
         // Retoma tarefas que ficaram pendentes (ex.: após reiniciar o aparelho).

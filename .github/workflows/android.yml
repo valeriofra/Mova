@@ -72,9 +72,9 @@ jobs:
           echo "MOVA_KEYSTORE_FILE=$RUNNER_TEMP/mova-release.jks" >> "$GITHUB_ENV"
           echo "available=true" >> "$GITHUB_OUTPUT"
 
-      - name: Compilar (sem assinatura)
+      - name: Compilar release (sem assinatura)
         if: steps.signing.outputs.available != 'true'
-        run: ./gradlew :app:assembleDebug
+        run: ./gradlew :app:assembleRelease
 
       - name: APK de release assinado
         if: steps.signing.outputs.available == 'true'
@@ -83,6 +83,9 @@ jobs:
           MOVA_KEY_ALIAS: ${{ secrets.MOVA_KEY_ALIAS }}
           MOVA_KEY_PASSWORD: ${{ secrets.MOVA_KEY_PASSWORD }}
         run: ./gradlew :app:assembleRelease
+
+      - name: Conferir regras do R8 (mecanismo de download)
+        run: tools/check_r8_rules.sh
 
       - name: Conferir assinatura fixa
         if: steps.signing.outputs.available == 'true'

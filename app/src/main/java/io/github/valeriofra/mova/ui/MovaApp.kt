@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Download
@@ -41,6 +42,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import io.github.valeriofra.mova.CrashReporter
 import io.github.valeriofra.mova.IncomingEvent
 import io.github.valeriofra.mova.MainActivity
 import io.github.valeriofra.mova.R
@@ -89,6 +91,7 @@ fun MovaApp(
     val showBottomBar = topLevels.any { it.route == currentRoute }
 
     var sharedText by remember { mutableStateOf<IncomingEvent.SharedText?>(null) }
+    var crashReport by remember { mutableStateOf(CrashReporter.pending(context)) }
     val event by incomingEvents.collectAsStateWithLifecycle()
     LaunchedEffect(event) {
         when (val e = event) {
@@ -107,6 +110,25 @@ fun MovaApp(
             }
             null -> Unit
         }
+    }
+
+    crashReport?.let { report ->
+        CrashReportDialog(
+            report = report,
+            onShare = {
+                val send = android.content.Intent(android.content.Intent.ACTION_SEND)
+                    .setType("text/plain")
+                    .putExtra(android.content.Intent.EXTRA_SUBJECT, "Relatório de falha do MOVA")
+                    .putExtra(android.content.Intent.EXTRA_TEXT, report)
+                context.startActivity(android.content.Intent.createChooser(send, null))
+                CrashReporter.clear(context)
+                crashReport = null
+            },
+            onDismiss = {
+                CrashReporter.clear(context)
+                crashReport = null
+            },
+        )
     }
 
     Scaffold(
@@ -139,7 +161,11 @@ fun MovaApp(
         NavHost(
             navController = navController,
             startDestination = Routes.HOME,
-            modifier = Modifier.padding(padding),
+            // consumeWindowInsets: o espaço da barra inferior já foi aplicado, então o
+            // teclado não soma esse espaço de novo (evita a faixa preta acima dele).
+            modifier = Modifier
+                .padding(padding)
+                .consumeWindowInsets(padding),
             enterTransition = { fadeIn() },
             exitTransition = { fadeOut() },
         ) {
@@ -215,4 +241,31 @@ private fun NavHostController.afterEnqueue(
     }
     val message = context.resources.getQuantityString(R.plurals.enqueued_message, count, count)
     scope.launch { snackbarHost.showSnackbar(message) }
+}
+
+@Composable
+private fun CrashReportDialog(report: String, onShare: () -> Unit, onDismiss: () -> Unit) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.crash_title)) },
+        text = {
+            androidx.compose.foundation.layout.Column {
+                Text(stringResource(R.string.crash_message))
+                androidx.compose.foundation.layout.Spacer(Modifier.padding(top = 12.dp))
+                Text(
+                    report.lineSequence().drop(5).firstOrNull { it.isNotBlank() }.orEmpty(),
+                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                    color = MovaColors.TextSecondary,
+                    maxLines = 4,
+                )
+            }
+        },
+        confirmButton = {
+            io.github.valeriofra.mova.ui.components.AccentTextButton(stringResource(R.string.crash_share), onShare)
+        },
+        dismissButton = {
+            io.github.valeriofra.mova.ui.components.AccentTextButton(stringResource(R.string.crash_dismiss), onDismiss)
+        },
+        containerColor = MovaColors.SurfaceHigh,
+    )
 }

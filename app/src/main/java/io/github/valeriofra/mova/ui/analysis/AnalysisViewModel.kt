@@ -87,8 +87,9 @@ class AnalysisViewModel(
                 AnalysisUiState.Done(analyzer.analyze(input))
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
-                AnalysisUiState.Failed(e.message)
+            } catch (e: Throwable) {
+                // Qualquer falha inesperada vira uma mensagem, nunca um fechamento do app.
+                AnalysisUiState.Failed(e.toString())
             }
             // Evita que a tela de análise apenas "pisque".
             val elapsed = SystemClock.elapsedRealtime() - started

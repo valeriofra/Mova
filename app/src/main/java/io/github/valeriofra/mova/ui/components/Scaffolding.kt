@@ -86,6 +86,7 @@ fun StateMessage(
     message: String,
     modifier: Modifier = Modifier,
     badge: String? = null,
+    details: String? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
@@ -116,6 +117,17 @@ fun StateMessage(
             color = MovaColors.TextSecondary,
             textAlign = TextAlign.Center,
         )
+        if (!details.isNullOrBlank()) {
+            Spacer(Modifier.height(16.dp))
+            androidx.compose.foundation.text.selection.SelectionContainer {
+                Text(
+                    details.take(600),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MovaColors.TextTertiary,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
     }
 }
 

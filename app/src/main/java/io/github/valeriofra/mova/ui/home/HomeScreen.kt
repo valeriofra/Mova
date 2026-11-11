@@ -3,7 +3,11 @@ package io.github.valeriofra.mova.ui.home
 import android.content.ClipboardManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,7 +34,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Link
-import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -121,6 +125,9 @@ fun HomeContent(
         keyboard?.hide()
         onAnalyze()
     }
+    // Com o teclado aberto, o símbolo e o título saem de cena para o campo e o botão caberem.
+    @OptIn(ExperimentalLayoutApi::class)
+    val imeVisible = WindowInsets.isImeVisible
 
     LazyColumn(
         modifier = Modifier
@@ -148,6 +155,7 @@ fun HomeContent(
         }
 
         item {
+            AnimatedVisibility(visible = !imeVisible, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -170,6 +178,8 @@ fun HomeContent(
                     textAlign = TextAlign.Center,
                 )
             }
+            }
+            if (imeVisible) Spacer(Modifier.height(16.dp))
         }
 
         item {
@@ -226,7 +236,7 @@ fun HomeContent(
                 text = stringResource(R.string.home_analyze),
                 onClick = analyze,
                 enabled = canAnalyze,
-                icon = Icons.Rounded.Search,
+                icon = Icons.Rounded.Download,
                 modifier = Modifier.padding(top = 16.dp),
             )
         }

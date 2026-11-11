@@ -17,3 +17,13 @@
 -keep class com.fasterxml.jackson.** { *; }
 -dontwarn com.fasterxml.jackson.**
 -dontwarn java.beans.**
+
+# O yt-dlp é extraído com o commons-compress, que cria classes por reflexão
+# (ExtraFieldUtils → AsiExtraField, X5455_ExtendedTimestamp...). Sem estas
+# regras o R8 remove os construtores e o app fecha ao preparar o mecanismo.
+-keep class org.apache.commons.compress.archivers.zip.** { *; }
+-keep class org.apache.commons.io.** { *; }
+-dontwarn org.apache.commons.compress.**
+-dontwarn org.tukaani.xz.**
+-dontwarn org.brotli.**
+-dontwarn com.github.luben.zstd.**

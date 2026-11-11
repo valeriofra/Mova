@@ -15,7 +15,7 @@
     <string name="action_clear">Limpar</string>
     <string name="action_continue">Continuar</string>
     <string name="action_delete">Excluir</string>
-    <string name="action_download">Download</string>
+    <string name="action_download">Baixar</string>
     <string name="action_keep">Manter</string>
     <string name="action_more">Mais opções</string>
     <string name="action_open">Abrir</string>
@@ -30,7 +30,7 @@
     <string name="home_field_placeholder">Cole o link aqui…</string>
     <string name="home_paste">Colar</string>
     <string name="home_clear">Limpar campo</string>
-    <string name="home_analyze">Analisar link</string>
+    <string name="home_analyze">Baixar</string>
     <string name="home_preview_platform">%1$s · %2$s</string>
     <string name="home_preview_site">Site: %1$s</string>
     <string name="home_preview_no_link">Nenhum link encontrado no texto</string>
@@ -266,6 +266,12 @@
     <string name="settings_about_text">Uso pessoal. Sem anúncios, sem cadastro e sem servidor: tudo é processado no próprio aparelho, com o yt-dlp (código aberto). O MOVA não contorna DRM, privacidade ou restrições de acesso.</string>
 
     <!-- Notificações -->
+    <!-- Relatório de falha -->
+    <string name="crash_title">O MOVA fechou inesperadamente</string>
+    <string name="crash_message">Um relatório técnico foi salvo no aparelho. Compartilhe-o para que o problema seja corrigido (nada é enviado automaticamente).</string>
+    <string name="crash_share">Compartilhar relatório</string>
+    <string name="crash_dismiss">Agora não</string>
+
     <string name="notif_channel_progress">Downloads em andamento</string>
     <string name="notif_channel_finished">Downloads concluídos</string>
     <string name="notif_preparing">Preparando downloads…</string>

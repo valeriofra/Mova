@@ -17,6 +17,7 @@ import io.github.valeriofra.mova.data.db.DownloadError
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
@@ -78,9 +79,14 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
                 }
                 ready = true
                 _state.value = EngineState.Ready(version())
-            } catch (e: Exception) {
-                _state.value = EngineState.Failed(e.message)
-                throw IOException("Não foi possível preparar o mecanismo de download", e)
+            } catch (e: CancellationException) {
+                _state.value = EngineState.NotReady
+                throw e
+            } catch (e: Throwable) {
+                // Inclui Errors de bibliotecas nativas/reflexão: nunca derrubar o app.
+                Log.e(TAG, "Falha ao preparar o mecanismo", e)
+                _state.value = EngineState.Failed(e.toString())
+                throw IOException("Não foi possível preparar o mecanismo de download: $e", e)
             }
         }
     }
@@ -112,6 +118,13 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
         } catch (e: YoutubeDLException) {
             Log.w(TAG, "Falha ao analisar $url", e)
             ExtractionResult.Failure(YtDlp.classifyError(e.message), errorLine(e.message))
+        } catch (e: IOException) {
+            throw e
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            Log.e(TAG, "Erro inesperado ao analisar $url", e)
+            ExtractionResult.Failure(ExtractionFailure.UNKNOWN, e.toString())
         }
     }
 
@@ -128,7 +141,18 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
         val request = YoutubeDLRequest(task.url)
             .addCommands(YtDlp.downloadArgs(choice, dir.absolutePath, task.playlistIndex))
         try {
-            execute(request) { line -> YtDlp.parseProgress(line)?.let(onProgress) }
+            execute(request) { line ->
+                // Roda numa thread da biblioteca: um erro aqui derrubaria o app.
+                try {
+                    YtDlp.parseProgress(line)?.let(onProgress)
+                } catch (e: Throwable) {
+                    Log.w(TAG, "Linha de progresso ignorada", e)
+                }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: IOException) {
+            throw e
         } catch (e: YoutubeDLException) {
             Log.w(TAG, "Falha no download ${task.id}", e)
             val message = e.message
@@ -138,6 +162,9 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
                 errorFor(YtDlp.classifyError(message))
             }
             throw DownloadFailure(error, message = errorLine(message), cause = e)
+        } catch (e: Throwable) {
+            Log.e(TAG, "Erro inesperado no download ${task.id}", e)
+            throw DownloadFailure(DownloadError.EXTRACTOR, message = e.toString(), cause = e)
         }
         return resultFile(dir)
             ?: throw DownloadFailure(DownloadError.EXTRACTOR, message = "O arquivo baixado não foi encontrado")
@@ -184,7 +211,7 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
             val version = version()
             _state.value = EngineState.Ready(version)
             if (status == YoutubeDL.UpdateStatus.DONE) UpdateResult.Updated(version) else UpdateResult.UpToDate(version)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             currentCoroutineContext().ensureActive()
             Log.w(TAG, "Falha ao atualizar o yt-dlp", e)
             _state.value = if (ready) EngineState.Ready(version()) else EngineState.Failed(e.message)

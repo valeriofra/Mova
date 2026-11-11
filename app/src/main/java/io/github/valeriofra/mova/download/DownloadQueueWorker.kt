@@ -192,7 +192,7 @@ class DownloadQueueWorker(
                 dao.transition(task.id, listOf(DownloadStatus.RUNNING), DownloadStatus.QUEUED, now())
             }
             throw e
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "Erro inesperado no download ${task.id}", e)
             if (dao.markFailed(task.id, DownloadError.UNKNOWN, null, now()) > 0) {
                 dao.get(task.id)?.let { c.notifier.notifyFinished(it, success = false) }

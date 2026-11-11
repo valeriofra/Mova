@@ -200,6 +200,7 @@ fun AnalysisContent(
                             tint = MovaColors.Warning,
                             title = stringResource(R.string.analysis_error_title),
                             message = stringResource(R.string.analysis_error_message),
+                            details = state.message,
                         )
                     },
                     primary = { PrimaryButton(stringResource(R.string.action_retry), onRetry, icon = Icons.Rounded.Refresh) },
@@ -465,6 +466,7 @@ private fun ReportContent(
                         tint = MovaColors.Warning,
                         title = stringResource(R.string.analysis_error_title),
                         message = stringResource(R.string.analysis_error_message),
+                        details = result.message,
                     )
                 },
                 primary = { PrimaryButton(stringResource(R.string.action_retry), onRetry, icon = Icons.Rounded.Refresh) },
