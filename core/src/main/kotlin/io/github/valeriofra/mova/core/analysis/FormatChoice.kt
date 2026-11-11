@@ -14,6 +14,9 @@ sealed interface FormatChoice {
     /** Vídeo com áudio, na maior resolução até [maxResolution] (menor lado, ex.: 1080). */
     data class Video(val maxResolution: Int) : FormatChoice
 
+    /** Vídeo sem a faixa de áudio, na maior resolução até [maxResolution]. */
+    data class VideoOnly(val maxResolution: Int) : FormatChoice
+
     /** Somente o áudio, convertido para [format]. */
     data class Audio(val format: AudioFormat) : FormatChoice
 
@@ -21,6 +24,7 @@ sealed interface FormatChoice {
     fun encode(): String = when (this) {
         Original -> "original"
         is Video -> "video:$maxResolution"
+        is VideoOnly -> "videoonly:$maxResolution"
         is Audio -> "audio:${format.extension}"
     }
 
@@ -36,6 +40,7 @@ sealed interface FormatChoice {
             val (type, arg) = value.split(':', limit = 2).let { it[0] to it.getOrNull(1) }
             return when (type) {
                 "video" -> Video(arg?.toIntOrNull()?.coerceAtMost(MAX_RESOLUTION) ?: MAX_RESOLUTION)
+                "videoonly" -> VideoOnly(arg?.toIntOrNull()?.coerceAtMost(MAX_RESOLUTION) ?: MAX_RESOLUTION)
                 "audio" -> Audio(AudioFormat.entries.firstOrNull { it.extension == arg } ?: AudioFormat.MP3)
                 else -> Original
             }

@@ -127,10 +127,26 @@ class YtDlpTest {
 
     @Test
     fun formatChoiceRoundTrip() {
-        listOf(FormatChoice.Original, FormatChoice.Video(1080), FormatChoice.Video(480), FormatChoice.Audio(AudioFormat.M4A))
+        listOf(
+            FormatChoice.Original,
+            FormatChoice.Video(1080),
+            FormatChoice.Video(480),
+            FormatChoice.VideoOnly(720),
+            FormatChoice.Audio(AudioFormat.M4A),
+        )
             .forEach { assertEquals(it, FormatChoice.decode(it.encode())) }
         assertEquals(FormatChoice.Original, FormatChoice.decode(null))
         // Nunca acima do limite do planejamento.
         assertEquals(FormatChoice.Video(1080), FormatChoice.decode("video:2160"))
+    }
+
+    @Test
+    fun videoWithoutAudioArguments() {
+        val args = YtDlp.downloadArgs(FormatChoice.VideoOnly(720), "/tmp/x", playlistIndex = null)
+        assertEquals("bv/b", args[args.indexOf("-f") + 1])
+        assertEquals("res:720,vcodec:h264,ext:mp4:m4a", args[args.indexOf("-S") + 1])
+        assertEquals("FFmpegCopyStream", args[args.indexOf("--use-postprocessor") + 1])
+        assertEquals("CopyStream:-an", args[args.indexOf("--ppa") + 1])
+        assertFalse(args.contains("-x"))
     }
 }

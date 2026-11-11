@@ -47,8 +47,10 @@ object DownloadOptions {
         if (items.isEmpty()) return emptyList()
         if (items.any { it.source != MediaSource.EXTRACTOR }) return listOf(FormatChoice.Original)
         val anyVideo = items.any { it.hasVideo }
-        val video = if (anyVideo) videoResolutions(items).map { FormatChoice.Video(it) } else emptyList()
-        return video + AudioFormat.entries.map { FormatChoice.Audio(it) }
+        val resolutions = if (anyVideo) videoResolutions(items) else emptyList()
+        return resolutions.map { FormatChoice.Video(it) } +
+            resolutions.map { FormatChoice.VideoOnly(it) } +
+            AudioFormat.entries.map { FormatChoice.Audio(it) }
     }
 
     /** Resoluções até 1080p, da maior para a menor. */
@@ -68,5 +70,7 @@ object DownloadOptions {
         is FormatChoice.Audio -> item.audioSizeBytes
         is FormatChoice.Video -> item.sizeByResolution.filterKeys { it <= choice.maxResolution }
             .maxByOrNull { it.key }?.value ?: item.sizeBytes
+        is FormatChoice.VideoOnly -> estimatedSize(item, FormatChoice.Video(choice.maxResolution))
+            ?.let { total -> (total - (item.audioSizeBytes ?: 0L)).coerceAtLeast(total / 2) }
     }
 }

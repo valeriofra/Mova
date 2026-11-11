@@ -36,6 +36,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.automirrored.rounded.VolumeOff
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -888,6 +889,7 @@ private fun FormatSection(
     onSelect: (FormatChoice) -> Unit,
 ) {
     val videos = formats.filterIsInstance<FormatChoice.Video>()
+    val silentVideos = formats.filterIsInstance<FormatChoice.VideoOnly>()
     val audios = formats.filterIsInstance<FormatChoice.Audio>()
     val single = items.singleOrNull()
     Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -904,6 +906,23 @@ private fun FormatSection(
                 selected = current != null,
                 onSelect = { if (current == null) onSelect(videos.first()) },
                 chips = videos.map { it to "${it.maxResolution}p" },
+                selectedChip = current,
+                onChip = onSelect,
+            )
+        }
+        if (silentVideos.isNotEmpty()) {
+            val current = selected as? FormatChoice.VideoOnly
+            val size = single?.let { item -> current?.let { DownloadOptions.estimatedSize(item, it) } }
+            FormatCard(
+                icon = Icons.AutoMirrored.Rounded.VolumeOff,
+                title = stringResource(R.string.options_video_only),
+                subtitle = listOfNotNull(
+                    stringResource(R.string.options_video_only_hint),
+                    size?.let { "≈ ${Formatters.bytes(it)}" },
+                ).joinToString(" · "),
+                selected = current != null,
+                onSelect = { if (current == null) onSelect(silentVideos.first()) },
+                chips = silentVideos.map { it to "${it.maxResolution}p" },
                 selectedChip = current,
                 onChip = onSelect,
             )

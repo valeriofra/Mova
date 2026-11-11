@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.automirrored.rounded.FormatListBulleted
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.VideoLibrary
@@ -71,7 +71,7 @@ object Routes {
 private data class TopLevel(val route: String, val icon: ImageVector, val label: Int)
 
 private val topLevels = listOf(
-    TopLevel(Routes.HOME, Icons.Rounded.Download, R.string.nav_download),
+    TopLevel(Routes.HOME, Icons.Rounded.Home, R.string.nav_home),
     TopLevel(Routes.QUEUE, Icons.AutoMirrored.Rounded.FormatListBulleted, R.string.nav_queue),
     TopLevel(Routes.LIBRARY, Icons.Rounded.VideoLibrary, R.string.nav_library),
     TopLevel(Routes.SETTINGS, Icons.Rounded.Tune, R.string.nav_settings),
@@ -221,11 +221,26 @@ fun MovaApp(
     }
 }
 
-private fun NavHostController.navigateTopLevel(route: String) {
+internal fun NavHostController.navigateTopLevel(route: String) {
+    val start = graph.findStartDestination()
+    if (route == start.route) {
+        // Início é a base da pilha: basta voltar até ele. Usar saveState/restoreState
+        // aqui fazia o app "restaurar" a tela anterior (ex.: Fila) em vez do Início.
+        if (!popBackStack(start.id, inclusive = false)) navigate(route) { launchSingleTop = true }
+        return
+    }
     navigate(route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
+        popUpTo(start.id) { saveState = true }
         launchSingleTop = true
         restoreState = true
+    }
+}
+
+/** Depois de adicionar à fila: mostra a Fila, com o Início como tela anterior. */
+internal fun NavHostController.navigateToQueueAfterEnqueue() {
+    navigate(Routes.QUEUE) {
+        popUpTo(graph.findStartDestination().id) { saveState = false }
+        launchSingleTop = true
     }
 }
 
@@ -235,10 +250,7 @@ private fun NavHostController.afterEnqueue(
     scope: kotlinx.coroutines.CoroutineScope,
     context: android.content.Context,
 ) {
-    navigate(Routes.QUEUE) {
-        popUpTo(graph.findStartDestination().id) { saveState = false }
-        launchSingleTop = true
-    }
+    navigateToQueueAfterEnqueue()
     val message = context.resources.getQuantityString(R.plurals.enqueued_message, count, count)
     scope.launch { snackbarHost.showSnackbar(message) }
 }

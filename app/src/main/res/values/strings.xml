@@ -4,7 +4,7 @@
     <string name="share_target_label">Baixar com MOVA</string>
 
     <!-- Navegação -->
-    <string name="nav_download">Baixar</string>
+    <string name="nav_home">Início</string>
     <string name="nav_queue">Fila</string>
     <string name="nav_library">Biblioteca</string>
     <string name="nav_settings">Ajustes</string>
@@ -111,6 +111,8 @@
     <string name="options_format">Formato</string>
     <string name="options_video">Vídeo</string>
     <string name="options_video_hint">Melhor qualidade até a escolhida</string>
+    <string name="options_video_only">Vídeo sem áudio</string>
+    <string name="options_video_only_hint">Só a imagem, sem som</string>
     <string name="options_audio">Somente áudio</string>
     <string name="options_audio_hint">Extraído do vídeo</string>
     <string name="options_all_items">Todos os itens</string>

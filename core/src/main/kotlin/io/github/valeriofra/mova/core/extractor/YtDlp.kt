@@ -66,6 +66,13 @@ object YtDlp {
                 add("--merge-output-format"); add("mp4")
                 add("--embed-metadata")
             }
+            is FormatChoice.VideoOnly -> {
+                // Só a faixa de vídeo quando existir separada; senão remove o áudio com o FFmpeg.
+                add("-f"); add("bv/b")
+                add("-S"); add("res:${choice.maxResolution},vcodec:h264,ext:mp4:m4a")
+                add("--use-postprocessor"); add("FFmpegCopyStream")
+                add("--ppa"); add("CopyStream:-an")
+            }
             is FormatChoice.Audio -> {
                 add("-f"); add(if (choice.format == AudioFormat.M4A) "ba[ext=m4a]/ba/b" else "ba/b")
                 add("-x")

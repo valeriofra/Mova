@@ -159,11 +159,19 @@ class LinkAnalyzerExtractorTest {
 
         val formats = DownloadOptions.formatsFor(listOf(item))
         assertEquals(
-            listOf(FormatChoice.Video(1080), FormatChoice.Video(720), FormatChoice.Audio(AudioFormat.MP3), FormatChoice.Audio(AudioFormat.M4A)),
+            listOf(
+                FormatChoice.Video(1080),
+                FormatChoice.Video(720),
+                FormatChoice.VideoOnly(1080),
+                FormatChoice.VideoOnly(720),
+                FormatChoice.Audio(AudioFormat.MP3),
+                FormatChoice.Audio(AudioFormat.M4A),
+            ),
             formats,
         )
         assertEquals(5_000_000L, DownloadOptions.estimatedSize(item, FormatChoice.Video(720)))
         assertEquals(500_000L, DownloadOptions.estimatedSize(item, FormatChoice.Audio(AudioFormat.M4A)))
+        assertEquals(4_500_000L, DownloadOptions.estimatedSize(item, FormatChoice.VideoOnly(720)))
     }
 
     @Test
