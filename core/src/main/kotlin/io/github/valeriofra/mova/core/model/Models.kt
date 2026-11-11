@@ -57,3 +57,12 @@ enum class MediaKind {
     DOCUMENT,
     OTHER,
 }
+
+/** De onde o arquivo é obtido. */
+enum class MediaSource {
+    /** Link direto para o arquivo, baixado por HTTP. */
+    DIRECT,
+
+    /** Página de plataforma, processada pelo mecanismo de extração (yt-dlp). */
+    EXTRACTOR,
+}

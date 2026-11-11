@@ -1,9 +1,11 @@
 package io.github.valeriofra.mova.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import io.github.valeriofra.mova.core.model.MediaKind
+import io.github.valeriofra.mova.core.model.MediaSource
 import io.github.valeriofra.mova.core.model.Platform
 
 enum class DownloadStatus {
@@ -24,6 +26,11 @@ enum class DownloadError(val retryable: Boolean) {
     ACCESS_DENIED(false),
     INSUFFICIENT_STORAGE(false),
     STORAGE(false),
+    LOGIN_REQUIRED(false),
+    DRM(false),
+    UNSUPPORTED(false),
+    /** Falha do mecanismo de extração (geralmente resolvida atualizando o yt-dlp). */
+    EXTRACTOR(false),
     UNKNOWN(false),
 }
 
@@ -56,4 +63,12 @@ data class DownloadEntity(
     val createdAt: Long,
     val updatedAt: Long,
     val completedAt: Long? = null,
+    /** Link direto (HTTP) ou página processada pelo yt-dlp. */
+    @ColumnInfo(defaultValue = "DIRECT") val source: MediaSource = MediaSource.DIRECT,
+    /** Formato escolhido (ver FormatChoice.encode), ex.: "video:1080", "audio:mp3". */
+    val formatSpec: String? = null,
+    val thumbnailUrl: String? = null,
+    val durationSeconds: Long? = null,
+    /** Posição na playlist/publicação, quando o item é baixado por ela. */
+    val playlistIndex: Int? = null,
 )

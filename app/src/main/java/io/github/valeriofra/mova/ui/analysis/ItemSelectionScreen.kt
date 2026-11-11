@@ -36,7 +36,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.valeriofra.mova.R
 import io.github.valeriofra.mova.core.analysis.MediaItem
 import io.github.valeriofra.mova.core.format.Formatters
-import io.github.valeriofra.mova.ui.components.MediaKindIcon
+import io.github.valeriofra.mova.core.format.duration
+import io.github.valeriofra.mova.core.model.MediaSource
+import io.github.valeriofra.mova.ui.components.MediaThumbnail
 import io.github.valeriofra.mova.ui.components.MovaCard
 import io.github.valeriofra.mova.ui.components.MovaTopBar
 import io.github.valeriofra.mova.ui.components.PrimaryButton
@@ -82,7 +84,7 @@ fun ItemSelectionContent(
     onToggleAll: (Boolean) -> Unit,
     onConfirm: () -> Unit,
 ) {
-    val selectedCount = items.count { it.url in selected }
+    val selectedCount = items.count { it.key in selected }
     val allState = when (selectedCount) {
         0 -> ToggleableState.Off
         items.size -> ToggleableState.On
@@ -129,8 +131,8 @@ fun ItemSelectionContent(
                     )
                 }
             }
-            items(items, key = { it.url }) { item ->
-                val checked = item.url in selected
+            items(items, key = { it.key }) { item ->
+                val checked = item.key in selected
                 MovaCard(
                     highlighted = checked,
                     modifier = Modifier
@@ -143,13 +145,20 @@ fun ItemSelectionContent(
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        MediaKindIcon(item.mediaKind, size = 52.dp)
+                        MediaThumbnail(
+                            uri = null,
+                            kind = item.mediaKind,
+                            size = 52.dp,
+                            remoteUrl = item.thumbnailUrl,
+                        )
                         Spacer(Modifier.width(12.dp))
                         val details = buildList {
                             add(stringResource(item.mediaKind.labelRes()))
+                            item.durationSeconds?.let { add(Formatters.duration(it)) }
                             item.sizeBytes?.let { add(Formatters.bytes(it)) }
                         }.joinToString(" · ")
-                        TitleAndSubtitle(item.fileName, details, Modifier.weight(1f))
+                        val title = if (item.source == MediaSource.EXTRACTOR) item.title else item.fileName
+                        TitleAndSubtitle(title, details, Modifier.weight(1f))
                         Checkbox(checked = checked, onCheckedChange = null, colors = checkboxColors)
                     }
                 }

@@ -46,6 +46,24 @@
     <string name="analysis_title">Análise do link</string>
     <string name="analysis_loading_title">Analisando o link…</string>
     <string name="analysis_loading_message">Identificando a origem e os conteúdos disponíveis.</string>
+    <string name="analysis_loading_preparing">Preparando o mecanismo de download. Isso só acontece na primeira vez e leva alguns segundos.</string>
+    <string name="analysis_loading_updating">Atualizando o mecanismo de download…</string>
+    <string name="analysis_not_supported_title">Nenhum vídeo encontrado</string>
+    <string name="analysis_not_supported_message">O mecanismo de download não encontrou um vídeo neste link. Tente atualizar o mecanismo em Ajustes ou abra no app original.</string>
+    <string name="analysis_unavailable_message_plain">O conteúdo não foi encontrado ou foi removido.</string>
+    <string name="analysis_private_title">Conteúdo privado</string>
+    <string name="analysis_private_message">Este conteúdo é privado. O MOVA baixa apenas conteúdo público.</string>
+    <string name="analysis_login_title">Exige login</string>
+    <string name="analysis_login_message">A plataforma só libera este conteúdo para quem está conectado (comum em Stories e em alguns posts do Instagram). Baixar com a sua própria conta será uma opção futura.</string>
+    <string name="analysis_drm_title">Protegido por DRM</string>
+    <string name="analysis_drm_message">Este conteúdo tem proteção contra cópia (DRM). O MOVA não contorna esse tipo de proteção.</string>
+    <string name="analysis_geo_title">Indisponível na sua região</string>
+    <string name="analysis_geo_message">A plataforma bloqueou este conteúdo para o seu país.</string>
+    <string name="analysis_more_items">e mais %1$d…</string>
+    <plurals name="items_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d itens</item>
+    </plurals>
     <string name="analysis_found">Conteúdo encontrado</string>
     <string name="analysis_origin">Origem: %1$s</string>
     <string name="analysis_no_resume">Este servidor não permite retomar downloads. Se a conexão cair, o arquivo recomeça do início.</string>
@@ -84,10 +102,17 @@
     <string name="result_unavailable">Indisponível</string>
     <string name="result_denied">Sem acesso</string>
     <string name="result_error">Erro</string>
+    <string name="result_not_supported">Sem vídeo</string>
+    <string name="result_restricted">Restrito</string>
 
     <!-- Opções de download -->
     <string name="options_title">O que deseja baixar?</string>
     <string name="options_original_quality">Qualidade original</string>
+    <string name="options_format">Formato</string>
+    <string name="options_video">Vídeo</string>
+    <string name="options_video_hint">Melhor qualidade até a escolhida</string>
+    <string name="options_audio">Somente áudio</string>
+    <string name="options_audio_hint">Extraído do vídeo</string>
     <string name="options_all_items">Todos os itens</string>
     <string name="options_select_items">Selecionar itens</string>
     <string name="options_select_items_hint">Escolha um, alguns ou todos</string>
@@ -147,6 +172,10 @@
     <string name="error_storage_full">Espaço insuficiente no aparelho</string>
     <string name="error_storage">Não foi possível salvar o arquivo</string>
     <string name="error_unknown">Erro inesperado</string>
+    <string name="error_login_required">A plataforma exige login para este conteúdo</string>
+    <string name="error_drm">Conteúdo protegido por DRM</string>
+    <string name="error_unsupported">Link não suportado pelo mecanismo</string>
+    <string name="error_extractor">Falha no mecanismo de download. Atualize-o em Ajustes e tente novamente</string>
 
     <!-- Tipos de conteúdo -->
     <string name="kind_video">Vídeo</string>
@@ -202,6 +231,16 @@
     <string name="settings_wifi_only_hint">Baixa apenas em redes não tarifadas, para economizar dados móveis.</string>
     <string name="settings_concurrent">Downloads simultâneos</string>
     <string name="settings_concurrent_hint">Quantos arquivos baixar ao mesmo tempo.</string>
+    <string name="settings_engine">Mecanismo de download</string>
+    <string name="settings_engine_not_ready">Será preparado no primeiro uso</string>
+    <string name="settings_engine_preparing">Preparando…</string>
+    <string name="settings_engine_updating">Atualizando…</string>
+    <string name="settings_engine_version">yt-dlp %1$s · atualiza sozinho 1x por dia</string>
+    <string name="settings_engine_failed">Não foi possível preparar o mecanismo</string>
+    <string name="settings_engine_update">Atualizar</string>
+    <string name="settings_engine_updated">Mecanismo atualizado (yt-dlp %1$s)</string>
+    <string name="settings_engine_up_to_date">O mecanismo já está na versão mais recente</string>
+    <string name="settings_engine_update_failed">Não foi possível atualizar agora. Verifique a conexão.</string>
     <string name="settings_section_storage">Armazenamento</string>
     <string name="settings_folder">Local de salvamento</string>
     <string name="settings_folder_custom">Pasta escolhida</string>
@@ -216,13 +255,15 @@
     <string name="settings_notifications_off">Desativadas — você não verá o progresso fora do app</string>
     <string name="settings_notifications_enable">Ativar</string>
     <string name="settings_section_platforms">Plataformas</string>
-    <string name="settings_platforms_intro">O MOVA reconhece os links destas plataformas. O download de cada uma só será liberado depois de validado por meios oficiais ou autorizados.</string>
+    <string name="settings_platforms_intro">Conteúdo público destas plataformas pode ser baixado para uso pessoal. Conteúdo privado, protegido por DRM ou que exige login não é contornado.</string>
     <string name="platform_available">Download disponível</string>
     <string name="platform_recognition_only">Reconhece links</string>
+    <string name="platform_partial">Parcial</string>
+    <string name="platform_experimental">Experimental</string>
     <string name="platform_direct_links">Links diretos de arquivos</string>
     <string name="settings_section_about">Sobre</string>
     <string name="settings_version">Versão %1$s (%2$d)</string>
-    <string name="settings_about_text">Uso pessoal. Sem anúncios, sem cadastro e sem servidor: tudo é processado no próprio aparelho. O MOVA não contorna DRM, privacidade ou restrições de acesso.</string>
+    <string name="settings_about_text">Uso pessoal. Sem anúncios, sem cadastro e sem servidor: tudo é processado no próprio aparelho, com o yt-dlp (código aberto). O MOVA não contorna DRM, privacidade ou restrições de acesso.</string>
 
     <!-- Notificações -->
     <string name="notif_channel_progress">Downloads em andamento</string>

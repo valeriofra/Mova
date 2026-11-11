@@ -3,6 +3,9 @@ package io.github.valeriofra.mova.core.analysis
 import io.github.valeriofra.mova.core.format.Formatters
 import io.github.valeriofra.mova.core.model.MediaKind
 import io.github.valeriofra.mova.core.model.Platform
+import io.github.valeriofra.mova.core.analysis.AudioFormat
+import io.github.valeriofra.mova.core.analysis.FormatChoice
+import io.github.valeriofra.mova.core.analysis.RestrictionReason
 import java.io.IOException
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -121,5 +124,111 @@ class LinkAnalyzerTest {
         assertEquals("48,2 MB", Formatters.bytes((48.2 * 1024 * 1024).toLong()))
         assertEquals(72, Formatters.percent(72, 100))
         assertEquals(null, Formatters.percent(10, null))
+    }
+}
+
+class LinkAnalyzerExtractorTest {
+
+    private fun media(title: String = "Reel", resolutions: List<Int> = listOf(1080, 720)) =
+        io.github.valeriofra.mova.core.extractor.ExtractedMedia(
+            id = "x", title = title, webpageUrl = "https://www.instagram.com/reel/ABC/", extractor = "Instagram",
+            uploader = "perfil", durationSeconds = 30, thumbnailUrl = "https://cdn/thumb.jpg",
+            resolutions = resolutions, hasVideo = true, hasAudio = true,
+            sizeByResolution = mapOf(1080 to 9_000_000L, 720 to 5_000_000L), audioSizeBytes = 500_000L,
+        )
+
+    private val noProbe = RemoteFileProbe { error("não deveria consultar por HTTP") }
+
+    @Test
+    fun instagramReelIsDownloadableThroughExtractor() = runTest {
+        var allowPlaylist: Boolean? = null
+        val analyzer = LinkAnalyzer(
+            probe = noProbe,
+            extractor = { _, playlist ->
+                allowPlaylist = playlist
+                io.github.valeriofra.mova.core.extractor.ExtractionResult.Single(media())
+            },
+        )
+        val report = analyzer.analyze("https://www.instagram.com/reel/ABC/?igsh=1")
+        val item = report.downloadableItems.single()
+        assertEquals(io.github.valeriofra.mova.core.model.MediaSource.EXTRACTOR, item.source)
+        assertEquals(Platform.INSTAGRAM, item.platform)
+        assertEquals("Reel.mp4", item.fileName)
+        assertEquals(9_000_000L, item.sizeBytes)
+        assertEquals(false, allowPlaylist)
+
+        val formats = DownloadOptions.formatsFor(listOf(item))
+        assertEquals(
+            listOf(FormatChoice.Video(1080), FormatChoice.Video(720), FormatChoice.Audio(AudioFormat.MP3), FormatChoice.Audio(AudioFormat.M4A)),
+            formats,
+        )
+        assertEquals(5_000_000L, DownloadOptions.estimatedSize(item, FormatChoice.Video(720)))
+        assertEquals(500_000L, DownloadOptions.estimatedSize(item, FormatChoice.Audio(AudioFormat.M4A)))
+    }
+
+    @Test
+    fun playlistBecomesSelectableItems() = runTest {
+        val analyzer = LinkAnalyzer(
+            probe = noProbe,
+            extractor = { _, _ ->
+                io.github.valeriofra.mova.core.extractor.ExtractionResult.Collection(
+                    title = "Lista",
+                    webpageUrl = "https://www.youtube.com/playlist?list=PL1",
+                    uploader = null,
+                    entries = listOf(
+                        io.github.valeriofra.mova.core.extractor.ExtractedEntry("https://www.youtube.com/watch?v=a", "A", 10, null, 1),
+                        io.github.valeriofra.mova.core.extractor.ExtractedEntry(null, null, null, null, 2),
+                    ),
+                )
+            },
+        )
+        val result = analyzer.analyze("https://www.youtube.com/playlist?list=PL1").results.single() as LinkAnalysis.Ready
+        assertEquals("Lista", result.collectionTitle)
+        assertEquals(2, result.items.size)
+        assertEquals(null, result.items[0].playlistIndex)
+        assertEquals(2, result.items[1].playlistIndex)
+        assertEquals("Item 2", result.items[1].title)
+        assertTrue(result.items.map { it.key }.toSet().size == 2)
+        assertEquals(FormatChoice.STANDARD_RESOLUTIONS.map { FormatChoice.Video(it) }, DownloadOptions.formatsFor(result.items).take(4))
+    }
+
+    @Test
+    fun extractorFailuresBecomeClearStates() = runTest {
+        fun analyzerFailing(reason: io.github.valeriofra.mova.core.extractor.ExtractionFailure) = LinkAnalyzer(
+            probe = noProbe,
+            extractor = { _, _ -> io.github.valeriofra.mova.core.extractor.ExtractionResult.Failure(reason, "x") },
+        )
+        val login = analyzerFailing(io.github.valeriofra.mova.core.extractor.ExtractionFailure.LOGIN_REQUIRED)
+            .analyze("https://www.instagram.com/stories/u/1/").results.single()
+        assertEquals(RestrictionReason.LOGIN_REQUIRED, (login as LinkAnalysis.Restricted).reason)
+
+        val drm = analyzerFailing(io.github.valeriofra.mova.core.extractor.ExtractionFailure.DRM)
+            .analyze("https://youtu.be/dQw4w9WgXcQ").results.single()
+        assertEquals(RestrictionReason.DRM, (drm as LinkAnalysis.Restricted).reason)
+
+        val unsupported = analyzerFailing(io.github.valeriofra.mova.core.extractor.ExtractionFailure.UNSUPPORTED)
+            .analyze("https://www.kwai.com/@u/video/1").results.single()
+        assertTrue(unsupported is LinkAnalysis.NotSupported)
+    }
+
+    @Test
+    fun ordinaryPageFallsBackToExtractor() = runTest {
+        val analyzer = LinkAnalyzer(
+            probe = { url -> ProbeResult(url, 200, "text/html", null, null, false, null, null) },
+            extractor = { _, _ -> io.github.valeriofra.mova.core.extractor.ExtractionResult.Single(media("Vídeo do site")) },
+        )
+        val item = analyzer.analyze("https://blog.exemplo.com/post").downloadableItems.single()
+        assertEquals("Vídeo do site", item.title)
+        assertEquals(Platform.WEB, item.platform)
+
+        val noVideo = LinkAnalyzer(
+            probe = { url -> ProbeResult(url, 200, "text/html", null, null, false, null, null) },
+            extractor = { _, _ ->
+                io.github.valeriofra.mova.core.extractor.ExtractionResult.Failure(
+                    io.github.valeriofra.mova.core.extractor.ExtractionFailure.UNSUPPORTED, null,
+                )
+            },
+        )
+        assertTrue(noVideo.analyze("https://blog.exemplo.com/post").results.single() is LinkAnalysis.UnrecognizedPage)
     }
 }

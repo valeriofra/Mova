@@ -42,3 +42,11 @@ object Formatters {
         }
     }
 }
+
+/** Duração no formato "3:24" ou "1:02:03". */
+fun Formatters.duration(seconds: Long): String {
+    val h = seconds / 3600
+    val m = (seconds % 3600) / 60
+    val s = seconds % 60
+    return if (h > 0) String.format(Locale.ROOT, "%d:%02d:%02d", h, m, s) else String.format(Locale.ROOT, "%d:%02d", m, s)
+}

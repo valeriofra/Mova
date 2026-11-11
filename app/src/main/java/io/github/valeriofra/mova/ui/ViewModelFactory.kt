@@ -20,7 +20,7 @@ object MovaViewModels {
         }
         initializer {
             val c = movaApplication().container
-            AnalysisViewModel(createSavedStateHandle(), c.analyzer, c.downloads, c.settings)
+            AnalysisViewModel(createSavedStateHandle(), c.analyzer, c.downloads, c.settings, c.ytDlp.state)
         }
         initializer {
             val c = movaApplication().container
@@ -32,7 +32,7 @@ object MovaViewModels {
         }
         initializer {
             val c = movaApplication().container
-            SettingsViewModel(c.settings, c.downloads)
+            SettingsViewModel(c.settings, c.downloads, c.ytDlp)
         }
     }
 

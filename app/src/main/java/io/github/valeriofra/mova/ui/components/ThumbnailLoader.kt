@@ -11,9 +11,14 @@ import android.util.Size
 import io.github.valeriofra.mova.core.model.MediaKind
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 /** Gera e guarda em memória miniaturas dos arquivos da biblioteca. */
-class ThumbnailLoader(private val context: Context) {
+class ThumbnailLoader(
+    private val context: Context,
+    private val httpClient: () -> OkHttpClient,
+) {
 
     private val cache = object : LruCache<String, Bitmap>(CACHE_BYTES) {
         override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount
@@ -33,6 +38,36 @@ class ThumbnailLoader(private val context: Context) {
         }
         if (bitmap != null) cache.put(key, bitmap) else failures.add(key)
         return bitmap
+    }
+
+    /** Miniatura de uma URL (capa informada pela plataforma na análise). */
+    suspend fun loadRemote(url: String, sizePx: Int): Bitmap? {
+        val key = "remote:$url"
+        cache.get(key)?.let { return it }
+        if (key in failures) return null
+        val bitmap = withContext(Dispatchers.IO) {
+            runCatching {
+                val request = Request.Builder().url(url).header("User-Agent", "MOVA/0.2 (Android)").build()
+                httpClient().newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) return@use null
+                    val bytes = response.body.bytes()
+                    decodeSampled(bytes, sizePx)
+                }
+            }.getOrNull()
+        }
+        if (bitmap != null) cache.put(key, bitmap) else failures.add(key)
+        return bitmap
+    }
+
+    fun cachedRemote(url: String?): Bitmap? = url?.let { cache.get("remote:$it") }
+
+    private fun decodeSampled(bytes: ByteArray, sizePx: Int): Bitmap? {
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
+        val shortest = minOf(options.outWidth, options.outHeight).coerceAtLeast(1)
+        options.inJustDecodeBounds = false
+        options.inSampleSize = (shortest / sizePx).coerceAtLeast(1)
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
     }
 
     private fun fallback(uri: Uri, kind: MediaKind, sizePx: Int): Bitmap? = when (kind) {

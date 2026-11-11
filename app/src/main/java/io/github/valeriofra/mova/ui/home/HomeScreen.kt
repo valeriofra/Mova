@@ -305,7 +305,7 @@ private fun RecentRow(item: DownloadEntity, onClick: () -> Unit, modifier: Modif
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            MediaThumbnail(uri = item.outputUri, kind = item.mediaKind, size = 48.dp)
+            MediaThumbnail(uri = item.outputUri, kind = item.mediaKind, size = 48.dp, remoteUrl = item.thumbnailUrl)
             TitleAndSubtitle(title = item.fileName, subtitle = subtitle, modifier = Modifier.weight(1f))
         }
     }

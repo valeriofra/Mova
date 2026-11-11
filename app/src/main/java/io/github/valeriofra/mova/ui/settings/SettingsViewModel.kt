@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.valeriofra.mova.data.DownloadRepository
 import io.github.valeriofra.mova.data.settings.MovaSettings
 import io.github.valeriofra.mova.data.settings.SettingsRepository
+import io.github.valeriofra.mova.download.YtDlpEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +18,28 @@ import kotlinx.coroutines.withContext
 class SettingsViewModel(
     private val settings: SettingsRepository,
     private val downloads: DownloadRepository,
+    private val engine: YtDlpEngine,
 ) : ViewModel() {
+
+    /** Estado do mecanismo de download (yt-dlp). */
+    val engineState: StateFlow<YtDlpEngine.EngineState> = engine.state
+
+    private val _engineUpdate = MutableStateFlow<YtDlpEngine.UpdateResult?>(null)
+    /** Resultado da última atualização manual (para exibir uma confirmação). */
+    val engineUpdate: StateFlow<YtDlpEngine.UpdateResult?> = _engineUpdate.asStateFlow()
+
+    /** Prepara o mecanismo para mostrar a versão instalada. */
+    fun loadEngine() {
+        viewModelScope.launch { runCatching { engine.ensureReady() } }
+    }
+
+    fun updateEngine() {
+        viewModelScope.launch { _engineUpdate.value = engine.update() }
+    }
+
+    fun engineUpdateShown() {
+        _engineUpdate.value = null
+    }
 
     val state: StateFlow<MovaSettings?> = settings.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)

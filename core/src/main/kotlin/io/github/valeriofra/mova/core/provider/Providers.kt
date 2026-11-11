@@ -4,8 +4,14 @@ import io.github.valeriofra.mova.core.model.Platform
 
 /** Estado da integração de uma origem. */
 enum class IntegrationStatus {
-    /** Funciona e foi validado. */
+    /** Download disponível. */
     AVAILABLE,
+
+    /** Download disponível, mas parte do conteúdo exige login. */
+    PARTIAL,
+
+    /** Download tentado pelo mecanismo, sem garantia de funcionar. */
+    EXPERIMENTAL,
 
     /** Reconhece links, mas ainda não há meio oficial/autorizado implementado. */
     RECOGNITION_ONLY,
@@ -30,9 +36,8 @@ data class ProviderCapabilities(
 )
 
 /**
- * Registro central de capacidades. Uma plataforma só passa a oferecer
- * download quando sua integração for implementada por meios oficiais ou
- * expressamente autorizados — reconhecer a URL não basta.
+ * Registro central de capacidades: o que cada origem oferece. A interface só
+ * mostra ações declaradas aqui (ver planejamento, Atualização 2).
  */
 object ProviderRegistry {
 
@@ -49,8 +54,38 @@ object ProviderRegistry {
         )
     }
 
+    /** Plataformas baixadas pelo mecanismo de extração (yt-dlp), para uso pessoal. */
+    private val extractorStatus = mapOf(
+        Platform.YOUTUBE to IntegrationStatus.AVAILABLE,
+        Platform.VIMEO to IntegrationStatus.AVAILABLE,
+        Platform.TIKTOK to IntegrationStatus.AVAILABLE,
+        Platform.FACEBOOK to IntegrationStatus.AVAILABLE,
+        Platform.PINTEREST to IntegrationStatus.AVAILABLE,
+        Platform.INSTAGRAM to IntegrationStatus.PARTIAL,
+        Platform.KWAI to IntegrationStatus.EXPERIMENTAL,
+    )
+
     private val capabilities: Map<Platform, ProviderCapabilities> = buildMap {
-        Platform.knownPlatforms.forEach { put(it, recognitionOnly(it)) }
+        Platform.knownPlatforms.forEach { platform ->
+            val status = extractorStatus[platform]
+            put(
+                platform,
+                if (status == null) {
+                    recognitionOnly(platform)
+                } else {
+                    ProviderCapabilities(
+                        platform = platform,
+                        status = status,
+                        recognizesLinks = true,
+                        readsMetadata = true,
+                        downloadsFiles = true,
+                        extractsAudio = true,
+                        listsCollections = true,
+                        allowsQualityChoice = true,
+                    )
+                },
+            )
+        }
         put(
             Platform.DIRECT,
             ProviderCapabilities(

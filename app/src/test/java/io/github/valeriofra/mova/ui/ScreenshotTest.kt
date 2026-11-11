@@ -18,6 +18,9 @@ import io.github.valeriofra.mova.data.db.DownloadEntity
 import io.github.valeriofra.mova.data.db.DownloadError
 import io.github.valeriofra.mova.data.db.DownloadStatus
 import io.github.valeriofra.mova.data.settings.MovaSettings
+import io.github.valeriofra.mova.download.YtDlpEngine
+import io.github.valeriofra.mova.core.analysis.RestrictionReason
+import io.github.valeriofra.mova.core.model.MediaSource
 import io.github.valeriofra.mova.ui.analysis.AnalysisContent
 import io.github.valeriofra.mova.ui.analysis.AnalysisUiState
 import io.github.valeriofra.mova.ui.analysis.DownloadOptionsContent
@@ -109,6 +112,27 @@ class ScreenshotTest {
         lastModified = null,
     )
 
+    private fun reel(title: String, index: Int? = null) = MediaItem(
+        url = "https://www.instagram.com/reel/ABC$index/",
+        sourceUrl = "https://www.instagram.com/reel/ABC/",
+        platform = Platform.INSTAGRAM,
+        fileName = "$title.mp4",
+        title = title,
+        mimeType = "video/mp4",
+        mediaKind = MediaKind.VIDEO,
+        sizeBytes = 9 * mb,
+        supportsResume = true,
+        etag = null,
+        lastModified = null,
+        source = MediaSource.EXTRACTOR,
+        durationSeconds = 31,
+        uploader = "perfil.exemplo",
+        resolutions = listOf(1080, 720, 480),
+        sizeByResolution = mapOf(1080 to 9 * mb, 720 to 5 * mb, 480 to 3 * mb),
+        audioSizeBytes = 600 * 1024L,
+        playlistIndex = index,
+    )
+
     private val recent = listOf(
         entity(1, "Video 02.mp4", MediaKind.VIDEO, DownloadStatus.RUNNING, 64 * mb, 46 * mb),
         entity(2, "Video 01.mp4", MediaKind.VIDEO, DownloadStatus.COMPLETED, 48 * mb, 48 * mb),
@@ -133,7 +157,7 @@ class ScreenshotTest {
     fun analysisLoading() {
         compose.mainClock.autoAdvance = false
         shot("03_analisando") {
-            AnalysisContent(AnalysisUiState.Loading, {}, {}, {}, {})
+            AnalysisContent(AnalysisUiState.Loading, null, {}, {}, { _, _ -> }, {})
         }
     }
 
@@ -146,7 +170,7 @@ class ScreenshotTest {
             listOf(LinkAnalysis.Ready(input, link, listOf(item("Video 01.mp4", MediaKind.VIDEO, 48 * mb)))),
         )
         shot("04_conteudo_encontrado") {
-            AnalysisContent(AnalysisUiState.Done(report), {}, {}, {}, {})
+            AnalysisContent(AnalysisUiState.Done(report), null, {}, {}, { _, _ -> }, {})
         }
     }
 
@@ -158,7 +182,7 @@ class ScreenshotTest {
                 item("Video 02.mp4", MediaKind.VIDEO, 63 * mb),
                 item("Faixa.mp3", MediaKind.AUDIO, 8 * mb),
             ),
-            onConfirm = {},
+            onConfirm = { _, _ -> },
         )
     }
 
@@ -180,7 +204,7 @@ class ScreenshotTest {
         val link = LinkRecognizer().recognize(input)!!
         val report = AnalysisReport(input, listOf(LinkAnalysis.RecognizedWithoutDownload(input, link)))
         shot("07_plataforma_sem_download") {
-            AnalysisContent(AnalysisUiState.Done(report), {}, {}, {}, {})
+            AnalysisContent(AnalysisUiState.Done(report), null, {}, {}, { _, _ -> }, {})
         }
     }
 
@@ -213,6 +237,50 @@ class ScreenshotTest {
 
     @Test
     fun settings() = shot("11_ajustes") {
-        SettingsContent(MovaSettings(), 12 * mb, true, {}, {}, {}, {}, {}, {})
+        SettingsContent(MovaSettings(), YtDlpEngine.EngineState.Ready("2026.10.22"), {}, 12 * mb, true, {}, {}, {}, {}, {}, {})
+    }
+
+    @Test
+    fun platformVideoReady() {
+        val input = "https://www.instagram.com/reel/ABC/"
+        val link = LinkRecognizer().recognize(input)!!
+        val report = AnalysisReport(input, listOf(LinkAnalysis.Ready(input, link, listOf(reel("Pôr do sol na praia")))))
+        shot("12_reel_pronto_para_baixar") {
+            AnalysisContent(AnalysisUiState.Done(report), null, {}, {}, { _, _ -> }, {})
+        }
+    }
+
+    @Test
+    fun platformFormats() = shot("13_formatos_video_audio") {
+        DownloadOptionsContent(items = listOf(reel("Pôr do sol na praia")), onConfirm = { _, _ -> })
+    }
+
+    @Test
+    fun playlist() {
+        val input = "https://www.youtube.com/playlist?list=PL1"
+        val link = LinkRecognizer().recognize(input)!!
+        val items = (1..7).map { reel("Aula $it", it) }
+        val report = AnalysisReport(input, listOf(LinkAnalysis.Ready(input, link, items, collectionTitle = "Curso completo")))
+        shot("14_playlist") {
+            AnalysisContent(AnalysisUiState.Done(report), null, {}, {}, { _, _ -> }, {})
+        }
+    }
+
+    @Test
+    fun loginRequired() {
+        val input = "https://www.instagram.com/stories/usuario/3141592653589/"
+        val link = LinkRecognizer().recognize(input)!!
+        val report = AnalysisReport(input, listOf(LinkAnalysis.Restricted(input, link, RestrictionReason.LOGIN_REQUIRED)))
+        shot("15_exige_login") {
+            AnalysisContent(AnalysisUiState.Done(report), null, {}, {}, { _, _ -> }, {})
+        }
+    }
+
+    @Test
+    fun preparingEngine() {
+        compose.mainClock.autoAdvance = false
+        shot("16_preparando_mecanismo") {
+            AnalysisContent(AnalysisUiState.Loading, io.github.valeriofra.mova.ui.analysis.EngineBusy.PREPARING, {}, {}, { _, _ -> }, {})
+        }
     }
 }

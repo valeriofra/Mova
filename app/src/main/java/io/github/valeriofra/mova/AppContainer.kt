@@ -12,6 +12,7 @@ import io.github.valeriofra.mova.download.HttpDownloader
 import io.github.valeriofra.mova.download.NetworkMonitor
 import io.github.valeriofra.mova.download.OkHttpProbe
 import io.github.valeriofra.mova.download.PartialFiles
+import io.github.valeriofra.mova.download.YtDlpEngine
 import io.github.valeriofra.mova.ui.components.ThumbnailLoader
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +35,7 @@ class AppContainer(context: Context) {
     val partialFiles = PartialFiles(appContext)
     val notifier = DownloadNotifier(appContext)
     val publisher = FilePublisher(appContext)
-    val thumbnails = ThumbnailLoader(appContext)
+    val thumbnails by lazy { ThumbnailLoader(appContext) { httpClient } }
 
     val httpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
@@ -48,7 +49,9 @@ class AppContainer(context: Context) {
     }
 
     val downloader by lazy { HttpDownloader(httpClient) }
-    val analyzer by lazy { LinkAnalyzer(OkHttpProbe(httpClient)) }
+    /** yt-dlp no aparelho: baixa das plataformas (YouTube, Instagram, TikTok...). */
+    val ytDlp = YtDlpEngine(appContext)
+    val analyzer by lazy { LinkAnalyzer(OkHttpProbe(httpClient), extractor = ytDlp) }
     val scheduler = DownloadScheduler(appContext, settings)
     val downloads by lazy { DownloadRepository(database.downloadDao(), scheduler, partialFiles) }
 }

@@ -5,10 +5,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.valeriofra.mova.core.analysis.AnalysisReport
+import io.github.valeriofra.mova.core.analysis.DownloadOptions
+import io.github.valeriofra.mova.core.analysis.FormatChoice
 import io.github.valeriofra.mova.core.analysis.LinkAnalyzer
 import io.github.valeriofra.mova.core.analysis.MediaItem
 import io.github.valeriofra.mova.data.DownloadRepository
 import io.github.valeriofra.mova.data.settings.SettingsRepository
+import io.github.valeriofra.mova.download.YtDlpEngine
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -23,6 +26,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/** O mecanismo de download está sendo preparado ou atualizado (a análise demora mais). */
+enum class EngineBusy { PREPARING, UPDATING }
+
 sealed interface AnalysisUiState {
     data object Loading : AnalysisUiState
     data class Done(val report: AnalysisReport) : AnalysisUiState
@@ -34,14 +40,27 @@ class AnalysisViewModel(
     private val analyzer: LinkAnalyzer,
     private val downloads: DownloadRepository,
     private val settings: SettingsRepository,
+    engineState: Flow<YtDlpEngine.EngineState>,
 ) : ViewModel() {
+
+    val engineBusy: StateFlow<EngineBusy?> = engineState.map {
+        when (it) {
+            YtDlpEngine.EngineState.Preparing -> EngineBusy.PREPARING
+            is YtDlpEngine.EngineState.Updating -> EngineBusy.UPDATING
+            else -> null
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** Formato escolhido na folha de opções (usado também na seleção de itens). */
+    private val _format = MutableStateFlow<FormatChoice>(FormatChoice.Original)
+    val format: StateFlow<FormatChoice> = _format.asStateFlow()
 
     val input: String = savedStateHandle.get<String>("input").orEmpty()
 
     private val _state = MutableStateFlow<AnalysisUiState>(AnalysisUiState.Loading)
     val state: StateFlow<AnalysisUiState> = _state.asStateFlow()
 
-    /** Itens marcados na tela de seleção (chave = URL do item). */
+    /** Itens marcados na tela de seleção (chave = MediaItem.key). */
     private val _selected = MutableStateFlow<Set<String>>(emptySet())
     val selected: StateFlow<Set<String>> = _selected.asStateFlow()
 
@@ -75,7 +94,8 @@ class AnalysisViewModel(
             val elapsed = SystemClock.elapsedRealtime() - started
             if (elapsed < MIN_LOADING_MS) delay(MIN_LOADING_MS - elapsed)
             if (result is AnalysisUiState.Done) {
-                _selected.value = result.report.downloadableItems.map { it.url }.toSet()
+                _selected.value = result.report.downloadableItems.map { it.key }.toSet()
+                _format.value = DownloadOptions.defaultFormat(result.report.downloadableItems)
             }
             _state.value = result
         }
@@ -85,19 +105,23 @@ class AnalysisViewModel(
         get() = (state.value as? AnalysisUiState.Done)?.report?.downloadableItems.orEmpty()
 
     fun toggle(item: MediaItem) {
-        _selected.value = _selected.value.let { if (item.url in it) it - item.url else it + item.url }
+        _selected.value = _selected.value.let { if (item.key in it) it - item.key else it + item.key }
     }
 
     fun setAllSelected(selectAll: Boolean) {
-        _selected.value = if (selectAll) items.map { it.url }.toSet() else emptySet()
+        _selected.value = if (selectAll) items.map { it.key }.toSet() else emptySet()
     }
 
-    fun enqueue(items: List<MediaItem>) {
+    fun chooseFormat(format: FormatChoice) {
+        _format.value = format
+    }
+
+    fun enqueue(items: List<MediaItem>, format: FormatChoice = _format.value) {
         if (enqueueing || items.isEmpty()) return
         enqueueing = true
         viewModelScope.launch {
             try {
-                val count = downloads.enqueue(items)
+                val count = downloads.enqueue(items, format)
                 _enqueued.send(count)
             } finally {
                 enqueueing = false
@@ -107,7 +131,7 @@ class AnalysisViewModel(
 
     fun enqueueSelected() {
         val chosen = _selected.value
-        enqueue(items.filter { it.url in chosen })
+        enqueue(items.filter { it.key in chosen }, _format.value)
     }
 
     fun markNotificationsAsked() {

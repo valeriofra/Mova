@@ -233,7 +233,7 @@ private fun QueueItem(
     ) {
         Column(Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp, end = 4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                MediaThumbnail(uri = null, kind = item.mediaKind, size = 48.dp)
+                MediaThumbnail(uri = null, kind = item.mediaKind, size = 48.dp, remoteUrl = item.thumbnailUrl)
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     TitleAndSubtitle(title = item.fileName, subtitle = null)
@@ -326,7 +326,7 @@ private fun CompletedItem(item: DownloadEntity, onClick: () -> Unit) {
             .padding(vertical = 5.dp),
     ) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            MediaThumbnail(uri = item.outputUri, kind = item.mediaKind, size = 48.dp)
+            MediaThumbnail(uri = item.outputUri, kind = item.mediaKind, size = 48.dp, remoteUrl = item.thumbnailUrl)
             Spacer(Modifier.width(12.dp))
             TitleAndSubtitle(
                 title = item.fileName,

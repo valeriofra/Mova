@@ -1,6 +1,11 @@
 package io.github.valeriofra.mova.data
 
+import io.github.valeriofra.mova.core.analysis.DownloadOptions
+import io.github.valeriofra.mova.core.analysis.FormatChoice
 import io.github.valeriofra.mova.core.analysis.MediaItem
+import io.github.valeriofra.mova.core.file.FileNames
+import io.github.valeriofra.mova.core.model.MediaKind
+import io.github.valeriofra.mova.core.model.MediaSource
 import io.github.valeriofra.mova.data.db.DownloadDao
 import io.github.valeriofra.mova.data.db.DownloadEntity
 import io.github.valeriofra.mova.data.db.DownloadStatus
@@ -23,20 +28,26 @@ class DownloadRepository(
 
     fun recentlyCompleted(limit: Int): Flow<List<DownloadEntity>> = dao.observeRecentlyCompleted(limit)
 
-    /** Coloca os itens na fila e garante que o processamento comece. */
-    suspend fun enqueue(items: List<MediaItem>): Int {
+    /** Coloca os itens na fila, no formato escolhido, e garante que o processamento comece. */
+    suspend fun enqueue(items: List<MediaItem>, format: FormatChoice = FormatChoice.Original): Int {
         if (items.isEmpty()) return 0
         val now = clock()
         val entities = items.mapIndexed { index, item ->
+            val audio = (format as? FormatChoice.Audio)?.format
+            val isExtractor = item.source == MediaSource.EXTRACTOR
+            val fileName = when {
+                audio != null -> FileNames.titleOf(item.fileName) + "." + audio.extension
+                else -> item.fileName
+            }
             DownloadEntity(
                 url = item.url,
                 sourceUrl = item.sourceUrl,
                 platform = item.platform,
-                fileName = item.fileName,
+                fileName = fileName,
                 title = item.title,
-                mimeType = item.mimeType,
-                mediaKind = item.mediaKind,
-                totalBytes = item.sizeBytes,
+                mimeType = audio?.mimeType ?: item.mimeType,
+                mediaKind = if (audio != null) MediaKind.AUDIO else item.mediaKind,
+                totalBytes = DownloadOptions.estimatedSize(item, format),
                 status = DownloadStatus.QUEUED,
                 supportsResume = item.supportsResume,
                 etag = item.etag,
@@ -44,6 +55,11 @@ class DownloadRepository(
                 // Mantém a ordem escolhida pelo usuário.
                 createdAt = now + index,
                 updatedAt = now,
+                source = item.source,
+                formatSpec = if (isExtractor) format.encode() else null,
+                thumbnailUrl = item.thumbnailUrl,
+                durationSeconds = item.durationSeconds,
+                playlistIndex = item.playlistIndex,
             )
         }
         dao.insertAll(entities)

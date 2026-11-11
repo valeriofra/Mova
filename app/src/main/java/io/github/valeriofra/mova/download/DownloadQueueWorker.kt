@@ -8,6 +8,10 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import io.github.valeriofra.mova.AppContainer
 import io.github.valeriofra.mova.MovaApplication
+import io.github.valeriofra.mova.core.extractor.YtDlp
+import io.github.valeriofra.mova.core.file.FileNames
+import io.github.valeriofra.mova.core.file.MimeTypes
+import io.github.valeriofra.mova.core.model.MediaSource
 import io.github.valeriofra.mova.data.db.DownloadEntity
 import io.github.valeriofra.mova.data.db.DownloadError
 import io.github.valeriofra.mova.data.db.DownloadStatus
@@ -20,7 +24,9 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -134,29 +140,31 @@ class DownloadQueueWorker(
         }
     }
 
+    /** Transferência concluída e arquivo publicado. */
+    private class Completed(val published: PublishedFile, val size: Long)
+
     private suspend fun runTask(task: DownloadEntity) {
         val c = container
-        val file = c.partialFiles.fileFor(task.id)
         try {
-            val published = coroutineScope {
+            val completed = coroutineScope {
                 val statusWatcher = launch {
                     dao.observeStatus(task.id).first { it != DownloadStatus.RUNNING }
                     throw UserInterruption()
                 }
-                val result = transferAndPublish(task, file)
+                val result = transferAndPublish(task)
                 statusWatcher.cancel()
                 result
             }
-            val size = file.length()
+            val published = completed.published
             val updated = dao.markCompleted(
                 id = task.id,
                 fileName = published.fileName,
                 uri = published.uri.toString(),
                 location = published.location,
-                size = size,
+                size = completed.size,
                 now = now(),
             )
-            file.delete()
+            c.partialFiles.delete(task.id)
             if (updated == 0) {
                 // Cancelado no último instante: não mantém o arquivo.
                 c.publisher.delete(published.uri)
@@ -164,14 +172,16 @@ class DownloadQueueWorker(
                 dao.get(task.id)?.let { c.notifier.notifyFinished(it, success = true) }
             }
         } catch (_: UserInterruption) {
-            handleUserInterruption(task.id, file)
+            handleUserInterruption(task.id)
         } catch (e: DownloadFailure) {
             if (e.error == DownloadError.NETWORK && !c.network.isConnected()) {
                 // A conexão caiu: a tarefa volta para a fila e continua quando a rede voltar.
                 dao.transition(task.id, listOf(DownloadStatus.RUNNING), DownloadStatus.QUEUED, now())
             } else {
                 Log.w(TAG, "Falha no download ${task.id}: ${e.error} ${e.httpCode}", e)
-                if (e.error == DownloadError.NOT_FOUND || e.error == DownloadError.ACCESS_DENIED) file.delete()
+                if (e.error == DownloadError.NOT_FOUND || e.error == DownloadError.ACCESS_DENIED) {
+                    c.partialFiles.delete(task.id)
+                }
                 if (dao.markFailed(task.id, e.error, e.httpCode, now()) > 0) {
                     dao.get(task.id)?.let { c.notifier.notifyFinished(it, success = false) }
                 }
@@ -190,16 +200,50 @@ class DownloadQueueWorker(
         }
     }
 
-    private suspend fun handleUserInterruption(id: Long, file: File) {
+    private suspend fun handleUserInterruption(id: Long) {
         val current = dao.get(id)
         when (current?.status) {
-            null, DownloadStatus.CANCELED -> file.delete()
-            DownloadStatus.PAUSED -> if (!current.supportsResume) file.delete()
+            null, DownloadStatus.CANCELED -> container.partialFiles.delete(id)
+            DownloadStatus.PAUSED -> if (!current.supportsResume) container.partialFiles.delete(id)
             else -> Unit
         }
     }
 
-    private suspend fun transferAndPublish(initial: DownloadEntity, file: File): PublishedFile {
+    private suspend fun transferAndPublish(initial: DownloadEntity): Completed {
+        val c = container
+        val file: File
+        val fileName: String
+        val mimeType: String?
+        when (initial.source) {
+            MediaSource.EXTRACTOR -> {
+                file = downloadWithExtractor(initial)
+                fileName = FileNames.sanitize(file.name).ifEmpty { initial.fileName }
+                mimeType = MimeTypes.extensionOf(fileName)?.let(MimeTypes::mimeForExtension) ?: initial.mimeType
+            }
+            MediaSource.DIRECT -> {
+                file = c.partialFiles.fileFor(initial.id)
+                val task = downloadDirect(initial, file)
+                fileName = task.fileName
+                mimeType = task.mimeType
+            }
+        }
+
+        val size = file.length()
+        val settings = c.settings.current()
+        val published = withContext(Dispatchers.IO) {
+            c.publisher.publish(
+                source = file,
+                fileName = fileName,
+                mimeType = mimeType,
+                treeUri = settings.storageTreeUri,
+                treeName = settings.storageTreeName,
+            )
+        }
+        return Completed(published, size)
+    }
+
+    /** Link direto: transferência HTTP com retomada. */
+    private suspend fun downloadDirect(initial: DownloadEntity, file: File): DownloadEntity {
         val c = container
         var task = initial
         val reporter = ProgressReporter(task.id)
@@ -227,22 +271,41 @@ class DownloadQueueWorker(
                     },
                     onProgress = { done, total -> reporter.report(done, total) },
                 )
-                break
+                return task
             } catch (e: DownloadFailure) {
                 if (!e.error.retryable || attempt >= RETRY_DELAYS_MS.size || !c.network.isConnected()) throw e
                 delay(RETRY_DELAYS_MS[attempt++])
             }
         }
+    }
 
-        val settings = c.settings.current()
-        return withContext(Dispatchers.IO) {
-            c.publisher.publish(
-                source = file,
-                fileName = task.fileName,
-                mimeType = task.mimeType,
-                treeUri = settings.storageTreeUri,
-                treeName = settings.storageTreeName,
-            )
+    /** Página de plataforma: download pelo yt-dlp (vídeo até 1080p ou áudio). */
+    private suspend fun downloadWithExtractor(task: DownloadEntity): File = coroutineScope {
+        val c = container
+        val dir = c.partialFiles.dirFor(task.id)
+        val reporter = ProgressReporter(task.id)
+        val progress = MutableStateFlow<YtDlp.Progress?>(null)
+        val writer = launch {
+            progress.filterNotNull().collect { p ->
+                val total = p.totalBytes
+                val done = if (total != null) (total * (p.percent / 100.0)).toLong() else 0L
+                reporter.report(done, total, p.bytesPerSecond)
+            }
+        }
+        try {
+            var attempt = 0
+            while (true) {
+                try {
+                    return@coroutineScope c.ytDlp.download(task, dir) { progress.value = it }
+                } catch (e: DownloadFailure) {
+                    if (!e.error.retryable || attempt >= RETRY_DELAYS_MS.size || !c.network.isConnected()) throw e
+                    delay(RETRY_DELAYS_MS[attempt++])
+                }
+            }
+            @Suppress("UNREACHABLE_CODE")
+            error("inalcançável")
+        } finally {
+            writer.cancel()
         }
     }
 
@@ -252,7 +315,7 @@ class DownloadQueueWorker(
         private var lastBytes = 0L
         private var speed = 0.0
 
-        suspend fun report(done: Long, total: Long?) {
+        suspend fun report(done: Long, total: Long?, knownSpeed: Long? = null) {
             val nowElapsed = SystemClock.elapsedRealtime()
             if (lastTime < 0) {
                 lastTime = nowElapsed
@@ -263,7 +326,11 @@ class DownloadQueueWorker(
             val elapsed = nowElapsed - lastTime
             if (elapsed < PROGRESS_DB_INTERVAL_MS) return
             val instant = (done - lastBytes).coerceAtLeast(0) * 1000.0 / elapsed
-            speed = if (speed == 0.0) instant else speed * 0.6 + instant * 0.4
+            speed = when {
+                knownSpeed != null -> knownSpeed.toDouble()
+                speed == 0.0 -> instant
+                else -> speed * 0.6 + instant * 0.4
+            }
             lastTime = nowElapsed
             lastBytes = done
             dao.updateProgress(id, done, total, speed.toLong(), now())

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CleaningServices
 import androidx.compose.material.icons.rounded.Folder
@@ -68,6 +69,7 @@ import io.github.valeriofra.mova.core.provider.IntegrationStatus
 import io.github.valeriofra.mova.core.provider.ProviderRegistry
 import io.github.valeriofra.mova.data.settings.MovaSettings
 import io.github.valeriofra.mova.download.FilePublisher
+import io.github.valeriofra.mova.download.YtDlpEngine
 import io.github.valeriofra.mova.ui.components.AccentTextButton
 import io.github.valeriofra.mova.ui.components.MovaCard
 import io.github.valeriofra.mova.ui.components.MovaLogo
@@ -81,6 +83,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
     val settings by viewModel.state.collectAsStateWithLifecycle()
     val temporaryBytes by viewModel.temporaryBytes.collectAsStateWithLifecycle()
     val freed by viewModel.freedBytes.collectAsStateWithLifecycle()
+    val engineState by viewModel.engineState.collectAsStateWithLifecycle()
+    val engineUpdate by viewModel.engineUpdate.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val resources = LocalResources.current
 
@@ -88,6 +92,17 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         notificationsGranted = context.notificationsGranted()
         viewModel.refreshTemporarySize()
+    }
+    LaunchedEffect(Unit) { viewModel.loadEngine() }
+    LaunchedEffect(engineUpdate) {
+        val result = engineUpdate ?: return@LaunchedEffect
+        viewModel.engineUpdateShown()
+        val text = when (result) {
+            is YtDlpEngine.UpdateResult.Updated -> resources.getString(R.string.settings_engine_updated, result.version.orEmpty())
+            is YtDlpEngine.UpdateResult.UpToDate -> resources.getString(R.string.settings_engine_up_to_date)
+            is YtDlpEngine.UpdateResult.Failed -> resources.getString(R.string.settings_engine_update_failed)
+        }
+        snackbarHost.showSnackbar(text)
     }
     LaunchedEffect(freed) {
         val bytes = freed ?: return@LaunchedEffect
@@ -110,6 +125,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
 
     SettingsContent(
         settings = settings ?: MovaSettings(),
+        engineState = engineState,
+        onUpdateEngine = viewModel::updateEngine,
         temporaryBytes = temporaryBytes,
         notificationsGranted = notificationsGranted,
         onWifiOnly = viewModel::setWifiOnly,
@@ -141,6 +158,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
 @Composable
 fun SettingsContent(
     settings: MovaSettings,
+    engineState: YtDlpEngine.EngineState,
+    onUpdateEngine: () -> Unit,
     temporaryBytes: Long,
     notificationsGranted: Boolean,
     onWifiOnly: (Boolean) -> Unit,
@@ -215,6 +234,30 @@ fun SettingsContent(
                                 ) { Text(value.toString()) }
                             }
                         }
+                    }
+                }
+            }
+
+            item {
+                MovaCard(Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        RowIcon(Icons.Rounded.Bolt)
+                        val status = when (engineState) {
+                            YtDlpEngine.EngineState.NotReady -> stringResource(R.string.settings_engine_not_ready)
+                            YtDlpEngine.EngineState.Preparing -> stringResource(R.string.settings_engine_preparing)
+                            is YtDlpEngine.EngineState.Updating -> stringResource(R.string.settings_engine_updating)
+                            is YtDlpEngine.EngineState.Ready ->
+                                stringResource(R.string.settings_engine_version, engineState.version ?: "—")
+                            is YtDlpEngine.EngineState.Failed -> stringResource(R.string.settings_engine_failed)
+                        }
+                        TitleAndSubtitleWrap(
+                            stringResource(R.string.settings_engine),
+                            status,
+                            Modifier.weight(1f),
+                        )
+                        val busy = engineState is YtDlpEngine.EngineState.Preparing ||
+                            engineState is YtDlpEngine.EngineState.Updating
+                        if (!busy) AccentTextButton(stringResource(R.string.settings_engine_update), onUpdateEngine)
                     }
                 }
             }
@@ -301,10 +344,15 @@ fun SettingsContent(
                                     color = MovaColors.TextPrimary,
                                     modifier = Modifier.weight(1f),
                                 )
-                                if (caps.status == IntegrationStatus.AVAILABLE) {
-                                    StatusPill(stringResource(R.string.platform_available), MovaColors.Success, icon = Icons.Rounded.CheckCircle)
-                                } else {
-                                    StatusPill(stringResource(R.string.platform_recognition_only), MovaColors.Accent, icon = Icons.Rounded.Schedule)
+                                when (caps.status) {
+                                    IntegrationStatus.AVAILABLE ->
+                                        StatusPill(stringResource(R.string.platform_available), MovaColors.Success, icon = Icons.Rounded.CheckCircle)
+                                    IntegrationStatus.PARTIAL ->
+                                        StatusPill(stringResource(R.string.platform_partial), MovaColors.Accent, icon = Icons.Rounded.CheckCircle)
+                                    IntegrationStatus.EXPERIMENTAL ->
+                                        StatusPill(stringResource(R.string.platform_experimental), MovaColors.Warning, icon = Icons.Rounded.Schedule)
+                                    else ->
+                                        StatusPill(stringResource(R.string.platform_recognition_only), MovaColors.Accent, icon = Icons.Rounded.Schedule)
                                 }
                             }
                         }

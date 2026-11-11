@@ -311,16 +311,33 @@ fun MediaKindIcon(kind: MediaKind, modifier: Modifier = Modifier, size: Dp = 48.
     }
 }
 
-/** Miniatura do arquivo salvo, com o ícone do tipo como alternativa. */
+/**
+ * Miniatura do arquivo salvo ([uri]) ou da capa informada pela plataforma
+ * ([remoteUrl]), com o ícone do tipo como alternativa.
+ */
 @Composable
-fun MediaThumbnail(uri: String?, kind: MediaKind, modifier: Modifier = Modifier, size: Dp = 56.dp) {
+fun MediaThumbnail(
+    uri: String?,
+    kind: MediaKind,
+    modifier: Modifier = Modifier,
+    size: Dp = 56.dp,
+    remoteUrl: String? = null,
+) {
     val context = LocalContext.current
     val loader = (context.applicationContext as? MovaApplication)?.container?.thumbnails
     val sizePx = with(LocalDensity.current) { size.roundToPx() }
-    var bitmap by remember(uri) { mutableStateOf<ImageBitmap?>(loader?.cached(uri)?.asImageBitmap()) }
-    LaunchedEffect(uri) {
-        if (bitmap == null && uri != null && loader != null) {
-            bitmap = loader.load(Uri.parse(uri), kind, sizePx)?.asImageBitmap()
+    var bitmap by remember(uri, remoteUrl) {
+        mutableStateOf<ImageBitmap?>(
+            (loader?.cached(uri) ?: if (uri == null) loader?.cachedRemote(remoteUrl) else null)?.asImageBitmap(),
+        )
+    }
+    LaunchedEffect(uri, remoteUrl) {
+        if (bitmap == null && loader != null) {
+            bitmap = when {
+                uri != null -> loader.load(Uri.parse(uri), kind, sizePx)
+                remoteUrl != null -> loader.loadRemote(remoteUrl, sizePx)
+                else -> null
+            }?.asImageBitmap()
         }
     }
     val image = bitmap
@@ -385,3 +402,28 @@ fun InfoBanner(
         Text(text, style = MaterialTheme.typography.bodyMedium, color = MovaColors.TextPrimary)
     }
 }
+
+/** Imagem carregada de uma URL (capas de vídeos), com conteúdo alternativo enquanto carrega. */
+@Composable
+fun RemoteImage(
+    url: String?,
+    modifier: Modifier = Modifier,
+    fallback: @Composable () -> Unit = {},
+) {
+    val context = LocalContext.current
+    val loader = (context.applicationContext as? MovaApplication)?.container?.thumbnails
+    var bitmap by remember(url) { mutableStateOf(loader?.cachedRemote(url)?.asImageBitmap()) }
+    LaunchedEffect(url) {
+        if (bitmap == null && url != null && loader != null) {
+            bitmap = loader.loadRemote(url, REMOTE_IMAGE_SIZE_PX)?.asImageBitmap()
+        }
+    }
+    val image = bitmap
+    if (image != null) {
+        Image(bitmap = image, contentDescription = null, contentScale = ContentScale.Crop, modifier = modifier)
+    } else {
+        Box(modifier) { fallback() }
+    }
+}
+
+private const val REMOTE_IMAGE_SIZE_PX = 720

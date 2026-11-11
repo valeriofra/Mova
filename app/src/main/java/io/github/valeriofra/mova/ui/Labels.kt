@@ -51,5 +51,9 @@ fun DownloadError?.messageRes(): Int = when (this) {
     DownloadError.ACCESS_DENIED -> R.string.error_access_denied
     DownloadError.INSUFFICIENT_STORAGE -> R.string.error_storage_full
     DownloadError.STORAGE -> R.string.error_storage
+    DownloadError.LOGIN_REQUIRED -> R.string.error_login_required
+    DownloadError.DRM -> R.string.error_drm
+    DownloadError.UNSUPPORTED -> R.string.error_unsupported
+    DownloadError.EXTRACTOR -> R.string.error_extractor
     DownloadError.UNKNOWN, null -> R.string.error_unknown
 }

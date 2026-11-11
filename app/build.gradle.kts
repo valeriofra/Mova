@@ -30,7 +30,7 @@ val hasReleaseSigning = releaseStoreFile != null
 // versionCode precisa sempre aumentar para instalar por cima. No CI ele vem do
 // número da execução do workflow; localmente usa 1.
 val movaVersionCode = System.getenv("MOVA_VERSION_CODE")?.toIntOrNull() ?: 1
-val movaVersionName = "0.1.0"
+val movaVersionName = "0.2.0"
 
 android {
     namespace = "io.github.valeriofra.mova"
@@ -44,6 +44,12 @@ android {
         versionName = movaVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // O mecanismo de extração (Python + FFmpeg) é nativo: incluímos só ARM 64 bits,
+        // usado por praticamente todos os celulares atuais, para manter o APK menor.
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     signingConfigs {
@@ -91,6 +97,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+        // O yt-dlp executa Python/FFmpeg a partir das bibliotecas nativas extraídas.
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 }
 
@@ -122,6 +132,8 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.documentfile)
     implementation(libs.okhttp)
+    implementation(libs.youtubedl.library)
+    implementation(libs.youtubedl.ffmpeg)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

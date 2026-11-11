@@ -357,7 +357,12 @@ private fun HistoryTab(
                     .padding(vertical = 5.dp),
             ) {
                 Row(Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    MediaThumbnail(uri = if (available) item.outputUri else null, kind = item.mediaKind, size = 48.dp)
+                    MediaThumbnail(
+                        uri = if (available) item.outputUri else null,
+                        kind = item.mediaKind,
+                        size = 48.dp,
+                        remoteUrl = item.thumbnailUrl,
+                    )
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         TitleAndSubtitle(
