@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Linux no 22.04: o flatpak-builder roda sem as restrições de namespace do 24.04.
+        # Linux no 22.04: o app-image (e a versão portátil) funciona também em distros mais antigas.
         os: [windows-latest, ubuntu-22.04]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
@@ -105,28 +105,49 @@ jobs:
           mkdir -p dist
           tar -czf "dist/MOVA-Linux-$LABEL-portatil.tar.gz" -C desktop/build/compose/binaries/main-release/app MOVA
 
-      - name: Linux — Flatpak
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q flatpak flatpak-builder
-          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user -y --noninteractive flathub org.freedesktop.Platform//25.08 org.freedesktop.Sdk//25.08
-          F=desktop/packaging/flatpak
-          cp -a desktop/build/compose/binaries/main-release/app/MOVA "$F/mova-app"
-          cp desktop/packaging/mova.png "$F/mova.png"
-          flatpak-builder --user --force-clean --disable-rofiles-fuse --repo=flatpak-repo flatpak-build "$F/io.github.valeriofra.Mova.yml"
-          flatpak build-bundle flatpak-repo "dist/MOVA-Linux-$LABEL.flatpak" io.github.valeriofra.Mova \
-            --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo
-          ls -la dist
 
       - uses: actions/upload-artifact@v6
         with:
           name: MOVA-${{ runner.os }}-${{ env.LABEL }}
           path: dist/*
 
-  release:
+  # Flatpak no contêiner oficial do Flathub (flatpak-builder e runtime 25.08 já instalados),
+  # a partir da versão portátil gerada no job anterior.
+  flatpak:
     needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v6
+      - name: Versão
+        run: |
+          VERSION=$(sed -n 's/^val movaDesktopVersion = "\(.*\)"/\1/p' desktop/build.gradle.kts)
+          echo "LABEL=$VERSION-build$MOVA_BUILD_NUMBER" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@v5
+        with:
+          name: MOVA-Linux-${{ env.LABEL }}
+          path: linux
+      - name: Montar o Flatpak
+        run: |
+          F=desktop/packaging/flatpak
+          mkdir -p "$F/mova-app" dist
+          tar -xzf "linux/MOVA-Linux-$LABEL-portatil.tar.gz" -C "$F/mova-app" --strip-components=1
+          cp desktop/packaging/mova.png "$F/mova.png"
+          flatpak-builder --force-clean --disable-rofiles-fuse --install-deps-from=flathub \
+            --repo=flatpak-repo flatpak-build "$F/io.github.valeriofra.Mova.yml"
+          flatpak build-bundle flatpak-repo "dist/MOVA-Linux-$LABEL.flatpak" io.github.valeriofra.Mova \
+            --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo
+          ls -la dist
+      - uses: actions/upload-artifact@v6
+        with:
+          name: MOVA-Linux-Flatpak-${{ env.LABEL }}
+          path: dist/*.flatpak
+
+  release:
+    needs: [package, flatpak]
     if: >-
       github.event_name != 'pull_request' &&
       (github.ref_name == github.event.repository.default_branch ||
