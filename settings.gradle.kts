@@ -22,5 +22,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "MOVA"
 
-include(":app")
+// -Pmova.desktopOnly=true: compila só o desktop (não exige o Android SDK).
+if (providers.gradleProperty("mova.desktopOnly").orNull != "true") {
+    include(":app")
+}
 include(":core")
+include(":desktop")

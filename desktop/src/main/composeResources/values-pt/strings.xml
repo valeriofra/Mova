@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Textos de referência do MOVA para computador. As traduções (values, values-es,
+     values-fr) são geradas por tools/i18n/gen.py desktop. -->
+<resources>
+    <string name="language_name">Português</string>
+
+    <string name="nav_home">Início</string>
+    <string name="nav_queue">Fila</string>
+    <string name="nav_library">Biblioteca</string>
+    <string name="nav_settings">Ajustes</string>
+    <string name="sidebar_engine_ready">Mecanismo pronto</string>
+    <string name="tray_open">Abrir o MOVA</string>
+    <string name="tray_quit">Sair</string>
+    <string name="notif_finished_title">Download concluído</string>
+    <string name="notif_failed_title">Falha no download</string>
+
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_clear">Limpar</string>
+    <string name="action_delete">Excluir</string>
+    <string name="action_keep">Manter</string>
+    <string name="action_open">Abrir</string>
+    <string name="action_pause">Pausar</string>
+    <string name="action_remove">Remover</string>
+    <string name="action_resume">Continuar</string>
+    <string name="action_retry">Tentar novamente</string>
+
+    <string name="home_title">Baixe e organize com simplicidade</string>
+    <string name="home_subtitle">Cole um link ou arraste-o do navegador para cá. O MOVA reconhece a origem automaticamente.</string>
+    <string name="home_field_placeholder">Cole o link aqui…</string>
+    <string name="home_paste">Colar</string>
+    <string name="home_clear">Limpar campo</string>
+    <string name="home_download">Baixar</string>
+    <string name="home_drop_hint">Dica: pressione Enter para baixar ou arraste um link para esta janela.</string>
+    <string name="home_see_library">Ver biblioteca</string>
+
+    <string name="platform_direct">Link direto</string>
+    <string name="platform_web">Site</string>
+    <string name="kind_video">Vídeo</string>
+    <string name="kind_short_video">Vídeo curto</string>
+    <string name="kind_post">Publicação</string>
+    <string name="kind_story">Story</string>
+    <string name="kind_story_highlight">Destaque de Stories</string>
+    <string name="kind_playlist">Playlist</string>
+    <string name="kind_collection">Coleção</string>
+    <string name="kind_profile">Perfil ou canal</string>
+    <string name="kind_live">Transmissão ao vivo</string>
+    <string name="kind_short_link">Link curto</string>
+    <string name="kind_file">Arquivo</string>
+    <string name="kind_page">Página</string>
+    <string name="kind_unknown">Link</string>
+
+    <string name="analysis_loading_title">Analisando o link…</string>
+    <string name="analysis_loading_message">Identificando a origem e os conteúdos disponíveis.</string>
+    <string name="analysis_loading_updating">Atualizando o mecanismo de download…</string>
+    <string name="engine_preparing_first_time">Preparando o mecanismo de download. Isso só acontece no primeiro uso.</string>
+    <string name="engine_preparing_step">Baixando %3$s (%1$d de %2$d): %4$s</string>
+    <string name="engine_component_ytdlp">yt-dlp</string>
+    <string name="engine_component_ffmpeg">FFmpeg (conversão)</string>
+    <string name="engine_component_js">QuickJS (YouTube)</string>
+    <string name="analysis_not_supported_title">Nenhum vídeo encontrado</string>
+    <string name="analysis_not_supported_message">O mecanismo de download não encontrou um vídeo neste link. Tente atualizar o mecanismo em Ajustes ou abra no navegador.</string>
+    <string name="analysis_unavailable_title">Conteúdo indisponível</string>
+    <string name="analysis_unavailable_message">O conteúdo não foi encontrado ou foi removido (código %1$d).</string>
+    <string name="analysis_unavailable_message_plain">O conteúdo não foi encontrado ou foi removido.</string>
+    <string name="analysis_private_title">Conteúdo privado</string>
+    <string name="analysis_private_message">Este conteúdo é privado. O MOVA baixa apenas conteúdo público.</string>
+    <string name="analysis_login_title">Exige login</string>
+    <string name="analysis_login_message">A plataforma só libera este conteúdo para quem está conectado (comum em Stories e em alguns posts do Instagram). Baixar com a sua própria conta será uma opção futura.</string>
+    <string name="analysis_drm_title">Protegido por DRM</string>
+    <string name="analysis_drm_message">Este conteúdo tem proteção contra cópia (DRM). O MOVA não contorna esse tipo de proteção.</string>
+    <string name="analysis_geo_title">Indisponível na sua região</string>
+    <string name="analysis_geo_message">A plataforma bloqueou este conteúdo para o seu país.</string>
+    <string name="analysis_recognized">Origem reconhecida</string>
+    <string name="analysis_no_download_message">O MOVA reconheceu este link, mas o download de %1$s ainda não está disponível.</string>
+    <string name="analysis_page_title">Origem não reconhecida</string>
+    <string name="analysis_page_message">Este link leva a uma página de %1$s, não a um arquivo de mídia. Você pode abri-la no navegador.</string>
+    <string name="analysis_streaming_title">Formato de transmissão</string>
+    <string name="analysis_streaming_message">Este link é uma transmissão em partes (HLS/DASH), um formato que o MOVA ainda não baixa.</string>
+    <string name="analysis_denied_title">Acesso não permitido</string>
+    <string name="analysis_denied_message">A origem recusou o acesso (código %1$d). O MOVA não contorna restrições de acesso.</string>
+    <string name="analysis_error_title">Não foi possível analisar agora</string>
+    <string name="analysis_error_message">Verifique sua conexão e tente novamente em instantes.</string>
+    <string name="analysis_no_link_title">Nenhum link encontrado</string>
+    <string name="analysis_no_link_message">Confira se o texto colado contém um endereço que começa com http:// ou https://.</string>
+    <string name="analysis_no_resume">Este servidor não permite retomar downloads. Se a conexão cair, o arquivo recomeça do início.</string>
+    <string name="analysis_open_browser">Abrir no navegador</string>
+    <string name="analysis_show_details">Detalhes</string>
+    <string name="analysis_hide_details">Ocultar detalhes</string>
+    <plurals name="analysis_links_analyzed">
+        <item quantity="one">%1$d link analisado</item>
+        <item quantity="many">%1$d links analisados</item>
+        <item quantity="other">%1$d links analisados</item>
+    </plurals>
+
+    <string name="options_format">Formato</string>
+    <string name="options_video">Vídeo</string>
+    <string name="options_video_hint">Melhor qualidade até a escolhida</string>
+    <string name="options_video_only">Vídeo sem áudio</string>
+    <string name="options_video_only_hint">Só a imagem, sem som</string>
+    <string name="options_audio">Somente áudio</string>
+    <string name="options_audio_hint">Extraído do vídeo</string>
+    <string name="options_download_now">Baixar agora</string>
+    <string name="selection_title">Itens encontrados</string>
+    <string name="selection_all">Selecionar todos</string>
+    <string name="selection_none">Limpar seleção</string>
+    <plurals name="selection_download">
+        <item quantity="one">Baixar selecionado (%1$d)</item>
+        <item quantity="many">Baixar selecionados (%1$d)</item>
+        <item quantity="other">Baixar selecionados (%1$d)</item>
+    </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="many">%1$d itens</item>
+        <item quantity="other">%1$d itens</item>
+    </plurals>
+    <plurals name="enqueued_message">
+        <item quantity="one">%1$d download adicionado à fila</item>
+        <item quantity="many">%1$d downloads adicionados à fila</item>
+        <item quantity="other">%1$d downloads adicionados à fila</item>
+    </plurals>
+
+    <string name="queue_title">Fila</string>
+    <string name="queue_empty_title">Nenhum download na fila</string>
+    <string name="queue_empty_message">Cole ou arraste um link na tela Início para começar. O progresso aparece aqui.</string>
+    <string name="queue_empty_action">Colar um link</string>
+    <string name="queue_section_running">Em andamento</string>
+    <string name="queue_section_queued">Na fila</string>
+    <string name="queue_section_paused">Pausados</string>
+    <string name="queue_section_failed">Com erro</string>
+    <string name="queue_section_completed">Concluídos recentemente</string>
+    <string name="queue_progress_of">%1$s de %2$s</string>
+    <string name="queue_remaining">faltam %1$s</string>
+    <string name="queue_cancel_title">Cancelar download?</string>
+    <string name="queue_cancel_message">O progresso de “%1$s” será descartado.</string>
+    <string name="queue_cancel_confirm">Cancelar download</string>
+
+    <string name="status_queued">Na fila</string>
+    <string name="status_running">Baixando</string>
+    <string name="status_paused">Pausado</string>
+    <string name="status_completed">Concluído</string>
+    <string name="status_failed">Falhou</string>
+    <string name="status_canceled">Cancelado</string>
+
+    <string name="error_network">Conexão interrompida</string>
+    <string name="error_server">O servidor não respondeu corretamente</string>
+    <string name="error_not_found">Arquivo não encontrado na origem</string>
+    <string name="error_access_denied">Acesso recusado pela origem</string>
+    <string name="error_storage_full">Espaço insuficiente no disco</string>
+    <string name="error_storage">Não foi possível salvar o arquivo</string>
+    <string name="error_unknown">Erro inesperado</string>
+    <string name="error_login_required">A plataforma exige login para este conteúdo</string>
+    <string name="error_private">Conteúdo privado</string>
+    <string name="error_drm">Conteúdo protegido por DRM</string>
+    <string name="error_geo">Indisponível na sua região</string>
+    <string name="error_rate_limited">A plataforma limitou os acessos. Tente mais tarde</string>
+    <string name="error_unsupported">Link não suportado pelo mecanismo</string>
+    <string name="error_engine_setup">Não foi possível preparar o mecanismo de download. Verifique a conexão</string>
+    <string name="error_extractor">Falha no mecanismo de download. Atualize-o em Ajustes e tente novamente</string>
+
+    <string name="library_title">Biblioteca</string>
+    <string name="library_tab_files">Arquivos</string>
+    <string name="library_tab_history">Histórico</string>
+    <string name="library_filter_all">Todos</string>
+    <string name="library_filter_video">Vídeos</string>
+    <string name="library_filter_audio">Áudios</string>
+    <string name="library_filter_image">Imagens</string>
+    <string name="library_filter_other">Outros</string>
+    <string name="library_search">Buscar</string>
+    <string name="library_open_folder">Abrir pasta</string>
+    <string name="library_show_in_folder">Mostrar na pasta</string>
+    <string name="library_remove_record">Remover do histórico</string>
+    <string name="library_status_deleted">Excluído</string>
+    <string name="library_empty_title">Biblioteca vazia</string>
+    <string name="library_empty_message">Os arquivos baixados ficam aqui e na pasta Downloads/MOVA do computador.</string>
+    <string name="library_filter_empty">Nenhum arquivo encontrado.</string>
+    <string name="library_history_empty_title">Sem histórico</string>
+    <string name="library_history_empty_message">Downloads concluídos, cancelados e com erro aparecem aqui.</string>
+    <string name="library_delete_title">Excluir arquivo?</string>
+    <string name="library_delete_message">“%1$s” será apagado do computador. O registro continua no histórico.</string>
+    <string name="library_deleted">Arquivo excluído</string>
+    <string name="library_delete_failed">Não foi possível excluir. Tente pelo gerenciador de arquivos.</string>
+    <string name="library_file_missing">O arquivo não existe mais no computador</string>
+    <string name="library_no_app">Nenhum programa instalado abre este tipo de arquivo</string>
+    <string name="library_clear_history">Limpar histórico</string>
+    <string name="library_clear_history_message">Remove os registros cancelados, com erro ou de arquivos excluídos. Os arquivos da biblioteca são mantidos.</string>
+    <string name="library_history_cleared">Histórico limpo</string>
+    <plurals name="library_auto_delete_notice">
+        <item quantity="one">Exclusão automática ligada: arquivos com mais de %1$d dia são apagados.</item>
+        <item quantity="many">Exclusão automática ligada: arquivos com mais de %1$d dias são apagados.</item>
+        <item quantity="other">Exclusão automática ligada: arquivos com mais de %1$d dias são apagados.</item>
+    </plurals>
+
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_section_appearance">Aparência</string>
+    <string name="settings_section_downloads">Downloads</string>
+    <string name="settings_section_storage">Armazenamento</string>
+    <string name="settings_section_about">Sobre</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_hint">O escuro é o visual padrão do MOVA.</string>
+    <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_system">Sistema</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_system">Automático</string>
+    <string name="settings_language_auto_current">Automático · %1$s</string>
+    <string name="settings_language_auto_hint">Automático usa o idioma do sistema. Se ele não estiver disponível, usa o do seu país e, por último, o inglês.</string>
+    <string name="settings_folder">Pasta dos downloads</string>
+    <string name="settings_folder_choose">Escolher pasta</string>
+    <string name="settings_folder_default">Usar a pasta padrão</string>
+    <string name="settings_concurrent">Downloads simultâneos</string>
+    <string name="settings_concurrent_hint">Quantos arquivos baixar ao mesmo tempo.</string>
+    <string name="settings_engine">Mecanismo de download</string>
+    <string name="settings_engine_version">yt-dlp %1$s · atualiza sozinho 1x por dia</string>
+    <string name="settings_engine_ffmpeg_system">FFmpeg do sistema</string>
+    <string name="settings_engine_ffmpeg_bundled">FFmpeg do MOVA</string>
+    <string name="settings_engine_not_ready">Será preparado no primeiro download</string>
+    <string name="settings_engine_preparing">Preparando o mecanismo…</string>
+    <string name="settings_engine_updating">Atualizando o mecanismo…</string>
+    <string name="settings_engine_failed">Falha ao preparar o mecanismo</string>
+    <string name="settings_engine_update">Atualizar</string>
+    <string name="settings_engine_open_folder">Abrir pasta do mecanismo</string>
+    <string name="settings_engine_updated">Mecanismo atualizado: %1$s</string>
+    <string name="settings_engine_up_to_date">O mecanismo já está na versão mais recente</string>
+    <string name="settings_engine_update_failed">Não foi possível atualizar agora. Tente mais tarde.</string>
+    <string name="settings_auto_delete">Exclusão automática</string>
+    <string name="settings_auto_delete_off_hint">Os arquivos baixados ficam no computador até você apagar.</string>
+    <plurals name="settings_auto_delete_days">
+        <item quantity="one">%1$d dia</item>
+        <item quantity="many">%1$d dias</item>
+        <item quantity="other">%1$d dias</item>
+    </plurals>
+    <plurals name="settings_auto_delete_on">
+        <item quantity="one">Apaga do computador os arquivos baixados há mais de %1$d dia e limpa o histórico.</item>
+        <item quantity="many">Apaga do computador os arquivos baixados há mais de %1$d dias e limpa o histórico.</item>
+        <item quantity="other">Apaga do computador os arquivos baixados há mais de %1$d dias e limpa o histórico.</item>
+    </plurals>
+    <string name="settings_auto_delete_confirm_title">Ativar a exclusão automática?</string>
+    <plurals name="settings_auto_delete_confirm_message">
+        <item quantity="one">Os arquivos baixados há mais de %1$d dia serão apagados do computador e sairão do histórico do MOVA. Não é possível desfazer. Downloads em andamento não são afetados.</item>
+        <item quantity="many">Os arquivos baixados há mais de %1$d dias serão apagados do computador e sairão do histórico do MOVA. Não é possível desfazer. Downloads em andamento não são afetados.</item>
+        <item quantity="other">Os arquivos baixados há mais de %1$d dias serão apagados do computador e sairão do histórico do MOVA. Não é possível desfazer. Downloads em andamento não são afetados.</item>
+    </plurals>
+    <string name="settings_auto_delete_confirm">Ativar</string>
+    <string name="settings_auto_delete_enabled">Exclusão automática ativada</string>
+    <plurals name="settings_auto_delete_done">
+        <item quantity="one">Exclusão automática ativada: %1$d arquivo antigo apagado</item>
+        <item quantity="many">Exclusão automática ativada: %1$d arquivos antigos apagados</item>
+        <item quantity="other">Exclusão automática ativada: %1$d arquivos antigos apagados</item>
+    </plurals>
+    <string name="settings_temp">Arquivos temporários</string>
+    <string name="settings_temp_hint">Partes de downloads incompletos: %1$s</string>
+    <string name="settings_temp_cleaned">%1$s liberados</string>
+    <string name="settings_about_name">MOVA para computador</string>
+    <string name="settings_version">Versão %1$s (build %2$d)</string>
+    <string name="settings_about_text">Uso pessoal. Sem anúncios, sem cadastro e sem servidor: tudo é processado no próprio computador, com o yt-dlp (código aberto). O MOVA não contorna DRM, privacidade ou restrições de acesso.</string>
+</resources>

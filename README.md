@@ -1,10 +1,12 @@
 # MOVA
 
-Aplicativo Android nativo para **reconhecer links, baixar e organizar mídia**,
-pensado inicialmente para uso pessoal. Interface dark e minimalista, sem
-anúncios, sem cadastro e sem servidor: tudo roda no aparelho.
+Aplicativo para **reconhecer links, baixar e organizar mídia**, pensado
+inicialmente para uso pessoal: **Android** nativo e **computador (Windows e
+Linux)**. Interface dark e minimalista, sem anúncios, sem cadastro e sem
+servidor: tudo roda no próprio aparelho.
 
-> Status: **versão 0.3.1**: download das plataformas via yt-dlp, tema claro e 4 idiomas (ver `docs/planejamento.md`, Atualizações 2 e 3).
+> Status: **Android 0.3.1** (download das plataformas via yt-dlp, tema claro e 4 idiomas) e
+> **computador 0.1.0** (primeira versão, Windows e Linux). Ver `docs/planejamento.md`, Atualizações 2 a 4.
 > Código proprietário. Todos os direitos reservados (a licença ainda será definida).
 
 ## O que já funciona
@@ -65,7 +67,39 @@ Assim, nunca é publicada uma versão que não instala por cima.
 
 O `versionCode` vem do número da execução do workflow e sempre aumenta.
 
-## Desenvolvimento
+## Computador (Windows e Linux)
+
+App em **Compose Multiplatform** (`desktop/`), com as mesmas regras do Android (módulo `core/`) e a mesma identidade visual.
+Telas: Início (colar ou **arrastar** o link, análise, formato e itens), Fila, Biblioteca (abrir, mostrar na pasta, excluir,
+histórico) e Ajustes (tema, idioma, pasta, downloads simultâneos, mecanismo, exclusão automática). Avisa pela bandeja do
+sistema quando um download termina.
+
+| Sistema | Arquivo | Observação |
+| --- | --- | --- |
+| Windows 10/11 | `MOVA-Windows-…msi` | Instala só para o usuário (sem administrador) e **por cima** das versões anteriores (código de atualização fixo). Sem certificado de assinatura ainda: o SmartScreen avisa — **Mais informações → Executar assim mesmo**. |
+| Windows | `MOVA-Windows-…-portatil.zip` | Descompacte e abra `MOVA.exe`. |
+| Debian, Ubuntu, Mint | `mova-…-amd64.deb` | `sudo apt install ./mova-…-amd64.deb` |
+| Outras distros | `MOVA-Linux-…-portatil.tar.gz` | Descompacte e rode `MOVA/bin/MOVA`. |
+
+Os arquivos são gerados pelo GitHub Actions (`.github/workflows/desktop.yml`) num Windows e num Linux reais e ficam nos
+artefatos da execução; na branch principal viram uma versão em **Releases** (`desktop-build-N`).
+
+**Mecanismo:** no primeiro download, o MOVA baixa das fontes oficiais no GitHub o yt-dlp (nightly), o FFmpeg (compilação do
+projeto yt-dlp) e o QuickJS-ng (resolve os desafios do YouTube) — cerca de 115 MB no Windows. O yt-dlp e o FFmpeg são
+conferidos pelo SHA-256 publicado pelos projetos. No Linux, se o FFmpeg já estiver instalado, ele é usado. O yt-dlp se
+atualiza sozinho 1x por dia.
+
+**Pastas:** dados em `%LOCALAPPDATA%\MOVA` (Windows) ou `~/.local/share/mova` (Linux); arquivos em `Downloads/MOVA`
+(pode ser trocada em Ajustes).
+
+```bash
+./gradlew -Pmova.desktopOnly=true :desktop:run                 # abre o app (não precisa do Android SDK)
+./gradlew -Pmova.desktopOnly=true :core:test :desktop:test     # testes e capturas (desktop/build/screenshots)
+./gradlew -Pmova.desktopOnly=true :desktop:packageReleaseMsi   # instalador (no Windows)
+./gradlew -Pmova.desktopOnly=true :desktop:packageReleaseDeb   # pacote .deb (no Linux)
+```
+
+## Desenvolvimento (Android)
 
 Requisitos: JDK 17+ e Android SDK (platform 37). O Gradle Wrapper baixa o resto.
 
@@ -87,7 +121,7 @@ keyPassword=...
 ### Arquitetura
 
 ```
-core/   Kotlin puro (sem Android) — pronto para ser compartilhado com a versão Windows
+core/   Kotlin puro (sem Android) — compartilhado entre Android e computador
   link/       extração de links do texto, reconhecimento de plataforma e tipo de conteúdo
   provider/   capacidades de cada origem (o que é permitido e comprovado)
   analysis/   análise do link, opções contextuais e formatos (vídeo até 1080p / áudio)
@@ -97,7 +131,12 @@ app/    Android (Kotlin + Jetpack Compose, MVVM)
   data/       Room (tarefas, biblioteca, histórico) e DataStore (preferências)
   download/   fila (WorkManager), HTTP com retomada, yt-dlp (YtDlpEngine), publicação no MediaStore/SAF, notificações
   ui/         design system, navegação e telas
-tools/  gen_icon.py — gera os vetores do símbolo MOVA (colorido, monocromático, notificação)
+desktop/ Windows e Linux (Kotlin + Compose Multiplatform)
+  engine/     yt-dlp, FFmpeg e QuickJS: download verificado, execução por processo, atualização
+  data/       fila (downloads simultâneos), histórico e ajustes em JSON, exclusão automática
+  net/        HTTP com retomada (links diretos) e consulta de arquivos
+  ui/         telas (mesma paleta do Android), barra lateral, arrastar e soltar links
+tools/  gen_icon.py (vetores do símbolo) · gen_desktop_icon.py (mova.ico e mova.png) · i18n/ (traduções)
 ```
 
 Princípio central: **cada origem declara o que oferece** (`ProviderRegistry`) e a
@@ -116,14 +155,17 @@ youtubedl-android 0.18.1 (yt-dlp + Python + FFmpeg + QuickJS).
 
 ## Traduções
 
-Os textos de referência ficam em `app/src/main/res/values-pt/strings.xml`. Ao mudar ou criar um texto,
-atualize também `tools/i18n/en.py`, `es.py` e `fr.py` e rode:
+Os textos de referência ficam em português: `app/src/main/res/values-pt/strings.xml` (Android) e
+`desktop/src/main/composeResources/values-pt/strings.xml` (computador). Ao mudar ou criar um texto, atualize as
+traduções (`tools/i18n/{en,es,fr}.py` e `tools/i18n/desktop/{en,es,fr}.py`) e rode:
 
 ```bash
-python3 tools/i18n/gen.py app/src/main/res
+python3 tools/i18n/gen.py android
+python3 tools/i18n/gen.py desktop
 ```
 
-O script gera `values/` (inglês), `values-es/` e `values-fr/` e falha se faltar chave ou marcador.
+O script gera `values/` (inglês), `values-es/` e `values-fr/` e falha se faltar chave ou marcador. No computador,
+textos idênticos aos do Android reaproveitam a tradução do Android.
 
 ## Próximos passos sugeridos
 
@@ -132,3 +174,5 @@ O script gera `values/` (inglês), `values-es/` e `values-fr/` e falha se faltar
 - Reavaliar o plano comercial à luz dos riscos registrados no planejamento.
 - Distribuir fora da Google Play (site + GitHub Releases); fazer a verificação de desenvolvedor do Android antes de 2027.
 - Decidir licença do código (o yt-dlp é Unlicense; FFmpeg é LGPL/GPL — considerar ao distribuir).
+- Computador: testar no Windows e no Linux com links reais; certificado de assinatura do Windows (evita o aviso do
+  SmartScreen); aviso de versão nova dentro do app; Instagram e Kwai sem login como no Android (navegador embutido).

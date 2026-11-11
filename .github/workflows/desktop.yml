@@ -1,0 +1,142 @@
+name: Desktop (Windows e Linux)
+
+# Testa e empacota o MOVA para computador:
+#   Windows: instalador MSI (instala por cima: o upgradeUuid é fixo) + versão portátil (ZIP)
+#   Linux:   pacote .deb (Debian/Ubuntu/Mint) + versão portátil (tar.gz)
+# Também baixa os componentes reais do mecanismo (yt-dlp, FFmpeg, QuickJS) e
+# executa cada um, nos dois sistemas.
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["desktop-v*"]
+    paths:
+      - "desktop/**"
+      - "core/**"
+      - "gradle/**"
+      - "*.gradle.kts"
+      - "gradle.properties"
+      - "tools/i18n/**"
+      - ".github/workflows/desktop.yml"
+  pull_request:
+    paths:
+      - "desktop/**"
+      - "core/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Número do build: terceiro campo da versão do instalador (sempre crescente).
+  MOVA_BUILD_NUMBER: ${{ github.run_number }}
+  GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3g
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Traduções conferem com o português
+        run: python3 tools/i18n/gen.py desktop && git diff --exit-code desktop/src/main/composeResources
+      - name: Testes (core + desktop)
+        run: ./gradlew -Pmova.desktopOnly=true :core:test :desktop:test --stacktrace
+      - name: Capturas das telas
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: desktop-capturas-de-tela
+          path: desktop/build/screenshots/*.png
+          if-no-files-found: ignore
+
+  package:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        # Linux no 22.04: o .deb gerado nele instala também no 22.04/Debian 12 (nomes de pacotes mais antigos).
+        os: [windows-latest, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Versão
+        run: |
+          VERSION=$(sed -n 's/^val movaDesktopVersion = "\(.*\)"/\1/p' desktop/build.gradle.kts)
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "LABEL=$VERSION-build$MOVA_BUILD_NUMBER" >> "$GITHUB_ENV"
+
+      - name: Mecanismo real (yt-dlp, FFmpeg, QuickJS)
+        env:
+          MOVA_INTEGRATION: "1"
+        run: ./gradlew -Pmova.desktopOnly=true :desktop:test --tests '*EngineIntegrationTest*'
+
+      - name: Windows — instalador MSI e versão portátil
+        if: runner.os == 'Windows'
+        run: |
+          ./gradlew -Pmova.desktopOnly=true :desktop:packageReleaseMsi :desktop:createReleaseDistributable
+          mkdir -p dist
+          cp desktop/build/compose/binaries/main-release/msi/*.msi "dist/MOVA-Windows-$LABEL.msi"
+          (cd desktop/build/compose/binaries/main-release/app && 7z a -tzip "$GITHUB_WORKSPACE/dist/MOVA-Windows-$LABEL-portatil.zip" MOVA > /dev/null)
+
+      - name: Linux — pacote .deb e versão portátil
+        if: runner.os == 'Linux'
+        run: |
+          ./gradlew -Pmova.desktopOnly=true :desktop:packageReleaseDeb :desktop:createReleaseDistributable
+          mkdir -p dist
+          cp desktop/build/compose/binaries/main-release/deb/*.deb "dist/mova-$LABEL-amd64.deb"
+          tar -czf "dist/MOVA-Linux-$LABEL-portatil.tar.gz" -C desktop/build/compose/binaries/main-release/app MOVA
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: MOVA-${{ runner.os }}-${{ env.LABEL }}
+          path: dist/*
+
+  release:
+    needs: package
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.ref_name == github.event.repository.default_branch ||
+       startsWith(github.ref, 'refs/tags/desktop-v') ||
+       github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publicar versão para computador
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          ls -la dist
+          TAG="desktop-build-$MOVA_BUILD_NUMBER"
+          PRERELEASE=""
+          if [ "${{ github.ref_name }}" != "${{ github.event.repository.default_branch }}" ] && [[ "${{ github.ref }}" != refs/tags/desktop-v* ]]; then
+            PRERELEASE="--prerelease"
+          fi
+          gh release create "$TAG" dist/* \
+            --target "$GITHUB_SHA" \
+            --title "MOVA para computador (build $MOVA_BUILD_NUMBER)" \
+            --notes "Windows: MOVA-Windows-*.msi (instala por cima da versão anterior) ou o .zip portátil. Linux: .deb (Debian/Ubuntu/Mint) ou o .tar.gz portátil. Branch: ${{ github.ref_name }} · commit ${GITHUB_SHA::7}." \
+            $PRERELEASE

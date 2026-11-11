@@ -1,10 +1,10 @@
 # MOVA --- Documento de visão e planejamento do projeto
 
-**Versão:** 0.3\
+**Versão:** 0.4\
 **Data:** 11 de novembro de 2026\
-**Status:** Em desenvolvimento --- app Android 0.3 (download das
-plataformas, tema claro, 4 idiomas); distribuição fora da Play Store
-(ver Atualizações 2 e 3)
+**Status:** Em desenvolvimento --- app Android 0.3.1; primeira versão
+para computador (Windows e Linux) 0.1.0; distribuição fora da Play
+Store (ver Atualizações 2 a 4)
 
 ------------------------------------------------------------------------
 
@@ -1021,3 +1021,93 @@ em 30 dias).
 -   Roda ao abrir o app e uma vez por dia em segundo plano (WorkManager).
 -   Ao ligar ou ao encurtar o período, o app pede confirmação; a
     Biblioteca mostra um aviso enquanto a opção estiver ligada.
+
+------------------------------------------------------------------------
+
+# Atualização 4 --- Versão para computador (Windows e Linux)
+
+Data: 11 de novembro de 2026 · Desktop 0.1.0
+
+## 33. Decisão de tecnologia
+
+A seção 7.2 deixava a tecnologia desktop para depois. Decidido:
+**Compose Multiplatform (Kotlin/JVM)**, um único app para **Windows e
+Linux** (e macOS no futuro, se fizer sentido).
+
+-   **Reaproveita o módulo `core`** do Android sem mudanças:
+    reconhecimento de links, análise, formatos, regras do yt-dlp
+    (argumentos, leitura do JSON, progresso, classificação de erros) e o
+    idioma pelo país.
+-   **Mesma identidade visual:** a paleta, o tema claro/escuro e o símbolo
+    são os do Android; a interface usa o mesmo Compose.
+-   O layout é próprio para telas grandes: barra lateral (Início, Fila,
+    Biblioteca, Ajustes) em vez da barra inferior do celular.
+
+Alternativas descartadas: WinUI/.NET (só Windows, nada reaproveitado) e
+Electron/Tauri (outra linguagem, nada reaproveitado do `core`).
+
+## 34. O que a versão 0.1.0 faz
+
+-   **Início:** colar o link (ou **arrastar** do navegador), Enter ou
+    Baixar; análise com capa, título, canal e duração; formatos (vídeo
+    até 1080p, vídeo sem áudio, somente áudio MP3/M4A) com tamanho
+    estimado; seleção de itens em playlists; explicações claras para
+    conteúdo privado, com login, DRM, região ou indisponível.
+-   **Fila:** downloads simultâneos (1 a 3), progresso, velocidade,
+    tempo restante, pausar, continuar, cancelar, tentar de novo.
+-   **Biblioteca:** arquivos com filtro e busca; abrir, mostrar na pasta,
+    excluir; histórico.
+-   **Ajustes:** tema, idioma (automático: sistema → país → inglês),
+    pasta de destino, downloads simultâneos, mecanismo (versão,
+    atualizar), exclusão automática (3/15/30 dias), temporários.
+-   **Sistema:** uma janela por vez; aviso na bandeja ao concluir;
+    registro de erros em `mova.log`.
+
+## 35. Mecanismo no computador
+
+O app não leva o yt-dlp dentro do instalador: no **primeiro download**
+ele baixa, das fontes oficiais no GitHub, o **yt-dlp** (nightly), o
+**FFmpeg** (compilação do projeto yt-dlp) e o **QuickJS-ng** (resolve os
+desafios de JavaScript do YouTube). São cerca de 115 MB no Windows. O
+yt-dlp e o FFmpeg são conferidos pelo SHA-256 publicado pelos projetos.
+No Linux, o FFmpeg do sistema é usado quando existe.
+
+Vantagens: instalador menor, yt-dlp sempre atualizado (1x por dia) e o
+MOVA não redistribui o FFmpeg (licença GPL) no próprio instalador.
+
+## 36. Distribuição
+
+-   **Windows:** instalador **MSI** por usuário (não pede administrador),
+    com **código de atualização fixo** --- cada versão nova instala por
+    cima, como a assinatura fixa do Android. Também há uma versão
+    **portátil (ZIP)**.
+-   **Linux:** pacote **.deb** (Debian, Ubuntu, Mint) e versão
+    **portátil (tar.gz)**.
+-   Os arquivos são gerados pelo GitHub Actions num Windows e num Linux
+    reais; na branch principal viram uma versão em Releases.
+-   **Sem certificado de assinatura de código**, o Windows mostra o
+    aviso do SmartScreen na primeira execução ("Mais informações →
+    Executar assim mesmo"). Para remover o aviso: certificado de
+    assinatura (ex.: Azure Trusted Signing, a partir de cerca de US$ 10
+    por mês) --- decisão para quando houver distribuição a terceiros.
+-   **Microsoft Store:** as mesmas restrições da Google Play quanto ao
+    download do YouTube se aplicam; manter a distribuição própria.
+
+## 37. Diferenças em relação ao Android (0.1.0)
+
+-   Instagram: sem o navegador invisível do Android; depende do yt-dlp.
+    Reels públicos podem exigir login com mais frequência --- a testar.
+-   Kwai e sites desconhecidos: sem a busca do vídeo na página (no
+    Android usa WebView) --- a avaliar com um navegador embutido.
+-   Os testes reais com links ainda precisam ser feitos no Windows e no
+    Linux (tabela da seção 26.1).
+
+## 38. Próximos passos (computador)
+
+1.  Testar no Windows: instalar o MSI, baixar de YouTube, Instagram,
+    TikTok, Facebook, Pinterest, Vimeo e links diretos; registrar.
+2.  Testar no Linux (Ubuntu/Mint) com o .deb.
+3.  Aviso de versão nova dentro do app.
+4.  Certificado de assinatura do Windows, quando houver distribuição a
+    terceiros.
+5.  Avaliar macOS.
