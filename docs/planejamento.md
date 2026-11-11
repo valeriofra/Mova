@@ -1,9 +1,10 @@
 # MOVA --- Documento de visão e planejamento do projeto
 
-**Versão:** 0.2\
+**Versão:** 0.3\
 **Data:** 11 de novembro de 2026\
-**Status:** Em desenvolvimento --- app Android 0.1 criado; download das
-plataformas decidido (ver Atualização 2)
+**Status:** Em desenvolvimento --- app Android 0.3 (download das
+plataformas, tema claro, 4 idiomas); distribuição fora da Play Store
+(ver Atualizações 2 e 3)
 
 ------------------------------------------------------------------------
 
@@ -893,3 +894,105 @@ na própria página (a partir da 0.2.4).
 3.  Avaliar o login opcional com a conta do próprio usuário para o
     Instagram.
 4.  Reavaliar o plano comercial (seção 11) à luz dos riscos acima.
+
+------------------------------------------------------------------------
+
+# Atualização 3 --- Aparência, idiomas e distribuição
+
+Data: 11 de novembro de 2026 · App 0.3.0
+
+## 28. Mudanças de interface (0.3.0)
+
+-   **Tema claro**, além do escuro (padrão). Em Ajustes → Aparência:
+    Escuro, Claro ou Sistema. As barras do Android acompanham o tema.
+-   **Início limpo:** a lista de recentes saiu da tela inicial, que agora
+    mostra só o logo, o campo do link e o botão Baixar. Os recentes
+    continuam na Fila e na Biblioteca.
+-   **Card Sobre** reorganizado (versão, aviso de uso pessoal e de que o
+    app não contorna DRM, privacidade ou restrições de acesso).
+
+## 29. Idiomas
+
+O app passa a ter quatro idiomas: **inglês** (padrão para qualquer
+idioma não suportado), **português**, **espanhol** e **francês**. Segue
+o idioma do aparelho; no Android 13+ dá para escolher outro só para o
+MOVA (Ajustes → Idioma). O APK leva apenas esses quatro idiomas, para
+que nenhuma tela misture textos de bibliotecas em outras línguas.
+
+Os textos de referência são os em português (`values-pt`). As traduções
+ficam em `tools/i18n/` e são geradas por `tools/i18n/gen.py`, que confere
+se todas as chaves e marcadores (`%1$s`, `%d`...) batem com o português.
+
+### 29.1 Onde apps assim são mais usados
+
+Apps de download de vídeo têm mais público onde o Android domina e os
+dados móveis são caros ou limitados (o usuário baixa no Wi-Fi para ver
+depois): **Índia, Indonésia, Brasil, México e América Latina, Oriente
+Médio e Norte da África, Vietnã, Filipinas, Turquia, Paquistão,
+Bangladesh e Nigéria**. Os mais conhecidos da categoria (Snaptube,
+VidMate, TubeMate) cresceram nesses mercados.
+
+Esses mercados têm muito volume, mas pagam pouco por app; a receita da
+categoria costuma vir de anúncios. Os mercados que mais pagam por app
+(EUA, Japão, Coreia, Alemanha, Reino Unido) são também os de fiscalização
+mais rígida sobre direitos autorais.
+
+Próximos idiomas sugeridos, se o foco for volume: **indonésio, árabe
+(exige revisar o layout da direita para a esquerda), hindi e turco**.
+Se o foco for receita: alemão e japonês. Os números por país das fontes
+públicas são fracos; antes de investir, conferir em uma ferramenta de
+mercado (Sensor Tower, Appfigures).
+
+## 30. Google Play e distribuição
+
+**Conclusão: na forma atual, o MOVA muito provavelmente seria recusado
+ou removido da Google Play.**
+
+1.  **Download do YouTube.** A Play recusa apps que baixam vídeos do
+    YouTube (Termos do YouTube; políticas de Abuso de dispositivo e
+    rede e de Propriedade intelectual). Por isso Snaptube, VidMate,
+    TubeMate e Seal (que também usa o yt-dlp) são distribuídos fora da
+    Play.
+2.  **Atualização do yt-dlp pelo próprio app.** A Play proíbe baixar
+    código executável fora dela. Há exceção para código interpretado sem
+    acesso direto às APIs do Android (o yt-dlp é Python), mas é zona
+    cinzenta e não deve ser a base de uma publicação.
+3.  **Termos das outras plataformas** (Instagram, Facebook, TikTok)
+    também vedam ferramentas não oficiais; um pedido de remoção basta
+    para derrubar o app.
+
+Uma "versão Play" sem YouTube e sem atualização automática perderia boa
+parte do valor e continuaria arriscada.
+
+**Caminho recomendado:** manter a distribuição fora da Play:
+
+-   **Site próprio + GitHub Releases**, com a assinatura fixa (já pronta)
+    para instalar por cima. Próximo passo: o app avisar quando houver
+    versão nova.
+-   **Lojas alternativas** (Uptodown, APKPure, Aptoide). O **F-Droid**
+    exige código aberto.
+
+### 30.1 Verificação de desenvolvedor do Android
+
+Desde 30/09/2026, no Brasil, Indonésia, Singapura e Tailândia, o Android
+certificado só instala, **pelas lojas participantes** (Play, Galaxy
+Store, lojas da Xiaomi, OPPO, vivo, HONOR e Transsion), apps de
+desenvolvedores verificados. A instalação direta do APK ainda não é
+afetada, e existe um fluxo avançado para apps não verificados. A
+expansão global está prevista para 2027 e deve alcançar também o APK
+instalado direto.
+
+**Ação:** antes de distribuir a terceiros, fazer a verificação de
+desenvolvedor no Android Developer Console e registrar o pacote
+`io.github.valeriofra.mova` com a chave de assinatura atual (SHA-256
+`663cc93b...0739e84`). A verificação não depende de publicar na Play.
+
+## 31. Próximos passos (atualizado)
+
+1.  Testar no aparelho: COS.TV, Kwai, Rumble e Vimeo (seção 26.1) e
+    revisar as telas em tema claro e nos outros idiomas.
+2.  Aviso de versão nova dentro do app (para a distribuição fora da
+    Play).
+3.  Verificação de desenvolvedor do Android antes de 2027.
+4.  Decidir o modelo comercial (seção 11): o volume está em mercados que
+    pagam pouco, e a Play não é opção.

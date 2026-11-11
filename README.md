@@ -4,7 +4,7 @@ Aplicativo Android nativo para **reconhecer links, baixar e organizar mídia**,
 pensado inicialmente para uso pessoal. Interface dark e minimalista, sem
 anúncios, sem cadastro e sem servidor: tudo roda no aparelho.
 
-> Status: **versão 0.2**: download das plataformas via yt-dlp (ver `docs/planejamento.md`, Atualização 2).
+> Status: **versão 0.3**: download das plataformas via yt-dlp, tema claro e 4 idiomas (ver `docs/planejamento.md`, Atualizações 2 e 3).
 > Código proprietário. Todos os direitos reservados (a licença ainda será definida).
 
 ## O que já funciona
@@ -23,6 +23,8 @@ anúncios, sem cadastro e sem servidor: tudo roda no aparelho.
 | Biblioteca e histórico | ✅ Filtros por tipo, abrir, compartilhar, excluir; histórico de concluídos/cancelados/com erro |
 | Extração de áudio | ✅ MP3 ou M4A a partir do vídeo (FFmpeg) |
 | Mecanismo sempre atualizado | ✅ O yt-dlp se atualiza sozinho 1x por dia (ou em Ajustes → Atualizar) |
+| Tema | ✅ Escuro (padrão), claro ou seguir o sistema (Ajustes → Aparência) |
+| Idiomas | ✅ Inglês (padrão), português, espanhol e francês; segue o aparelho ou escolha em Ajustes (Android 13+) |
 
 Os arquivos são salvos em **Download/MOVA** (ou na pasta que você escolher em Ajustes).
 
@@ -111,9 +113,21 @@ os riscos aceitos estão registrados no planejamento.
 AGP 9.4 · Gradle 9.8 · Kotlin 2.4 · Compose BOM 2026.09 · compileSdk 37 · targetSdk 36 · minSdk 29 ·
 youtubedl-android 0.18.1 (yt-dlp + Python + FFmpeg + QuickJS).
 
+## Traduções
+
+Os textos de referência ficam em `app/src/main/res/values-pt/strings.xml`. Ao mudar ou criar um texto,
+atualize também `tools/i18n/en.py`, `es.py` e `fr.py` e rode:
+
+```bash
+python3 tools/i18n/gen.py app/src/main/res
+```
+
+O script gera `values/` (inglês), `values-es/` e `values-fr/` e falha se faltar chave ou marcador.
+
 ## Próximos passos sugeridos
 
 - Testar cada plataforma com links reais no aparelho e registrar o resultado.
 - Login opcional com a conta do próprio usuário (Instagram).
 - Reavaliar o plano comercial à luz dos riscos registrados no planejamento.
+- Distribuir fora da Google Play (site + GitHub Releases); fazer a verificação de desenvolvedor do Android antes de 2027.
 - Decidir licença do código (o yt-dlp é Unlicense; FFmpeg é LGPL/GPL — considerar ao distribuir).

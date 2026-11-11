@@ -4,12 +4,12 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 
-/** Formatação de tamanhos e velocidades para exibição (padrão pt-BR). */
+/** Formatação de tamanhos e velocidades para exibição (no idioma do aparelho). */
 object Formatters {
 
     private val units = listOf("B", "KB", "MB", "GB", "TB")
 
-    fun bytes(value: Long, locale: Locale = Locale.forLanguageTag("pt-BR")): String {
+    fun bytes(value: Long, locale: Locale = Locale.getDefault()): String {
         if (value < 1024) return "$value B"
         var size = value.toDouble()
         var unit = 0
@@ -22,7 +22,7 @@ object Formatters {
         return "${format.format(size)} ${units[unit]}"
     }
 
-    fun speed(bytesPerSecond: Long, locale: Locale = Locale.forLanguageTag("pt-BR")): String =
+    fun speed(bytesPerSecond: Long, locale: Locale = Locale.getDefault()): String =
         "${bytes(bytesPerSecond, locale)}/s"
 
     /** Percentual inteiro (0–100) ou null quando o total é desconhecido. */

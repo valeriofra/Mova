@@ -30,7 +30,7 @@ val hasReleaseSigning = releaseStoreFile != null
 // versionCode precisa sempre aumentar para instalar por cima. No CI ele vem do
 // número da execução do workflow; localmente usa 1.
 val movaVersionCode = System.getenv("MOVA_VERSION_CODE")?.toIntOrNull() ?: 1
-val movaVersionName = "0.2.4"
+val movaVersionName = "0.3.0"
 
 android {
     namespace = "io.github.valeriofra.mova"
@@ -91,6 +91,11 @@ android {
         unitTests {
             isIncludeAndroidResources = true
         }
+    }
+
+    // Só os idiomas que o MOVA traduz: evita telas com textos misturados vindos das bibliotecas.
+    androidResources {
+        localeFilters += listOf("en", "pt", "es", "fr")
     }
 
     packaging {

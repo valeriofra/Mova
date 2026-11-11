@@ -18,3 +18,4 @@ signing/
 
 # Logs
 *.log
+__pycache__/

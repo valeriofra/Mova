@@ -248,6 +248,8 @@ private fun AnalyzingIndicator(engineBusy: EngineBusy?, modifier: Modifier = Mod
         modifier = modifier.padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val trackColor = MovaColors.SurfaceHighest
+        val arcBrush = Brush.sweepGradient(listOf(MovaColors.Cyan.copy(alpha = 0f), MovaColors.Cyan, MovaColors.BlueBright))
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(120.dp)) {
             Canvas(
                 Modifier
@@ -256,14 +258,14 @@ private fun AnalyzingIndicator(engineBusy: EngineBusy?, modifier: Modifier = Mod
             ) {
                 val stroke = 6.dp.toPx()
                 drawArc(
-                    color = MovaColors.SurfaceHighest,
+                    color = trackColor,
                     startAngle = 0f,
                     sweepAngle = 360f,
                     useCenter = false,
                     style = Stroke(stroke),
                 )
                 drawArc(
-                    brush = Brush.sweepGradient(listOf(MovaColors.Cyan.copy(alpha = 0f), MovaColors.Cyan, MovaColors.BlueBright)),
+                    brush = arcBrush,
                     startAngle = 0f,
                     sweepAngle = 270f,
                     useCenter = false,

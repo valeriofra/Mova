@@ -5,15 +5,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import io.github.valeriofra.mova.core.link.LinkRecognizer
 import io.github.valeriofra.mova.core.link.RecognizedLink
 import io.github.valeriofra.mova.core.link.UrlExtractor
-import io.github.valeriofra.mova.data.DownloadRepository
-import io.github.valeriofra.mova.data.db.DownloadEntity
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 
 /** Pré-visualização imediata do que foi colado, antes da análise. */
 sealed interface LinkPreview {
@@ -23,7 +17,7 @@ sealed interface LinkPreview {
     data class Multiple(val count: Int) : LinkPreview
 }
 
-class HomeViewModel(downloads: DownloadRepository) : ViewModel() {
+class HomeViewModel : ViewModel() {
 
     private val recognizer = LinkRecognizer()
 
@@ -31,9 +25,6 @@ class HomeViewModel(downloads: DownloadRepository) : ViewModel() {
         private set
 
     val preview: LinkPreview by derivedStateOf { computePreview(input) }
-
-    val recent: StateFlow<List<DownloadEntity>> = downloads.recent(RECENT_LIMIT)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun onInputChange(value: String) {
         input = value
@@ -51,9 +42,5 @@ class HomeViewModel(downloads: DownloadRepository) : ViewModel() {
             urls.size == 1 -> recognizer.recognize(urls.single())?.let { LinkPreview.Single(it) } ?: LinkPreview.NoLink
             else -> LinkPreview.Multiple(urls.size)
         }
-    }
-
-    private companion object {
-        const val RECENT_LIMIT = 4
     }
 }

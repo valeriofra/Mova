@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.valeriofra.mova.data.DownloadRepository
 import io.github.valeriofra.mova.data.settings.MovaSettings
 import io.github.valeriofra.mova.data.settings.SettingsRepository
+import io.github.valeriofra.mova.data.settings.ThemeMode
 import io.github.valeriofra.mova.download.YtDlpEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,6 +64,10 @@ class SettingsViewModel(
             // Reagenda com a nova exigência de rede, se houver algo pendente.
             downloads.ensureProcessing()
         }
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch { settings.setThemeMode(mode) }
     }
 
     fun setMaxConcurrent(value: Int) {

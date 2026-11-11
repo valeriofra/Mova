@@ -31,6 +31,7 @@ import io.github.valeriofra.mova.ui.library.LibraryContent
 import io.github.valeriofra.mova.ui.library.LibraryUiState
 import io.github.valeriofra.mova.ui.queue.QueueContent
 import io.github.valeriofra.mova.ui.queue.QueueUiState
+import io.github.valeriofra.mova.ui.settings.AppLanguage
 import io.github.valeriofra.mova.ui.settings.SettingsContent
 import io.github.valeriofra.mova.ui.theme.MovaColors
 import io.github.valeriofra.mova.ui.theme.MovaTheme
@@ -47,15 +48,15 @@ import org.robolectric.annotation.GraphicsMode
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [35], qualifiers = "w393dp-h852dp-xxhdpi", application = Application::class)
+@Config(sdk = [35], qualifiers = "pt-rBR-w393dp-h852dp-xxhdpi", application = Application::class)
 class ScreenshotTest {
 
     @get:Rule
     val compose = createComposeRule()
 
-    private fun shot(name: String, content: @Composable () -> Unit) {
+    private fun shot(name: String, dark: Boolean = true, content: @Composable () -> Unit) {
         compose.setContent {
-            MovaTheme {
+            MovaTheme(darkTheme = dark) {
                 Surface(color = MovaColors.Background, modifier = Modifier.fillMaxSize()) { content() }
             }
         }
@@ -141,7 +142,7 @@ class ScreenshotTest {
 
     @Test
     fun home() = shot("01_inicio") {
-        HomeContent("", LinkPreview.Empty, recent, {}, {}, {}, {}, {}, {})
+        HomeContent("", LinkPreview.Empty, {}, {}, {}, {})
     }
 
     @Test
@@ -149,7 +150,7 @@ class ScreenshotTest {
         val url = "https://youtu.be/dQw4w9WgXcQ"
         val preview = LinkPreview.Single(LinkRecognizer().recognize(url)!!)
         shot("02_inicio_link_reconhecido") {
-            HomeContent(url, preview, emptyList(), {}, {}, {}, {}, {}, {})
+            HomeContent(url, preview, {}, {}, {}, {})
         }
     }
 
@@ -237,7 +238,10 @@ class ScreenshotTest {
 
     @Test
     fun settings() = shot("11_ajustes") {
-        SettingsContent(MovaSettings(), YtDlpEngine.EngineState.Ready("2026.10.22"), {}, 12 * mb, true, {}, {}, {}, {}, {}, {})
+        SettingsContent(
+            MovaSettings(), AppLanguage.SYSTEM, {}, {}, YtDlpEngine.EngineState.Ready("2026.11.04"), {},
+            12 * mb, true, {}, {}, {}, {}, {}, {},
+        )
     }
 
     @Test
@@ -282,5 +286,74 @@ class ScreenshotTest {
         shot("16_preparando_mecanismo") {
             AnalysisContent(AnalysisUiState.Loading, io.github.valeriofra.mova.ui.analysis.EngineBusy.PREPARING, {}, {}, { _, _ -> }, {})
         }
+    }
+
+    // --- Tema claro -------------------------------------------------------------
+
+    @Test
+    fun homeLight() = shot("20_inicio_claro", dark = false) {
+        HomeContent("https://youtu.be/dQw4w9WgXcQ", LinkPreview.Single(LinkRecognizer().recognize("https://youtu.be/dQw4w9WgXcQ")!!), {}, {}, {}, {})
+    }
+
+    @Test
+    fun formatsLight() = shot("21_formatos_claro", dark = false) {
+        DownloadOptionsContent(items = listOf(reel("Pôr do sol na praia")), onConfirm = { _, _ -> })
+    }
+
+    @Test
+    fun queueLight() {
+        val state = QueueUiState(
+            running = listOf(entity(1, "Video 02.mp4", MediaKind.VIDEO, DownloadStatus.RUNNING, 64 * mb, 46 * mb, (4.3 * mb).toLong())),
+            failed = listOf(entity(6, "Foto.jpg", MediaKind.IMAGE, DownloadStatus.FAILED, null, error = DownloadError.NOT_FOUND)),
+            recentlyCompleted = recent.filter { it.status == DownloadStatus.COMPLETED },
+            loaded = true,
+        )
+        shot("22_fila_claro", dark = false) { QueueContent(state, {}, {}, {}, {}, {}, {}) }
+    }
+
+    @Test
+    fun settingsLight() = shot("23_ajustes_claro", dark = false) {
+        SettingsContent(
+            MovaSettings(themeMode = io.github.valeriofra.mova.data.settings.ThemeMode.LIGHT), AppLanguage.PORTUGUESE, {}, {},
+            YtDlpEngine.EngineState.Ready("2026.11.04"), {}, 12 * mb, true, {}, {}, {}, {}, {}, {},
+        )
+    }
+
+    @Test
+    @Config(qualifiers = "pt-rBR-w393dp-h2300dp-xxhdpi")
+    fun settingsFullPage() = shot("24_ajustes_completo") {
+        SettingsContent(
+            MovaSettings(), AppLanguage.SYSTEM, {}, {}, YtDlpEngine.EngineState.Ready("2026.11.04"), {},
+            12 * mb, true, {}, {}, {}, {}, {}, {},
+        )
+    }
+
+    // --- Inglês (idioma padrão) -------------------------------------------------
+
+    @Test
+    @Config(qualifiers = "en-rUS-w393dp-h852dp-xxhdpi")
+    fun homeEnglish() = shot("30_home_english") {
+        HomeContent("", LinkPreview.Empty, {}, {}, {}, {})
+    }
+
+    @Test
+    @Config(qualifiers = "en-rUS-w393dp-h852dp-xxhdpi")
+    fun formatsEnglish() = shot("31_formats_english") {
+        DownloadOptionsContent(items = listOf(reel("Sunset at the beach")), onConfirm = { _, _ -> })
+    }
+
+    @Test
+    @Config(qualifiers = "es-rES-w393dp-h852dp-xxhdpi")
+    fun settingsSpanish() = shot("32_ajustes_espanol") {
+        SettingsContent(
+            MovaSettings(), AppLanguage.SPANISH, {}, {}, YtDlpEngine.EngineState.Ready("2026.11.04"), {},
+            12 * mb, true, {}, {}, {}, {}, {}, {},
+        )
+    }
+
+    @Test
+    @Config(qualifiers = "fr-rFR-w393dp-h852dp-xxhdpi")
+    fun queueFrench() = shot("33_file_francais") {
+        QueueContent(QueueUiState(loaded = true), {}, {}, {}, {}, {}, {})
     }
 }

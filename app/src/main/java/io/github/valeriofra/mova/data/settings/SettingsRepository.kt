@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
+/** Tema da interface. O escuro é a identidade principal do MOVA. */
+enum class ThemeMode { DARK, LIGHT, SYSTEM }
+
 data class MovaSettings(
     val wifiOnly: Boolean = false,
     val maxConcurrent: Int = DEFAULT_CONCURRENT,
@@ -19,6 +22,7 @@ data class MovaSettings(
     val storageTreeUri: String? = null,
     val storageTreeName: String? = null,
     val notificationsAsked: Boolean = false,
+    val themeMode: ThemeMode = ThemeMode.DARK,
 ) {
     companion object {
         const val DEFAULT_CONCURRENT = 2
@@ -36,6 +40,7 @@ class SettingsRepository(private val context: Context) {
         val treeUri = stringPreferencesKey("storage_tree_uri")
         val treeName = stringPreferencesKey("storage_tree_name")
         val notificationsAsked = booleanPreferencesKey("notifications_asked")
+        val themeMode = stringPreferencesKey("theme_mode")
     }
 
     val settings: Flow<MovaSettings> = context.dataStore.data
@@ -62,6 +67,8 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setNotificationsAsked() = context.dataStore.edit { it[Keys.notificationsAsked] = true }
 
+    suspend fun setThemeMode(mode: ThemeMode) = context.dataStore.edit { it[Keys.themeMode] = mode.name }
+
     private fun Preferences.toSettings() = MovaSettings(
         wifiOnly = this[Keys.wifiOnly] ?: false,
         maxConcurrent = (this[Keys.maxConcurrent] ?: MovaSettings.DEFAULT_CONCURRENT)
@@ -69,5 +76,7 @@ class SettingsRepository(private val context: Context) {
         storageTreeUri = this[Keys.treeUri],
         storageTreeName = this[Keys.treeName],
         notificationsAsked = this[Keys.notificationsAsked] ?: false,
+        themeMode = this[Keys.themeMode]?.let { name -> ThemeMode.entries.firstOrNull { it.name == name } }
+            ?: ThemeMode.DARK,
     )
 }

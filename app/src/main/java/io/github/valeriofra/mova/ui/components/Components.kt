@@ -169,7 +169,7 @@ fun MovaCard(
 ) {
     val shape = RoundedCornerShape(16.dp)
     val border = BorderStroke(1.dp, if (highlighted) MovaColors.BlueBright else MovaColors.Outline)
-    val color = if (highlighted) Color(0xFF12203D) else MovaColors.Surface
+    val color = if (highlighted) MovaColors.Highlight else MovaColors.Surface
     if (onClick != null) {
         Surface(onClick = onClick, modifier = modifier, shape = shape, color = color, border = border) { content() }
     } else {

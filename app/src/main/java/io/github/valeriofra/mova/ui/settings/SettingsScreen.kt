@@ -24,6 +24,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
+import io.github.valeriofra.mova.data.settings.ThemeMode
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CleaningServices
@@ -89,6 +97,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
     val resources = LocalResources.current
 
     var notificationsGranted by remember { mutableStateOf(context.notificationsGranted()) }
+    var language by remember { mutableStateOf(AppLanguage.current(context)) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         notificationsGranted = context.notificationsGranted()
         viewModel.refreshTemporarySize()
@@ -125,6 +135,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
 
     SettingsContent(
         settings = settings ?: MovaSettings(),
+        language = language,
+        onThemeMode = viewModel::setThemeMode,
+        onChooseLanguage = { showLanguageDialog = true },
         engineState = engineState,
         onUpdateEngine = viewModel::updateEngine,
         temporaryBytes = temporaryBytes,
@@ -152,12 +165,69 @@ fun SettingsScreen(viewModel: SettingsViewModel, snackbarHost: SnackbarHostState
             }
         },
     )
+    if (showLanguageDialog) {
+        LanguageDialog(
+            current = language,
+            onSelect = { option ->
+                showLanguageDialog = false
+                language = option
+                AppLanguage.apply(context, option)
+            },
+            onDismiss = { showLanguageDialog = false },
+        )
+    }
+}
+
+@Composable
+private fun LanguageDialog(
+    current: AppLanguage,
+    onSelect: (AppLanguage) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_language)) },
+        text = {
+            if (!AppLanguage.supported) {
+                Text(stringResource(R.string.settings_language_unsupported))
+            } else {
+                Column(Modifier.selectableGroup()) {
+                    AppLanguage.entries.forEach { option ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 48.dp)
+                                .selectable(selected = option == current, onClick = { onSelect(option) }, role = Role.RadioButton),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = option == current,
+                                onClick = null,
+                                colors = RadioButtonDefaults.colors(selectedColor = MovaColors.Accent),
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                option.nativeName ?: stringResource(R.string.settings_language_system),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MovaColors.TextPrimary,
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { AccentTextButton(stringResource(R.string.action_close), onDismiss) },
+        containerColor = MovaColors.SurfaceHigh,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsContent(
     settings: MovaSettings,
+    language: AppLanguage,
+    onThemeMode: (ThemeMode) -> Unit,
+    onChooseLanguage: () -> Unit,
     engineState: YtDlpEngine.EngineState,
     onUpdateEngine: () -> Unit,
     temporaryBytes: Long,
@@ -175,7 +245,52 @@ fun SettingsContent(
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { SectionHeader(stringResource(R.string.settings_section_downloads)) }
+            item { SectionHeader(stringResource(R.string.settings_section_appearance)) }
+            item {
+                MovaCard(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RowIcon(Icons.Rounded.Palette)
+                            TitleAndSubtitleWrap(
+                                stringResource(R.string.settings_theme),
+                                stringResource(R.string.settings_theme_hint),
+                                Modifier.weight(1f),
+                            )
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        val modes = listOf(
+                            ThemeMode.DARK to R.string.settings_theme_dark,
+                            ThemeMode.LIGHT to R.string.settings_theme_light,
+                            ThemeMode.SYSTEM to R.string.settings_theme_system,
+                        )
+                        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                            modes.forEachIndexed { index, (mode, label) ->
+                                SegmentedButton(
+                                    selected = settings.themeMode == mode,
+                                    onClick = { onThemeMode(mode) },
+                                    shape = SegmentedButtonDefaults.itemShape(index, modes.size),
+                                    colors = segmentedColors(),
+                                ) { Text(stringResource(label), maxLines = 1) }
+                            }
+                        }
+                    }
+                }
+            }
+            item {
+                MovaCard(Modifier.fillMaxWidth(), onClick = onChooseLanguage) {
+                    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        RowIcon(Icons.Rounded.Language)
+                        TitleAndSubtitleWrap(
+                            stringResource(R.string.settings_language),
+                            language.nativeName ?: stringResource(R.string.settings_language_system),
+                            Modifier.weight(1f),
+                        )
+                        AccentTextButton(stringResource(R.string.settings_language_change), onChooseLanguage)
+                    }
+                }
+            }
+
+            item { SectionHeader(stringResource(R.string.settings_section_downloads), Modifier.padding(top = 12.dp)) }
             item {
                 MovaCard(Modifier.fillMaxWidth()) {
                     Row(
@@ -223,14 +338,7 @@ fun SettingsContent(
                                     selected = settings.maxConcurrent == value,
                                     onClick = { onMaxConcurrent(value) },
                                     shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                                    colors = SegmentedButtonDefaults.colors(
-                                        activeContainerColor = MovaColors.Blue.copy(alpha = 0.25f),
-                                        activeContentColor = MovaColors.TextPrimary,
-                                        activeBorderColor = MovaColors.BlueBright,
-                                        inactiveContainerColor = MovaColors.Surface,
-                                        inactiveContentColor = MovaColors.TextSecondary,
-                                        inactiveBorderColor = MovaColors.OutlineStrong,
-                                    ),
+                                    colors = segmentedColors(),
                                 ) { Text(value.toString()) }
                             }
                         }
@@ -378,6 +486,8 @@ fun SettingsContent(
             item { SectionHeader(stringResource(R.string.settings_section_about), Modifier.padding(top = 12.dp)) }
             item {
                 MovaCard(Modifier.fillMaxWidth()) {
+                    // Column: as duas linhas ficam uma abaixo da outra (antes se sobrepunham).
+                    Column {
                     Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         MovaLogo(size = 40.dp)
                         Spacer(Modifier.width(14.dp))
@@ -399,11 +509,22 @@ fun SettingsContent(
                             color = MovaColors.TextSecondary,
                         )
                     }
+                    }
                 }
             }
         }
     }
 }
+
+@Composable
+private fun segmentedColors() = SegmentedButtonDefaults.colors(
+    activeContainerColor = MovaColors.Blue.copy(alpha = 0.25f),
+    activeContentColor = MovaColors.TextPrimary,
+    activeBorderColor = MovaColors.BlueBright,
+    inactiveContainerColor = MovaColors.Surface,
+    inactiveContentColor = MovaColors.TextSecondary,
+    inactiveBorderColor = MovaColors.OutlineStrong,
+)
 
 @Composable
 private fun RowIcon(icon: ImageVector) {

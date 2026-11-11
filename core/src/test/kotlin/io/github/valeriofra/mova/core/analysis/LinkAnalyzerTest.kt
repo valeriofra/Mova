@@ -121,7 +121,8 @@ class LinkAnalyzerTest {
     @Test
     fun formatsSizes() {
         assertEquals("512 B", Formatters.bytes(512))
-        assertEquals("48,2 MB", Formatters.bytes((48.2 * 1024 * 1024).toLong()))
+        assertEquals("48,2 MB", Formatters.bytes((48.2 * 1024 * 1024).toLong(), java.util.Locale.forLanguageTag("pt-BR")))
+        assertEquals("48.2 MB", Formatters.bytes((48.2 * 1024 * 1024).toLong(), java.util.Locale.US))
         assertEquals(72, Formatters.percent(72, 100))
         assertEquals(null, Formatters.percent(10, null))
     }

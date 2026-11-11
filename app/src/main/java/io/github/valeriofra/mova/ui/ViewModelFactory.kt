@@ -14,10 +14,7 @@ import io.github.valeriofra.mova.ui.settings.SettingsViewModel
 /** Cria os ViewModels com as dependências do [io.github.valeriofra.mova.AppContainer]. */
 object MovaViewModels {
     val factory: ViewModelProvider.Factory = viewModelFactory {
-        initializer {
-            val c = movaApplication().container
-            HomeViewModel(c.downloads)
-        }
+        initializer { HomeViewModel() }
         initializer {
             val c = movaApplication().container
             AnalysisViewModel(createSavedStateHandle(), c.analyzer, c.downloads, c.settings, c.ytDlp.state)

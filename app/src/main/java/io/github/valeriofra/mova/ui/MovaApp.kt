@@ -176,8 +176,6 @@ fun MovaApp(
                     onSharedTextConsumed = { sharedText = null },
                     onAnalyze = { input -> navController.navigate(Routes.analysis(input)) },
                     onOpenSettings = { navController.navigateTopLevel(Routes.SETTINGS) },
-                    onOpenQueue = { navController.navigateTopLevel(Routes.QUEUE) },
-                    onOpenLibrary = { navController.navigateTopLevel(Routes.LIBRARY) },
                 )
             }
             composable(

@@ -1,10 +1,17 @@
 package io.github.valeriofra.mova
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.valeriofra.mova.data.settings.ThemeMode
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.github.valeriofra.mova.ui.MovaApp
 import io.github.valeriofra.mova.ui.theme.MovaTheme
@@ -33,8 +40,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) handleIntent(intent)
 
+        val settingsFlow = (application as MovaApplication).container.settings.settings
         setContent {
-            MovaTheme {
+            val settings by settingsFlow.collectAsStateWithLifecycle(initialValue = null)
+            val systemDark = isSystemInDarkTheme()
+            val dark = when (settings?.themeMode ?: ThemeMode.DARK) {
+                ThemeMode.DARK -> true
+                ThemeMode.LIGHT -> false
+                ThemeMode.SYSTEM -> systemDark
+            }
+            // Ícones da barra de status/navegação legíveis no tema escolhido.
+            LaunchedEffect(dark) {
+                val style = if (dark) {
+                    SystemBarStyle.dark(Color.TRANSPARENT)
+                } else {
+                    SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                }
+                enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            }
+            MovaTheme(darkTheme = dark) {
                 MovaApp(
                     incomingEvents = incomingEvents,
                     onEventConsumed = { consumed ->
