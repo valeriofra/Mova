@@ -18,6 +18,8 @@ data class ExtractedMedia(
     /** Estimativa de tamanho (vídeo + melhor áudio) por resolução. */
     val sizeByResolution: Map<Int, Long>,
     val audioSizeBytes: Long?,
+    /** Endereço direto do arquivo, quando já conhecido (ex.: página pública do Instagram). */
+    val directUrl: String? = null,
 )
 
 /** Um item de playlist, coleção ou publicação com vários itens. */

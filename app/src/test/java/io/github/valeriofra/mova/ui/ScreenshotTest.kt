@@ -270,7 +270,7 @@ class ScreenshotTest {
     fun loginRequired() {
         val input = "https://www.instagram.com/stories/usuario/3141592653589/"
         val link = LinkRecognizer().recognize(input)!!
-        val report = AnalysisReport(input, listOf(LinkAnalysis.Restricted(input, link, RestrictionReason.LOGIN_REQUIRED)))
+        val report = AnalysisReport(input, listOf(LinkAnalysis.Restricted(input, link, RestrictionReason.LOGIN_REQUIRED, "Página pública: O Instagram pediu login para este post.\nyt-dlp 2026.11.04: Requested content is not available, rate-limit reached or login required")))
         shot("15_exige_login") {
             AnalysisContent(AnalysisUiState.Done(report), null, {}, {}, { _, _ -> }, {})
         }

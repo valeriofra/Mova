@@ -63,6 +63,8 @@ sealed interface LinkAnalysis {
     data class NotSupported(
         override val input: String,
         val link: RecognizedLink,
+        /** Mensagem técnica do mecanismo, para diagnóstico. */
+        val message: String? = null,
     ) : LinkAnalysis
 
     /** O link aponta para uma página comum, sem mídia reconhecível. */
@@ -97,6 +99,8 @@ sealed interface LinkAnalysis {
         override val input: String,
         val link: RecognizedLink,
         val reason: RestrictionReason,
+        /** Mensagem técnica do mecanismo, para diagnóstico. */
+        val message: String? = null,
     ) : LinkAnalysis
 
     /** Falha de rede ou do servidor; pode funcionar mais tarde. */

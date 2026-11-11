@@ -9,9 +9,11 @@ import io.github.valeriofra.mova.download.DownloadNotifier
 import io.github.valeriofra.mova.download.DownloadScheduler
 import io.github.valeriofra.mova.download.FilePublisher
 import io.github.valeriofra.mova.download.HttpDownloader
+import io.github.valeriofra.mova.download.InstagramWebExtractor
 import io.github.valeriofra.mova.download.NetworkMonitor
 import io.github.valeriofra.mova.download.OkHttpProbe
 import io.github.valeriofra.mova.download.PartialFiles
+import io.github.valeriofra.mova.download.PlatformExtractor
 import io.github.valeriofra.mova.download.YtDlpEngine
 import io.github.valeriofra.mova.ui.components.ThumbnailLoader
 import java.util.concurrent.TimeUnit
@@ -51,7 +53,9 @@ class AppContainer(context: Context) {
     val downloader by lazy { HttpDownloader(httpClient) }
     /** yt-dlp no aparelho: baixa das plataformas (YouTube, Instagram, TikTok...). */
     val ytDlp = YtDlpEngine(appContext)
-    val analyzer by lazy { LinkAnalyzer(OkHttpProbe(httpClient), extractor = ytDlp) }
+    /** Instagram sem login: página pública do post num WebView invisível. */
+    val instagram = InstagramWebExtractor(appContext)
+    val analyzer by lazy { LinkAnalyzer(OkHttpProbe(httpClient), extractor = PlatformExtractor(ytDlp, instagram)) }
     val scheduler = DownloadScheduler(appContext, settings)
     val downloads by lazy { DownloadRepository(database.downloadDao(), scheduler, partialFiles) }
 }

@@ -391,6 +391,7 @@ private fun ReportContent(
                         title = stringResource(R.string.analysis_not_supported_title),
                         message = stringResource(R.string.analysis_not_supported_message),
                         badge = result.link.platform.takeIf { it.isKnownPlatform }?.displayName,
+                        details = result.message,
                     )
                 },
                 primary = { openOriginal(result.link) },
@@ -644,6 +645,7 @@ private fun RestrictedResult(result: LinkAnalysis.Restricted) {
         title = stringResource(title),
         message = stringResource(message),
         badge = "${result.link.platform.displayName} · ${stringResource(result.link.kind.labelRes())}",
+        details = result.message,
     )
 }
 

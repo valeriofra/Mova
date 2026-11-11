@@ -12,6 +12,7 @@ import io.github.valeriofra.mova.core.extractor.ExtractionFailure
 import io.github.valeriofra.mova.core.extractor.ExtractionResult
 import io.github.valeriofra.mova.core.extractor.MediaExtractor
 import io.github.valeriofra.mova.core.extractor.YtDlp
+import io.github.valeriofra.mova.core.file.FileNames
 import io.github.valeriofra.mova.data.db.DownloadEntity
 import io.github.valeriofra.mova.data.db.DownloadError
 import java.io.File
@@ -99,12 +100,11 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
     // ------------------------------------------------------------------
 
     override suspend fun extract(url: String, allowPlaylist: Boolean): ExtractionResult {
+        // A versão embutida no APK envelhece rápido: no primeiro uso, atualiza antes.
+        if (!updatedThisSession && prefs.getLong(KEY_LAST_UPDATE, 0L) == 0L) update()
         val first = runExtract(url, allowPlaylist)
-        // Falhas desconhecidas costumam ser resolvidas com a versão mais nova do yt-dlp.
-        if (first is ExtractionResult.Failure &&
-            first.reason == ExtractionFailure.UNKNOWN &&
-            !updatedThisSession
-        ) {
+        // As plataformas mudam com frequência; uma versão nova do yt-dlp costuma resolver.
+        if (first is ExtractionResult.Failure && first.reason in RETRY_AFTER_UPDATE && !updatedThisSession) {
             if (update() is UpdateResult.Updated) return runExtract(url, allowPlaylist)
         }
         return first
@@ -139,7 +139,14 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
             if (it == FormatChoice.Original) FormatChoice.Video(FormatChoice.MAX_RESOLUTION) else it
         }
         val request = YoutubeDLRequest(task.url)
-            .addCommands(YtDlp.downloadArgs(choice, dir.absolutePath, task.playlistIndex))
+            .addCommands(
+                YtDlp.downloadArgs(
+                    choice = choice,
+                    outputDir = dir.absolutePath,
+                    playlistIndex = task.playlistIndex,
+                    fileBaseName = FileNames.sanitize(task.title),
+                ),
+            )
         try {
             execute(request) { line ->
                 // Roda numa thread da biblioteca: um erro aqui derrubaria o app.
@@ -198,13 +205,16 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
     // Atualização do yt-dlp
     // ------------------------------------------------------------------
 
-    /** Atualiza o yt-dlp para a versão estável mais recente (as plataformas mudam com frequência). */
+    /**
+     * Atualiza o yt-dlp para a compilação "nightly" mais recente: é a que recebe
+     * primeiro as correções quando as plataformas mudam (recomendada pelo projeto).
+     */
     suspend fun update(): UpdateResult = updateMutex.withLock {
         try {
             ensureReady()
             _state.value = EngineState.Updating(version())
             val status = withContext(Dispatchers.IO) {
-                YoutubeDL.getInstance().updateYoutubeDL(context, YoutubeDL.UpdateChannel.STABLE)
+                YoutubeDL.getInstance().updateYoutubeDL(context, YoutubeDL.UpdateChannel.NIGHTLY)
             }
             updatedThisSession = true
             prefs.edit().putLong(KEY_LAST_UPDATE, System.currentTimeMillis()).apply()
@@ -266,6 +276,13 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
         const val TAG = "MovaYtDlp"
         const val KEY_LAST_UPDATE = "last_update"
         const val UPDATE_INTERVAL_MS = 24L * 60 * 60 * 1000
-        val INTERMEDIATE = Regex("""\.f[\w-]+\.\w+$""")
+        // Formatos intermediários do yt-dlp: "titulo.f137.mp4", "titulo.f251-drc.webm".
+        val INTERMEDIATE = Regex("""\.f\d[\w-]*\.\w+$""")
+        val RETRY_AFTER_UPDATE = setOf(
+            ExtractionFailure.UNKNOWN,
+            ExtractionFailure.LOGIN_REQUIRED,
+            ExtractionFailure.UNAVAILABLE,
+            ExtractionFailure.UNSUPPORTED,
+        )
     }
 }

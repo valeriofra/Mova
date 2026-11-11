@@ -120,11 +120,11 @@ class LinkAnalyzer(
 
     private fun failureToAnalysis(input: String, link: RecognizedLink, failure: ExtractionResult.Failure): LinkAnalysis =
         when (failure.reason) {
-            ExtractionFailure.UNSUPPORTED -> LinkAnalysis.NotSupported(input, link)
-            ExtractionFailure.PRIVATE -> LinkAnalysis.Restricted(input, link, RestrictionReason.PRIVATE)
-            ExtractionFailure.LOGIN_REQUIRED -> LinkAnalysis.Restricted(input, link, RestrictionReason.LOGIN_REQUIRED)
-            ExtractionFailure.DRM -> LinkAnalysis.Restricted(input, link, RestrictionReason.DRM)
-            ExtractionFailure.GEO_BLOCKED -> LinkAnalysis.Restricted(input, link, RestrictionReason.GEO_BLOCKED)
+            ExtractionFailure.UNSUPPORTED -> LinkAnalysis.NotSupported(input, link, failure.message)
+            ExtractionFailure.PRIVATE -> LinkAnalysis.Restricted(input, link, RestrictionReason.PRIVATE, failure.message)
+            ExtractionFailure.LOGIN_REQUIRED -> LinkAnalysis.Restricted(input, link, RestrictionReason.LOGIN_REQUIRED, failure.message)
+            ExtractionFailure.DRM -> LinkAnalysis.Restricted(input, link, RestrictionReason.DRM, failure.message)
+            ExtractionFailure.GEO_BLOCKED -> LinkAnalysis.Restricted(input, link, RestrictionReason.GEO_BLOCKED, failure.message)
             ExtractionFailure.UNAVAILABLE -> LinkAnalysis.Unavailable(input, link, null)
             ExtractionFailure.RATE_LIMITED,
             ExtractionFailure.NETWORK,
@@ -138,7 +138,7 @@ class LinkAnalyzer(
     private fun itemFrom(link: RecognizedLink, media: ExtractedMedia): MediaItem =
         extractorItem(
             link = link,
-            url = media.webpageUrl ?: link.url,
+            url = media.directUrl ?: media.webpageUrl ?: link.url,
             title = media.title,
             hasVideo = media.hasVideo,
             durationSeconds = media.durationSeconds,

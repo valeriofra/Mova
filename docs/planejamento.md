@@ -763,9 +763,17 @@ aplicativo.
     do próprio aparelho**, junto com Python, FFmpeg (unir vídeo e áudio
     em até 1080p e extrair áudio) e QuickJS (exigido pelo YouTube). Sem
     servidor externo, mantendo o princípio de processamento local.
--   O aplicativo atualiza o yt-dlp periodicamente pela internet, porque as
-    plataformas mudam com frequência e versões antigas deixam de
-    funcionar.
+-   O aplicativo atualiza o yt-dlp pela internet (no primeiro uso e uma
+    vez por dia, pelo canal "nightly", que recebe primeiro as correções),
+    porque as plataformas mudam com frequência e versões antigas deixam
+    de funcionar.
+-   Instagram: a versão atual do yt-dlp só acessa posts sem login quando
+    consegue se passar por um navegador de computador, o que não é
+    possível no Android. Por isso o MOVA abre a página pública do post
+    num navegador invisível do próprio aparelho, sem conta, senha ou
+    servidor, e lê o vídeo que a página recebe. Sem rodízio de IPs nem
+    contas de terceiros: se o Instagram limitar o acesso sem conta, o app
+    informa.
 -   Fluxo: colar ou compartilhar o link → análise (título, miniatura,
     duração, qualidades disponíveis) → **Download** → escolher **vídeo
     (até 1080p)** ou **somente áudio (MP3/M4A)** → fila → biblioteca.
@@ -824,9 +832,11 @@ aplicativo.
 
   Pinterest         Pins com vídeo
 
-  Instagram         Reels e publicações públicas; parte do conteúdo
-                    exige login (opção futura com a conta do usuário);
-                    Stories em geral exigem login
+  Instagram         Reels e publicações públicas **sem login**: o app
+                    abre a página pública do post num navegador
+                    invisível (como um visitante sem conta) e usa o
+                    vídeo que a página recebe; se falhar, tenta o
+                    yt-dlp. Stories e posts privados exigem login
 
   Kwai              Sem garantia: depende de o yt-dlp reconhecer a
                     página

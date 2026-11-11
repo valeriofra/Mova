@@ -37,14 +37,21 @@ object YtDlp {
      * Argumentos para baixar no formato escolhido para dentro de [outputDir].
      * [playlistIndex] seleciona um item de uma coleção acessada pelo link dela.
      */
-    fun downloadArgs(choice: FormatChoice, outputDir: String, playlistIndex: Int?): List<String> = buildList {
+    fun downloadArgs(
+        choice: FormatChoice,
+        outputDir: String,
+        playlistIndex: Int?,
+        fileBaseName: String? = null,
+    ): List<String> = buildList {
         add("--no-warnings")
         add("--no-mtime")
         add("--continue")
         add("--retries"); add("5")
         add("--fragment-retries"); add("10")
         add("--concurrent-fragments"); add("4")
-        add("-o"); add("$outputDir/%(title).90B.%(ext)s")
+        // Nome do arquivo: o título já mostrado ao usuário (ou o do mecanismo).
+        val base = fileBaseName?.takeIf { it.isNotBlank() }?.replace("%", "%%")?.take(90)
+        add("-o"); add(if (base != null) "$outputDir/$base.%(ext)s" else "$outputDir/%(title).90B.%(ext)s")
         if (playlistIndex != null) {
             add("--yes-playlist")
             add("--playlist-items"); add(playlistIndex.toString())
