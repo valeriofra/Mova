@@ -1,8 +1,9 @@
 # MOVA --- Documento de visão e planejamento do projeto
 
-**Versão:** 0.1\
-**Data:** 10 de novembro de 2026\
-**Status:** Planejamento --- nenhum código implementado
+**Versão:** 0.2\
+**Data:** 11 de novembro de 2026\
+**Status:** Em desenvolvimento --- app Android 0.1 criado; download das
+plataformas decidido (ver Atualização 2)
 
 ------------------------------------------------------------------------
 
@@ -70,10 +71,16 @@ ferramenta que atenda bem ao uso pessoal do desenvolvedor.
   Qualidade-alvo de vídeo            Até 1080p, quando disponível e
                                      permitido
 
-  Contas das redes sociais           Não exigir login; autenticação
-                                     oficial poderá ser considerada
-                                     apenas se indispensável e
-                                     autorizada
+  Contas das redes sociais           Não exigir login; o login da
+                                     própria conta do usuário poderá
+                                     ser oferecido como opção quando a
+                                     plataforma exigir (ex.: Instagram)
+
+  Download das plataformas           **Sim**, para uso pessoal, por
+                                     extração local no aparelho
+                                     (yt-dlp), dentro dos limites da
+                                     seção 4 --- decisão da
+                                     Atualização 2
   ---------------------------------------------------------------------
 
 As definições comerciais e de distribuição ainda são uma intenção de
@@ -149,23 +156,28 @@ As plataformas que se deseja reconhecer na arquitetura são:
 7.  Vimeo
 
 A presença de uma plataforma na lista significa que o MOVA deverá
-reconhecer e classificar seus links. **Não significa que o download
-estará disponível para todos os links.**
+reconhecer e classificar seus links **e tentar baixar o conteúdo
+público** pelo mecanismo de extração local (ver Atualização 2). Ainda
+assim, não há garantia de que todo link funcione: as plataformas mudam
+com frequência e algumas exigem login para parte do conteúdo.
 
-Cada plataforma possui regras, APIs, permissões e limitações próprias. O
-suporte efetivo será implementado e validado individualmente, usando
-mecanismos oficiais ou outras fontes expressamente autorizadas pelo
-titular do conteúdo.
+O MOVA não deverá: - Contornar DRM ou mecanismos de proteção (ex.:
+filmes e séries de serviços pagos). - Acessar conteúdo privado sem
+autorização. - Burlar paywalls, autenticação ou controles de acesso
+(usar apenas a conta do próprio usuário, quando ele mesmo fizer
+login). - Prometer suporte universal a playlists, Stories ou downloads
+em lote.
 
-O MOVA não deverá: - Contornar DRM ou mecanismos de proteção. - Acessar
-conteúdo privado sem autorização. - Burlar autenticação, controles de
-acesso ou restrições de download. - Extrair áudio ou vídeo de serviços
-quando isso contrariar seus termos ou direitos aplicáveis. - Prometer
-suporte universal a playlists, Stories ou downloads em lote.
+> **Alterado na Atualização 2:** a regra anterior de "não extrair áudio
+> ou vídeo quando isso contrariar os termos do serviço" foi substituída
+> pela decisão de baixar conteúdo público para uso pessoal. Os termos de
+> uso de várias plataformas não permitem esse tipo de download; o
+> desenvolvedor assume esse risco para uso pessoal (ver riscos na
+> Atualização 2).
 
-Quando o download não for permitido, o aplicativo poderá reconhecer a
-plataforma e orientar o usuário a abrir o conteúdo no serviço original
-ou utilizar as opções oficiais disponíveis.
+Quando o download não for possível (conteúdo privado, removido,
+protegido por DRM ou não suportado), o aplicativo deverá explicar o
+motivo e oferecer abrir o conteúdo no serviço original.
 
 ## 5. Funcionalidades planejadas para o Android
 
@@ -520,8 +532,9 @@ A primeira versão deverá ser testada para confirmar:
 5.  Política de distribuição dos APKs e instaladores.
 6.  Limite de dispositivos por licença, se houver venda.
 7.  Provedor de pagamento e emissão de licença.
-8.  Quais plataformas terão integrações efetivas e por quais meios
-    autorizados.
+8.  ~~Quais plataformas terão integrações efetivas e por quais meios
+    autorizados.~~ Decidido na Atualização 2: todas, via yt-dlp, para
+    conteúdo público.
 9.  Tecnologia final para a versão Windows.
 10. Formatos de áudio e detalhes de conversão.
 
@@ -531,8 +544,8 @@ A primeira versão deverá ser testada para confirmar:
     desenvolvedor antes de investir em comercialização.
 2.  **Simplicidade:** a experiência deve ser limpa e intuitiva.
 3.  **Transparência:** explicar o que é possível e o que não é.
-4.  **Respeito às permissões:** não contornar DRM, privacidade ou
-    restrições de acesso.
+4.  **Limites claros:** baixar conteúdo público para uso pessoal, sem
+    contornar DRM, privacidade, paywalls ou restrições de acesso.
 5.  **Processamento local:** evitar servidores e coleta de dados
     desnecessários.
 6.  **Arquitetura evolutiva:** preparar a base para Windows sem
@@ -726,3 +739,108 @@ contraste.
 
 A identidade e os mockups são aprovados como **direção visual inicial**,
 mantendo liberdade para ajustes de usabilidade.
+
+------------------------------------------------------------------------
+
+# Atualização 2 --- Download nas plataformas
+
+**Data:** 11 de novembro de 2026\
+**Status:** Decidido; em implementação.
+
+## 22. Decisão
+
+O MOVA **deve baixar os vídeos** das plataformas da seção 4 (YouTube,
+Facebook, Instagram, TikTok, Kwai, Pinterest e Vimeo), e não apenas
+reconhecer os links. A finalidade continua sendo o **uso pessoal**.
+
+Motivo: no teste da versão 0.1, um link de Reel do Instagram foi
+reconhecido, mas não baixado, o que não atende à necessidade principal do
+aplicativo.
+
+## 23. Como funciona
+
+-   Mecanismo: **yt-dlp** (projeto de código aberto), executado **dentro
+    do próprio aparelho**, junto com Python, FFmpeg (unir vídeo e áudio
+    em até 1080p e extrair áudio) e QuickJS (exigido pelo YouTube). Sem
+    servidor externo, mantendo o princípio de processamento local.
+-   O aplicativo atualiza o yt-dlp periodicamente pela internet, porque as
+    plataformas mudam com frequência e versões antigas deixam de
+    funcionar.
+-   Fluxo: colar ou compartilhar o link → análise (título, miniatura,
+    duração, qualidades disponíveis) → **Download** → escolher **vídeo
+    (até 1080p)** ou **somente áudio (MP3/M4A)** → fila → biblioteca.
+-   Playlists, coleções e publicações com vários itens: listar os itens
+    e permitir baixar todos ou selecionar.
+-   Páginas de outros sites também passam pelo mecanismo: se houver um
+    vídeo incorporado reconhecível, ele pode ser baixado.
+
+## 24. Limites que continuam valendo
+
+-   Não contornar DRM (serviços pagos de filmes, séries e música
+    protegidos).
+-   Não acessar conteúdo privado de terceiros nem burlar paywalls.
+-   Conteúdo que exige login (comum no Instagram) só poderá ser baixado
+    com a **conta do próprio usuário**, se essa opção for implementada.
+    O MOVA nunca usará contas ou credenciais de terceiros.
+-   Explicar claramente quando um link não puder ser baixado (privado,
+    removido, exige login, DRM, não suportado).
+
+## 25. Riscos aceitos e consequências
+
+-   **Termos de uso:** YouTube, Instagram, TikTok e outras plataformas
+    proíbem, em seus termos, o download por ferramentas não oficiais.
+    Para uso pessoal, o risco prático é baixo, mas existe a
+    possibilidade de bloqueio temporário por excesso de acessos.
+-   **Direitos autorais:** baixar não dá direito de redistribuir. O uso
+    deve se limitar a cópias pessoais de conteúdo que o usuário possa
+    guardar.
+-   **Funcionamento instável:** as plataformas mudam com frequência. Um
+    link que funciona hoje pode falhar amanhã até o yt-dlp ser
+    atualizado.
+-   **Tamanho do aplicativo:** o mecanismo (Python + FFmpeg) aumenta o
+    APK para algumas dezenas de MB. A primeira análise demora alguns
+    segundos a mais enquanto o mecanismo é preparado.
+-   **Impacto na comercialização (seção 11):** a Google Play não aceita
+    aplicativos que baixam vídeos do YouTube, e vender licenças de uma
+    ferramenta que contraria os termos dessas plataformas traz risco
+    jurídico. **Antes de qualquer venda a terceiros, a estratégia
+    comercial deve ser reavaliada** (por exemplo: manter o MOVA apenas
+    pessoal, ou comercializar somente recursos que não dependam da
+    extração das plataformas).
+-   O repositório deve permanecer **privado**.
+
+## 26. Suporte esperado por plataforma
+
+  ---------------------------------------------------------------------
+  Plataforma        Expectativa
+  ----------------- ---------------------------------------------------
+  YouTube           Vídeos, Shorts, playlists e áudio, até 1080p
+
+  Vimeo             Vídeos públicos
+
+  TikTok            Vídeos públicos
+
+  Facebook          Vídeos e Reels públicos
+
+  Pinterest         Pins com vídeo
+
+  Instagram         Reels e publicações públicas; parte do conteúdo
+                    exige login (opção futura com a conta do usuário);
+                    Stories em geral exigem login
+
+  Kwai              Sem garantia: depende de o yt-dlp reconhecer a
+                    página
+  ---------------------------------------------------------------------
+
+Esta tabela é uma expectativa. O suporte real deve ser confirmado em
+testes no aparelho e documentado.
+
+## 27. Próximos passos
+
+1.  Integrar o yt-dlp no app Android (análise, formatos, fila,
+    progresso, cancelamento e retomada).
+2.  Testar cada plataforma com links reais no aparelho e registrar o
+    resultado.
+3.  Avaliar o login opcional com a conta do próprio usuário para o
+    Instagram.
+4.  Reavaliar o plano comercial (seção 11) à luz dos riscos acima.
