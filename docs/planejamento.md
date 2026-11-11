@@ -857,14 +857,32 @@ testes no aparelho e documentado.
 
   11/11/2026    0.2.3     Facebook      ✅ Funciona
 
-  ---           ---       YouTube       ⏳ A testar
+  11/11/2026    0.2.3     YouTube       ✅ Funciona (vídeo e somente
+                                        áudio)
 
-  ---           ---       TikTok        ⏳ A testar
+  11/11/2026    0.2.3     TikTok        ✅ Funciona
+
+  11/11/2026    0.2.3     DTube         ✅ Funciona (fora da lista
+                                        original)
+
+  11/11/2026    0.2.3     COS.TV        ⚠️ Só oferecia áudio (fora da
+                                        lista). Corrigido na 0.2.4: a
+                                        testar
+
+  11/11/2026    0.2.3     Kwai          ❌ "Unsupported URL" (o yt-dlp
+                                        não suporta). Na 0.2.4 o app
+                                        procura o vídeo na própria
+                                        página: a testar
 
   ---           ---       Vimeo         ⏳ A testar
 
-  ---           ---       Kwai          ⏳ A testar
+  ---           ---       Rumble        ⏳ A testar (o yt-dlp tem
+                                        suporte próprio)
   -----------------------------------------------------------------------
+
+Sites fora da lista original também podem funcionar: o yt-dlp reconhece
+milhares de sites, e para os que ele não reconhece o MOVA procura o vídeo
+na própria página (a partir da 0.2.4).
 
 ## 27. Próximos passos
 

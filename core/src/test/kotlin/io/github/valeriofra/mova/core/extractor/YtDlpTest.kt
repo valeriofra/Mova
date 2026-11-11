@@ -149,4 +149,25 @@ class YtDlpTest {
         assertEquals("CopyStream:-an", args[args.indexOf("--ppa") + 1])
         assertFalse(args.contains("-x"))
     }
+
+    @Test
+    fun genericExtractorVideoIsNotMistakenForAudio() {
+        // Saída real do extrator genérico (MP4 direto e HLS): sem codec nem resolução.
+        val direct = """{"_type":"video","extractor":"generic","ext":"mp4","video_ext":"mp4","audio_ext":"none",
+            "formats":[{"format_id":"mp4","ext":"mp4","protocol":"http","video_ext":"mp4","audio_ext":"none"}]}"""
+        val hls = """{"_type":"video","extractor":"html5","ext":"mp4",
+            "formats":[{"format_id":"hls","ext":"mp4","protocol":"m3u8_native","video_ext":"mp4","audio_ext":"none"}]}"""
+        for (json in listOf(direct, hls)) {
+            val media = (YtDlp.parse(json) as ExtractionResult.Single).media
+            assertTrue("deveria ser vídeo: $json", media.hasVideo)
+        }
+    }
+
+    @Test
+    fun explicitAudioOnlyStaysAudio() {
+        val music = """{"title":"Faixa","formats":[
+            {"format_id":"mp3","ext":"mp3","vcodec":"none","acodec":"mp3"},
+            {"format_id":"opus","ext":"opus","video_ext":"none","audio_ext":"opus"}]}"""
+        assertFalse((YtDlp.parse(music) as ExtractionResult.Single).media.hasVideo)
+    }
 }

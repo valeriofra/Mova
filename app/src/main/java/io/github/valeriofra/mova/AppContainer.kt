@@ -14,6 +14,7 @@ import io.github.valeriofra.mova.download.NetworkMonitor
 import io.github.valeriofra.mova.download.OkHttpProbe
 import io.github.valeriofra.mova.download.PartialFiles
 import io.github.valeriofra.mova.download.PlatformExtractor
+import io.github.valeriofra.mova.download.WebVideoFinder
 import io.github.valeriofra.mova.download.YtDlpEngine
 import io.github.valeriofra.mova.ui.components.ThumbnailLoader
 import java.util.concurrent.TimeUnit
@@ -55,7 +56,11 @@ class AppContainer(context: Context) {
     val ytDlp = YtDlpEngine(appContext)
     /** Instagram sem login: página pública do post num WebView invisível. */
     val instagram = InstagramWebExtractor(appContext)
-    val analyzer by lazy { LinkAnalyzer(OkHttpProbe(httpClient), extractor = PlatformExtractor(ytDlp, instagram)) }
+    /** Sites sem suporte no yt-dlp (ex.: Kwai): procura o vídeo na própria página. */
+    val webVideoFinder = WebVideoFinder(appContext)
+    val analyzer by lazy {
+        LinkAnalyzer(OkHttpProbe(httpClient), extractor = PlatformExtractor(ytDlp, instagram, webVideoFinder))
+    }
     val scheduler = DownloadScheduler(appContext, settings)
     val downloads by lazy { DownloadRepository(database.downloadDao(), scheduler, partialFiles) }
 }

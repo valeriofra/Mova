@@ -15,16 +15,40 @@ import kotlinx.coroutines.CancellationException
 class PlatformExtractor(
     private val ytDlp: YtDlpEngine,
     private val instagram: InstagramWebExtractor,
+    private val webFinder: WebVideoFinder,
 ) : MediaExtractor {
 
     private val recognizer = LinkRecognizer()
+
+    /**
+     * Se o yt-dlp não reconhece o site (ex.: Kwai), procura o vídeo na própria
+     * página, num navegador invisível.
+     */
+    private suspend fun withPageFallback(url: String, primary: ExtractionResult): ExtractionResult {
+        if (primary !is ExtractionResult.Failure || primary.reason !in PAGE_FALLBACK) return primary
+        val page = try {
+            webFinder.find(url)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            ExtractionResult.Failure(ExtractionFailure.UNKNOWN, e.toString())
+        }
+        if (page !is ExtractionResult.Failure) return page
+        return ExtractionResult.Failure(
+            primary.reason,
+            listOfNotNull(
+                primary.message?.let { "yt-dlp ${ytDlp.version().orEmpty()}: $it" },
+                page.message?.let { "Página: $it" },
+            ).joinToString("\n"),
+        )
+    }
 
     override suspend fun extract(url: String, allowPlaylist: Boolean): ExtractionResult {
         val link = recognizer.recognize(url)
         val code = link?.contentId
         val isInstagramPost = link?.platform == Platform.INSTAGRAM && code != null &&
             link.kind in setOf(ContentKind.POST, ContentKind.SHORT_VIDEO, ContentKind.VIDEO)
-        if (!isInstagramPost) return ytDlp.extract(url, allowPlaylist)
+        if (!isInstagramPost) return withPageFallback(url, ytDlp.extract(url, allowPlaylist))
 
         val public = try {
             instagram.extract(code)
@@ -46,5 +70,9 @@ class PlatformExtractor(
                 viaYtDlp.message?.let { "yt-dlp ${ytDlp.version().orEmpty()}: $it" },
             ).joinToString("\n"),
         )
+    }
+
+    private companion object {
+        val PAGE_FALLBACK = setOf(ExtractionFailure.UNSUPPORTED, ExtractionFailure.UNKNOWN)
     }
 }

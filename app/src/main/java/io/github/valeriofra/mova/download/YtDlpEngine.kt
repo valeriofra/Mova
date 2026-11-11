@@ -145,6 +145,7 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
                     outputDir = dir.absolutePath,
                     playlistIndex = task.playlistIndex,
                     fileBaseName = FileNames.sanitize(task.title),
+                    referer = refererFor(task),
                 ),
             )
         try {
@@ -175,6 +176,13 @@ class YtDlpEngine(private val context: Context) : MediaExtractor {
         }
         return resultFile(dir)
             ?: throw DownloadFailure(DownloadError.EXTRACTOR, message = "O arquivo baixado não foi encontrado")
+    }
+
+    /** Arquivos de CDN (achados na página) podem exigir a página de origem como Referer. */
+    private fun refererFor(task: DownloadEntity): String? {
+        val fileHost = android.net.Uri.parse(task.url).host
+        val pageHost = android.net.Uri.parse(task.sourceUrl).host
+        return task.sourceUrl.takeIf { fileHost != null && pageHost != null && fileHost != pageHost }
     }
 
     private fun errorFor(failure: ExtractionFailure): DownloadError = when (failure) {

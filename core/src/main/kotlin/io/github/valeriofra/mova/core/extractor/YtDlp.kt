@@ -42,6 +42,8 @@ object YtDlp {
         outputDir: String,
         playlistIndex: Int?,
         fileBaseName: String? = null,
+        /** Página de origem, quando o arquivo vem de outro domínio (CDN). */
+        referer: String? = null,
     ): List<String> = buildList {
         add("--no-warnings")
         add("--no-mtime")
@@ -49,6 +51,9 @@ object YtDlp {
         add("--retries"); add("5")
         add("--fragment-retries"); add("10")
         add("--concurrent-fragments"); add("4")
+        if (referer != null) {
+            add("--referer"); add(referer)
+        }
         // Nome do arquivo: o título já mostrado ao usuário (ou o do mecanismo).
         val base = fileBaseName?.takeIf { it.isNotBlank() }?.replace("%", "%%")?.take(90)
         add("-o"); add(if (base != null) "$outputDir/$base.%(ext)s" else "$outputDir/%(title).90B.%(ext)s")
@@ -141,7 +146,8 @@ object YtDlp {
             ?.mapNotNull { it as? JsonObject }
             .orEmpty()
 
-        data class Fmt(val res: Int?, val hasVideo: Boolean, val hasAudio: Boolean, val size: Long?)
+        /** [hasVideo]: true/false quando há evidência; null quando o extrator não informa. */
+        data class Fmt(val res: Int?, val hasVideo: Boolean?, val hasAudio: Boolean, val size: Long?)
 
         fun codecPresent(value: String?) = value != null && value != "none"
         val parsed = formats.map { f ->
@@ -154,8 +160,9 @@ object YtDlp {
             val vcodec = f.string("vcodec")
             val acodec = f.string("acodec")
             // Alguns extratores não informam codecs; nesse caso, deduz pela resolução.
-            val hasVideo = codecPresent(vcodec) || (vcodec == null && res != null)
-            val hasAudio = codecPresent(acodec) || (acodec == null && res == null)
+            val hasVideo = videoEvidence(vcodec, res, f.string("video_ext"), f.string("audio_ext"), f.string("ext"))
+            // Áudio só é descartado quando o extrator diz explicitamente que não há.
+            val hasAudio = acodec != "none"
             Fmt(res, hasVideo, hasAudio, f.number("filesize")?.toLong() ?: f.number("filesize_approx")?.toLong())
         }
 
@@ -163,13 +170,13 @@ object YtDlp {
         val topHeight = media.number("height")?.toInt()
         val topRes = if (topWidth != null && topHeight != null) minOf(topWidth, topHeight) else topHeight
 
-        val videoFormats = parsed.filter { it.hasVideo && it.res != null }
+        val videoFormats = parsed.filter { it.hasVideo == true && it.res != null }
         val resolutions = (videoFormats.mapNotNull { it.res } + listOfNotNull(topRes))
             .filter { it > 0 }
             .distinct()
             .sortedDescending()
 
-        val audioOnly = parsed.filter { it.hasAudio && !it.hasVideo }
+        val audioOnly = parsed.filter { it.hasAudio && it.hasVideo == false }
         val bestAudioSize = audioOnly.mapNotNull { it.size }.maxOrNull()
         val sizeByResolution = resolutions.associateWith { res ->
             val videoSize = videoFormats.filter { it.res == res }.mapNotNull { it.size }.maxOrNull()
@@ -180,9 +187,16 @@ object YtDlp {
             }
         }.filterValues { it != null }.mapValues { it.value!! }
 
-        val vcodecTop = media.string("vcodec")
-        val hasVideo = resolutions.isNotEmpty() || codecPresent(vcodecTop)
-        val hasAudio = parsed.any { it.hasAudio } || codecPresent(media.string("acodec")) || formats.isEmpty()
+        // Só é "somente áudio" quando todos os formatos dizem não ter vídeo. Extratores
+        // genéricos (MP4 direto, HLS) não informam codec nem resolução: na dúvida, é vídeo.
+        val hasVideo = when {
+            resolutions.isNotEmpty() -> true
+            parsed.isNotEmpty() -> parsed.any { it.hasVideo != false }
+            else -> videoEvidence(
+                media.string("vcodec"), topRes, media.string("video_ext"), media.string("audio_ext"), media.string("ext"),
+            ) != false
+        }
+        val hasAudio = parsed.any { it.hasAudio } || media.string("acodec") != "none"
 
         return ExtractedMedia(
             id = media.string("id"),
@@ -198,6 +212,20 @@ object YtDlp {
             sizeByResolution = sizeByResolution,
             audioSizeBytes = bestAudioSize ?: if (!hasVideo) media.number("filesize")?.toLong() else null,
         )
+    }
+
+    private val VIDEO_EXTENSIONS = setOf("mp4", "m4v", "webm", "mkv", "mov", "flv", "3gp", "ts", "avi")
+    private val AUDIO_EXTENSIONS = setOf("mp3", "m4a", "aac", "ogg", "oga", "opus", "wav", "flac", "weba")
+
+    /** Há vídeo neste formato? true/false com evidência; null se o extrator não informou. */
+    private fun videoEvidence(vcodec: String?, res: Int?, videoExt: String?, audioExt: String?, ext: String?): Boolean? = when {
+        vcodec != null -> vcodec != "none"
+        res != null && res > 0 -> true
+        videoExt != null && videoExt != "none" -> true
+        videoExt == "none" && audioExt != null && audioExt != "none" -> false
+        ext != null && ext.lowercase() in VIDEO_EXTENSIONS -> true
+        ext != null && ext.lowercase() in AUDIO_EXTENSIONS -> false
+        else -> null
     }
 
     private fun thumbnailOf(obj: JsonObject): String? {
