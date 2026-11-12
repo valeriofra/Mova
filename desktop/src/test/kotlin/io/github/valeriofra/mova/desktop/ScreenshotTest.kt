@@ -28,6 +28,9 @@ import io.github.valeriofra.mova.desktop.ui.Destination
 import io.github.valeriofra.mova.desktop.ui.HomeModel
 import io.github.valeriofra.mova.desktop.ui.HomeScreen
 import io.github.valeriofra.mova.desktop.ui.MovaDesktopApp
+import io.github.valeriofra.mova.desktop.ui.SettingsActions
+import io.github.valeriofra.mova.desktop.ui.SettingsScreen
+import io.github.valeriofra.mova.desktop.ui.SettingsTab
 import io.github.valeriofra.mova.desktop.ui.components.LocalThumbnails
 import io.github.valeriofra.mova.desktop.ui.theme.MovaTheme
 import java.io.File
@@ -178,6 +181,13 @@ class ScreenshotTest {
         shot("06_fila") { app(Destination.QUEUE) }
         shot("07_biblioteca") { app(Destination.LIBRARY) }
         shot("08_ajustes") { app(Destination.SETTINGS) }
+        listOf(SettingsTab.DOWNLOADS to "08b_ajustes_downloads", SettingsTab.STORAGE to "08c_ajustes_armazenamento", SettingsTab.ABOUT to "08d_ajustes_sobre").forEach { (tab, name) ->
+            shot(name, width = 1000, height = 640) {
+                androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.background(io.github.valeriofra.mova.desktop.ui.theme.MovaColors.Background)) {
+                    SettingsScreen(container.settings.current, container.manager.destination.path, EngineState.Ready("2026.11.10", systemFfmpeg = false), 12L * mb, SettingsActions(), initialTab = tab)
+                }
+            }
+        }
 
         shot("10_inicio_claro", dark = false) { app(Destination.HOME, single) }
         shot("11_fila_claro", dark = false) { app(Destination.QUEUE) }

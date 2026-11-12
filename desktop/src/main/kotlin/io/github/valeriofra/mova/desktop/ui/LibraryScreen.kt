@@ -2,6 +2,7 @@ package io.github.valeriofra.mova.desktop.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -60,6 +61,9 @@ import io.github.valeriofra.mova.desktop.ui.components.MovaCard
 import io.github.valeriofra.mova.desktop.ui.components.MovaChip
 import io.github.valeriofra.mova.desktop.ui.components.PrimaryButton
 import io.github.valeriofra.mova.desktop.ui.components.ScreenTitle
+import androidx.compose.foundation.lazy.rememberLazyListState
+import io.github.valeriofra.mova.desktop.ui.components.ListScrollbar
+import io.github.valeriofra.mova.desktop.ui.components.SCROLLBAR_GUTTER
 import io.github.valeriofra.mova.desktop.ui.components.SecondaryButton
 import io.github.valeriofra.mova.desktop.ui.components.StatusPill
 import io.github.valeriofra.mova.desktop.ui.components.LocalScreenPadding
@@ -224,7 +228,9 @@ private fun FilesTab(
     }
     Spacer(Modifier.height(12.dp))
     val visible = files.filter { filter.matches(it.mediaKind) && (query.isBlank() || it.fileName.contains(query.trim(), ignoreCase = true) || it.title.contains(query.trim(), ignoreCase = true)) }
-    LazyColumn(contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    val listState = rememberLazyListState()
+    Box(Modifier.fillMaxSize()) {
+    LazyColumn(state = listState, contentPadding = PaddingValues(end = SCROLLBAR_GUTTER, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (autoDeleteDays > 0) {
             item(key = "auto-delete") {
                 InfoBanner(Icons.Rounded.AutoDelete, pluralStringResource(Res.plurals.library_auto_delete_notice, autoDeleteDays, autoDeleteDays), color = MovaColors.Warning)
@@ -236,6 +242,8 @@ private fun FilesTab(
             }
         }
         items(visible, key = { it.id }) { task -> FileRow(task, actions, onDelete) }
+    }
+    ListScrollbar(listState)
     }
 }
 
@@ -266,7 +274,9 @@ private fun HistoryTab(history: List<DownloadTask>, actions: LibraryActions) {
         EmptyState(Icons.Rounded.History, stringResource(Res.string.library_history_empty_title), stringResource(Res.string.library_history_empty_message))
         return
     }
-    LazyColumn(contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    val listState = rememberLazyListState()
+    Box(Modifier.fillMaxSize()) {
+    LazyColumn(state = listState, contentPadding = PaddingValues(end = SCROLLBAR_GUTTER, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(history, key = { it.id }) { task ->
             MovaCard(Modifier.fillMaxWidth()) {
                 Row(Modifier.padding(start = 14.dp, top = 10.dp, bottom = 10.dp, end = 6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -294,6 +304,8 @@ private fun HistoryTab(history: List<DownloadTask>, actions: LibraryActions) {
                 }
             }
         }
+    }
+    ListScrollbar(listState)
     }
 }
 

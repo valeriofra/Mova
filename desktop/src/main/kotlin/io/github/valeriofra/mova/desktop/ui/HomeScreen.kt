@@ -7,7 +7,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.rememberScrollbarAdapter
+import io.github.valeriofra.mova.desktop.ui.components.SCROLLBAR_GUTTER
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -217,8 +221,9 @@ fun HomeScreen(model: HomeModel, engineState: EngineState, onDownload: () -> Uni
     ) {
         // Monitores baixos: menos espaço acima do campo.
         val short = maxHeight < 620.dp
+        val pageScroll = rememberScrollState()
         Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = LocalScreenPadding.current, vertical = 28.dp),
+            Modifier.fillMaxSize().verticalScroll(pageScroll).padding(horizontal = LocalScreenPadding.current, vertical = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             val idle = analysis is HomeModel.Analysis.Idle
@@ -267,6 +272,7 @@ fun HomeScreen(model: HomeModel, engineState: EngineState, onDownload: () -> Uni
                 }
             }
         }
+        VerticalScrollbar(rememberScrollbarAdapter(pageScroll), Modifier.align(Alignment.CenterEnd).fillMaxHeight())
     }
 }
 
@@ -452,7 +458,9 @@ private fun ItemSelection(items: List<MediaItem>, selected: Set<String>, title: 
                     onClick = { model.selectAll(!all) },
                 )
             }
-            Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState())) {
+            val listScroll = rememberScrollState()
+            Box(Modifier.heightIn(max = 360.dp)) {
+            Column(Modifier.verticalScroll(listScroll).padding(end = SCROLLBAR_GUTTER)) {
                 items.forEach { item ->
                     Row(
                         Modifier.fillMaxWidth().clickable { model.toggle(item.key) }.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -473,6 +481,8 @@ private fun ItemSelection(items: List<MediaItem>, selected: Set<String>, title: 
                         )
                     }
                 }
+            }
+            VerticalScrollbar(rememberScrollbarAdapter(listScroll), Modifier.align(Alignment.CenterEnd).fillMaxHeight())
             }
         }
     }

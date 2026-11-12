@@ -1,6 +1,8 @@
 package io.github.valeriofra.mova.desktop.ui
 
+import androidx.compose.foundation.LocalScrollbarStyle
 import androidx.compose.foundation.background
+import io.github.valeriofra.mova.desktop.ui.components.movaScrollbarStyle
 import io.github.valeriofra.mova.desktop.ui.components.MovaLogo
 import io.github.valeriofra.mova.desktop.ui.components.LocalScreenPadding
 import androidx.compose.material3.rememberTooltipState
@@ -113,6 +115,7 @@ fun MovaDesktopApp(
     }
 
     // Adapta-se ao tamanho da janela: em telas estreitas a barra lateral vira só ícones.
+    CompositionLocalProvider(LocalScrollbarStyle provides movaScrollbarStyle()) {
     BoxWithConstraints(Modifier.fillMaxSize().background(MovaColors.Background)) {
     val compact = maxWidth < 980.dp
     Row(Modifier.fillMaxSize()) {
@@ -246,6 +249,7 @@ fun MovaDesktopApp(
                 Snackbar(data, containerColor = MovaColors.SurfaceHighest, contentColor = MovaColors.TextPrimary, actionColor = MovaColors.Accent)
             }
         }
+    }
     }
     }
 }

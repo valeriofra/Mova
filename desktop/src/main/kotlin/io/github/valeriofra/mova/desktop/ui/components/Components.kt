@@ -1,6 +1,17 @@
 package io.github.valeriofra.mova.desktop.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.ScrollbarStyle
+import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -60,6 +71,47 @@ import io.github.valeriofra.mova.desktop.resources.Res
 import io.github.valeriofra.mova.desktop.resources.mova_logo
 import io.github.valeriofra.mova.desktop.ui.theme.MovaColors
 import org.jetbrains.compose.resources.painterResource
+
+/**
+ * Coluna com rolagem e barra de rolagem visível à direita (padrão no computador).
+ * O conteúdo reserva espaço para a barra não cobrir os cartões.
+ */
+@Composable
+fun ScrollArea(
+    modifier: Modifier = Modifier,
+    state: ScrollState = rememberScrollState(),
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Box(modifier) {
+        Column(
+            Modifier.fillMaxSize().verticalScroll(state).padding(end = SCROLLBAR_GUTTER),
+            horizontalAlignment = horizontalAlignment,
+            content = content,
+        )
+        VerticalScrollbar(rememberScrollbarAdapter(state), Modifier.align(Alignment.CenterEnd).fillMaxHeight())
+    }
+}
+
+/** Barra de rolagem para listas (LazyColumn), sobreposta à direita. */
+@Composable
+fun BoxScope.ListScrollbar(state: LazyListState) {
+    VerticalScrollbar(rememberScrollbarAdapter(state), Modifier.align(Alignment.CenterEnd).fillMaxHeight())
+}
+
+/** Espaço reservado à direita para a barra de rolagem. */
+val SCROLLBAR_GUTTER = 14.dp
+
+/** Aparência da barra de rolagem nas cores do tema. */
+@Composable
+fun movaScrollbarStyle(): ScrollbarStyle = ScrollbarStyle(
+    minimalHeight = 40.dp,
+    thickness = 8.dp,
+    shape = RoundedCornerShape(4.dp),
+    hoverDurationMillis = 250,
+    unhoverColor = MovaColors.TextSecondary.copy(alpha = 0.45f),
+    hoverColor = MovaColors.TextSecondary.copy(alpha = 0.8f),
+)
 
 /** Margem lateral das telas (menor em janelas estreitas). */
 val LocalScreenPadding = staticCompositionLocalOf { 32.dp }

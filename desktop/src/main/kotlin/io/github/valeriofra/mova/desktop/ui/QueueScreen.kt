@@ -55,6 +55,9 @@ import io.github.valeriofra.mova.desktop.ui.components.MovaProgressBar
 import io.github.valeriofra.mova.desktop.ui.components.PrimaryButton
 import io.github.valeriofra.mova.desktop.ui.components.ScreenTitle
 import io.github.valeriofra.mova.desktop.ui.components.SecondaryButton
+import androidx.compose.foundation.lazy.rememberLazyListState
+import io.github.valeriofra.mova.desktop.ui.components.ListScrollbar
+import io.github.valeriofra.mova.desktop.ui.components.SCROLLBAR_GUTTER
 import io.github.valeriofra.mova.desktop.ui.components.SectionHeader
 import io.github.valeriofra.mova.desktop.ui.components.LocalScreenPadding
 import io.github.valeriofra.mova.desktop.ui.theme.MovaColors
@@ -98,7 +101,9 @@ fun QueueScreen(
             )
             return@Column
         }
-        LazyColumn(contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        val listState = rememberLazyListState()
+        androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
+        LazyColumn(state = listState, contentPadding = PaddingValues(end = SCROLLBAR_GUTTER, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             section(Res.string.queue_section_running, running) { QueueRow(it, actions) { confirmCancel = it } }
             section(Res.string.queue_section_queued, queued) { QueueRow(it, actions) { confirmCancel = it } }
             section(Res.string.queue_section_paused, paused) { QueueRow(it, actions) { confirmCancel = it } }
@@ -111,6 +116,8 @@ fun QueueScreen(
                 }
                 items(recent, key = { it.id }) { CompletedRow(it, onShowInFolder) }
             }
+        }
+        ListScrollbar(listState)
         }
     }
 

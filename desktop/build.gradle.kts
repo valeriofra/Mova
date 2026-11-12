@@ -11,7 +11,7 @@ plugins {
 }
 
 /** Versão exibida no app. */
-val movaDesktopVersion = "0.2.1"
+val movaDesktopVersion = "0.2.2"
 
 /** Número do build (no CI, o número da execução). */
 val movaBuildNumber: Int = providers.environmentVariable("MOVA_BUILD_NUMBER").orNull?.toIntOrNull() ?: 0

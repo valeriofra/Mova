@@ -33,6 +33,14 @@ import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.SecondaryScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.runtime.key
+import androidx.compose.ui.graphics.Color
+import io.github.valeriofra.mova.desktop.ui.components.SCROLLBAR_GUTTER
+import io.github.valeriofra.mova.desktop.ui.components.ScrollArea
+import org.jetbrains.compose.resources.StringResource
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -64,7 +72,6 @@ import io.github.valeriofra.mova.desktop.ui.components.MovaChip
 import io.github.valeriofra.mova.desktop.ui.components.MovaLogo
 import io.github.valeriofra.mova.desktop.ui.components.MovaSwitch
 import io.github.valeriofra.mova.desktop.ui.components.ScreenTitle
-import io.github.valeriofra.mova.desktop.ui.components.SectionHeader
 import io.github.valeriofra.mova.desktop.ui.components.TitleAndSubtitle
 import io.github.valeriofra.mova.desktop.ui.components.LocalScreenPadding
 import io.github.valeriofra.mova.desktop.ui.theme.MovaColors
@@ -85,7 +92,15 @@ data class SettingsActions(
     val openEngineFolder: () -> Unit = {},
 )
 
-@OptIn(ExperimentalLayoutApi::class)
+/** Abas dos Ajustes (os mesmos títulos das antigas seções). */
+enum class SettingsTab(val label: StringResource) {
+    APPEARANCE(Res.string.settings_section_appearance),
+    DOWNLOADS(Res.string.settings_section_downloads),
+    STORAGE(Res.string.settings_section_storage),
+    ABOUT(Res.string.settings_section_about),
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     settings: DesktopSettings,
@@ -93,12 +108,42 @@ fun SettingsScreen(
     engineState: EngineState,
     temporaryBytes: Long,
     actions: SettingsActions,
+    initialTab: SettingsTab = SettingsTab.APPEARANCE,
 ) {
     var confirmAutoDelete by remember { mutableStateOf<Int?>(null) }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = LocalScreenPadding.current, vertical = 20.dp)) {
-        ScreenTitle(stringResource(Res.string.settings_title))
-        Column(Modifier.widthIn(max = 820.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SectionHeader(stringResource(Res.string.settings_section_appearance))
+    var tab by remember { mutableStateOf(initialTab) }
+    Column(Modifier.fillMaxSize().padding(start = LocalScreenPadding.current, top = 20.dp)) {
+        Column(Modifier.padding(end = LocalScreenPadding.current)) {
+            ScreenTitle(stringResource(Res.string.settings_title))
+            SecondaryScrollableTabRow(
+                selectedTabIndex = tab.ordinal,
+                containerColor = Color.Transparent,
+                contentColor = MovaColors.Accent,
+                edgePadding = 0.dp,
+                divider = {},
+                indicator = { TabRowDefaults.SecondaryIndicator(Modifier.tabIndicatorOffset(tab.ordinal), color = MovaColors.Accent) },
+            ) {
+                SettingsTab.entries.forEach { item ->
+                    Tab(
+                        selected = tab == item,
+                        onClick = { tab = item },
+                        text = { Text(stringResource(item.label), maxLines = 1) },
+                        selectedContentColor = MovaColors.Accent,
+                        unselectedContentColor = MovaColors.TextSecondary,
+                    )
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+        }
+        // Cada aba rola sozinha, com barra de rolagem visível.
+        key(tab) {
+        ScrollArea(Modifier.fillMaxSize()) {
+        Column(
+            Modifier.widthIn(max = 820.dp).padding(end = (LocalScreenPadding.current - SCROLLBAR_GUTTER).coerceAtLeast(0.dp), bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+          when (tab) {
+          SettingsTab.APPEARANCE -> {
             SettingCard(Icons.Rounded.Palette, stringResource(Res.string.settings_theme), stringResource(Res.string.settings_theme_hint)) {
                 Segmented(
                     options = listOf(
@@ -118,7 +163,8 @@ fun SettingsScreen(
                 }
             }
 
-            SectionHeader(stringResource(Res.string.settings_section_downloads), Modifier.padding(top = 12.dp))
+          }
+          SettingsTab.DOWNLOADS -> {
             SettingCard(
                 Icons.Rounded.Folder,
                 stringResource(Res.string.settings_save_title),
@@ -165,7 +211,8 @@ fun SettingsScreen(
                 AccentTextButton(stringResource(Res.string.settings_engine_open_folder), actions.openEngineFolder)
             }
 
-            SectionHeader(stringResource(Res.string.settings_section_storage), Modifier.padding(top = 12.dp))
+          }
+          SettingsTab.STORAGE -> {
             val days = settings.autoDeleteDays
             SettingCard(
                 Icons.Rounded.AutoDelete,
@@ -192,7 +239,8 @@ fun SettingsScreen(
                 trailing = { AccentTextButton(stringResource(Res.string.action_clear), actions.cleanTemporary) },
             )
 
-            SectionHeader(stringResource(Res.string.settings_section_about), Modifier.padding(top = 12.dp))
+          }
+          SettingsTab.ABOUT -> {
             MovaCard(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(18.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -211,7 +259,10 @@ fun SettingsScreen(
                     }
                 }
             }
-            Spacer(Modifier.height(24.dp))
+          }
+          }
+        }
+        }
         }
     }
 
