@@ -71,7 +71,7 @@ class DownloadManager(
         }
     }
 
-    /** Pasta padrão (a fixa dos Ajustes ou Downloads/MOVA). */
+    /** Pasta padrão (a fixa dos Ajustes ou a pasta Downloads do sistema). */
     val destination: File get() = settings.current.downloadDir?.let(::File) ?: defaultDownloadsDir
 
     /**

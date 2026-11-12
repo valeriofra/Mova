@@ -11,7 +11,7 @@ plugins {
 }
 
 /** Versão exibida no app. */
-val movaDesktopVersion = "0.2.0"
+val movaDesktopVersion = "0.2.1"
 
 /** Número do build (no CI, o número da execução). */
 val movaBuildNumber: Int = providers.environmentVariable("MOVA_BUILD_NUMBER").orNull?.toIntOrNull() ?: 0
@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.filekit.dialogs)
     // Barra de título integrada (JetBrains Runtime): some a barra branca do Windows.
     implementation(libs.jbr.api)
+    // Pasta Downloads real do Windows (mesmo se o usuário a moveu para outro disco/OneDrive).
+    implementation(libs.jna.platform)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

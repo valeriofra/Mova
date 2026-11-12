@@ -1158,6 +1158,11 @@ Data: 12 de novembro de 2026 · Desktop 0.2.0
     Windows, sem administrador, tela final com "Abrir o MOVA", instala
     por cima das próximas versões. Quem instalou o MSI 0.1 deve
     desinstalá-lo uma vez (Configurações → Aplicativos).
+-   **Pasta padrão = Downloads** (0.2.1): no Windows, a pasta Downloads
+    real do usuário (`FOLDERID_Downloads`, mesmo se movida para outro
+    disco ou para o OneDrive); no Linux, a pasta de downloads do sistema
+    (XDG, ex.: `~/Downloads` ou `~/Transferências`). Não usa mais a
+    subpasta `MOVA`.
 -   **Abertura mais rápida:** tela de abertura imediata (aparece antes
     de o Java carregar) e cache de classes (AppCDS), criado na primeira
     execução, que acelera as seguintes. A primeira abertura após instalar

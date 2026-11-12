@@ -19,7 +19,7 @@ S = {
 "home_drop_hint": "Astuce : appuyez sur Entrée pour télécharger ou glissez un lien dans cette fenêtre.",
 "home_subtitle": "Collez un lien ou glissez-le ici depuis le navigateur. MOVA reconnaît la source automatiquement.",
 "library_delete_message": "« %1$s » sera supprimé de l'ordinateur. L'entrée reste dans l'historique.",
-"library_empty_message": "Les fichiers téléchargés apparaissent ici et dans le dossier Téléchargements/MOVA de l'ordinateur.",
+"library_empty_message": "Les fichiers téléchargés apparaissent ici et dans le dossier Téléchargements de l'ordinateur.",
 "library_file_missing": "Le fichier n'existe plus sur l'ordinateur",
 "library_filter_all": "Tous",
 "library_filter_audio": "Audio",

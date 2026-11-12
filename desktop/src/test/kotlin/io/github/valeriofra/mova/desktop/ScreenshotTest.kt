@@ -53,7 +53,7 @@ class ScreenshotTest {
     @Before
     fun setUp() {
         dir = Files.createTempDirectory("mova-shots").toFile()
-        container = AppContainer(AppPaths(File(dir, "data"), File(dir, "Downloads/MOVA")))
+        container = AppContainer(AppPaths(File(dir, "data"), File(dir, "Downloads")))
     }
 
     @After
@@ -68,7 +68,7 @@ class ScreenshotTest {
         kind: MediaKind = MediaKind.VIDEO, error: TaskError? = null, platform: Platform = Platform.YOUTUBE, ago: Long = 0,
     ): DownloadTask {
         val ext = if (kind == MediaKind.AUDIO) "mp3" else "mp4"
-        val file = File(dir, "Downloads/MOVA/$title.$ext")
+        val file = File(dir, "Downloads/$title.$ext")
         if (status == TaskStatus.COMPLETED) {
             file.parentFile.mkdirs()
             file.writeText("x")

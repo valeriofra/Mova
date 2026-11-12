@@ -94,7 +94,7 @@ data class DesktopSettings(
     val language: String? = null,
     /** Perguntar a pasta a cada download ou salvar sempre em [downloadDir]. */
     val saveMode: SaveMode = SaveMode.ASK,
-    /** Pasta fixa de destino; null = Downloads/MOVA. */
+    /** Pasta fixa de destino; null = a pasta Downloads do sistema. */
     val downloadDir: String? = null,
     /** Última pasta escolhida na janela de salvar (ponto de partida da próxima). */
     val lastSaveDir: String? = null,

@@ -98,7 +98,9 @@ encaixe de janelas). O tamanho se adapta ao monitor (em telas pequenas abre maxi
 lateral vira só ícones) e é lembrado ao fechar. Tela de abertura imediata e cache de inicialização (AppCDS).
 
 **Pastas:** dados em `%LOCALAPPDATA%\MOVA` (Windows), `~/.local/share/mova` (Linux portátil) ou
-`~/.var/app/io.github.valeriofra.Mova` (Flatpak); arquivos em `Downloads/MOVA` (pode ser trocada em Ajustes — no Flatpak,
+`~/.var/app/io.github.valeriofra.Mova` (Flatpak); arquivos na pasta **Downloads** do sistema — no Windows, a pasta Downloads do usuário (mesmo se
+movida para outro disco ou para o OneDrive); no Linux, a pasta de downloads do sistema (ex.: `~/Downloads` ou
+`~/Transferências`). Pode ser trocada em Ajustes (no Flatpak,
 dentro de Downloads, Vídeos ou Músicas, que são as pastas liberadas para o app).
 
 **Flatpak:** manifesto em `desktop/packaging/flatpak/` (runtime freedesktop 25.08, com o app-image do jpackage e o Java

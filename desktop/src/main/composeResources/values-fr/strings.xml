@@ -161,7 +161,7 @@
     <string name="library_remove_record">Retirer de l'historique</string>
     <string name="library_status_deleted">Supprimé</string>
     <string name="library_empty_title">Bibliothèque vide</string>
-    <string name="library_empty_message">Les fichiers téléchargés apparaissent ici et dans le dossier Téléchargements/MOVA de l'ordinateur.</string>
+    <string name="library_empty_message">Les fichiers téléchargés apparaissent ici et dans le dossier Téléchargements de l'ordinateur.</string>
     <string name="library_filter_empty">Aucun fichier trouvé.</string>
     <string name="library_history_empty_title">Aucun historique</string>
     <string name="library_history_empty_message">Les téléchargements terminés, annulés et en erreur apparaissent ici.</string>

@@ -19,7 +19,7 @@ S = {
 "home_drop_hint": "Consejo: pulsa Intro para descargar o arrastra un enlace a esta ventana.",
 "home_subtitle": "Pega un enlace o arrástralo aquí desde el navegador. MOVA reconoce el origen automáticamente.",
 "library_delete_message": "“%1$s” se borrará del ordenador. El registro se mantiene en el historial.",
-"library_empty_message": "Los archivos descargados aparecen aquí y en la carpeta Descargas/MOVA del ordenador.",
+"library_empty_message": "Los archivos descargados aparecen aquí y en la carpeta Descargas del ordenador.",
 "library_file_missing": "El archivo ya no existe en el ordenador",
 "library_filter_all": "Todos",
 "library_filter_audio": "Audios",

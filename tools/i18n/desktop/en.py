@@ -19,7 +19,7 @@ S = {
 "home_drop_hint": "Tip: press Enter to download or drag a link into this window.",
 "home_subtitle": "Paste a link or drag it here from your browser. MOVA detects the source automatically.",
 "library_delete_message": "“%1$s” will be deleted from the computer. The record stays in the history.",
-"library_empty_message": "Downloaded files appear here and in the computer's Downloads/MOVA folder.",
+"library_empty_message": "Downloaded files appear here and in the computer's Downloads folder.",
 "library_file_missing": "The file no longer exists on the computer",
 "library_filter_all": "All",
 "library_filter_audio": "Audio",

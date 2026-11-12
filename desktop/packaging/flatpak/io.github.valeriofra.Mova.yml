@@ -14,7 +14,7 @@ finish-args:
   - --share=ipc
   - --socket=x11           # a interface Java/Compose usa X11 (XWayland no Wayland)
   - --device=dri           # aceleração gráfica (Skia)
-  - --filesystem=xdg-download   # pasta padrão: Downloads/MOVA
+  - --filesystem=xdg-download   # pasta padrão: a pasta de downloads do sistema
   - --filesystem=xdg-videos     # outras pastas que podem ser escolhidas em Ajustes
   - --filesystem=xdg-music
 modules:

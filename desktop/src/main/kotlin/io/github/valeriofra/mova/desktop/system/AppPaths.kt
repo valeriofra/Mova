@@ -1,5 +1,7 @@
 package io.github.valeriofra.mova.desktop.system
 
+import com.sun.jna.platform.win32.KnownFolders
+import com.sun.jna.platform.win32.Shell32Util
 import java.io.File
 
 /**
@@ -7,7 +9,9 @@ import java.io.File
  *
  * - Dados (ajustes, histórico, mecanismo): `%LOCALAPPDATA%\MOVA` no Windows e
  *   `~/.local/share/mova` (ou `$XDG_DATA_HOME/mova`) no Linux.
- * - Arquivos baixados: `Downloads/MOVA` na pasta do usuário (pode ser trocada em Ajustes).
+ * - Arquivos baixados: a pasta Downloads do usuário (no Windows, a real, mesmo se
+ *   movida para outro disco; no Linux, a do XDG, ex.: ~/Transferências). Pode ser
+ *   trocada em Ajustes.
  */
 class AppPaths(
     val dataDir: File,
@@ -35,16 +39,23 @@ class AppPaths(
                 else -> File(env("XDG_DATA_HOME")?.takeIf { it.isNotBlank() } ?: File(home, ".local/share").path, "mova")
             }
             data.mkdirs()
-            return AppPaths(data, File(userDownloadsDir(os, home, env), "MOVA"))
+            return AppPaths(data, userDownloadsDir(os, home, env))
         }
 
         /** Pasta Downloads do usuário (no Linux, respeita o `user-dirs.dirs` do XDG). */
         private fun userDownloadsDir(os: OsInfo, home: File, env: (String) -> String?): File {
-            if (os.family == OsInfo.Family.LINUX) {
-                xdgDownloadDir(home, env)?.let { return it }
+            when (os.family) {
+                OsInfo.Family.WINDOWS -> windowsDownloadsDir()?.let { return it }
+                OsInfo.Family.LINUX -> xdgDownloadDir(home, env)?.let { return it }
+                else -> Unit
             }
             return File(home, "Downloads")
         }
+
+        /** Pasta conhecida "Downloads" do Windows (FOLDERID_Downloads). */
+        private fun windowsDownloadsDir(): File? = runCatching {
+            File(Shell32Util.getKnownFolderPath(KnownFolders.FOLDERID_Downloads))
+        }.getOrNull()?.takeIf { it.path.isNotBlank() }
 
         internal fun xdgDownloadDir(home: File, env: (String) -> String?): File? {
             env("XDG_DOWNLOAD_DIR")?.takeIf { it.isNotBlank() }?.let { return File(it) }

@@ -161,7 +161,7 @@
     <string name="library_remove_record">Quitar del historial</string>
     <string name="library_status_deleted">Borrado</string>
     <string name="library_empty_title">Biblioteca vacía</string>
-    <string name="library_empty_message">Los archivos descargados aparecen aquí y en la carpeta Descargas/MOVA del ordenador.</string>
+    <string name="library_empty_message">Los archivos descargados aparecen aquí y en la carpeta Descargas del ordenador.</string>
     <string name="library_filter_empty">No se encontraron archivos.</string>
     <string name="library_history_empty_title">Sin historial</string>
     <string name="library_history_empty_message">Aquí aparecen las descargas completadas, canceladas y con error.</string>

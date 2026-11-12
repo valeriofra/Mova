@@ -172,7 +172,7 @@
     <string name="library_remove_record">Remover do histórico</string>
     <string name="library_status_deleted">Excluído</string>
     <string name="library_empty_title">Biblioteca vazia</string>
-    <string name="library_empty_message">Os arquivos baixados ficam aqui e na pasta Downloads/MOVA do computador.</string>
+    <string name="library_empty_message">Os arquivos baixados ficam aqui e na pasta Downloads do computador.</string>
     <string name="library_filter_empty">Nenhum arquivo encontrado.</string>
     <string name="library_history_empty_title">Sem histórico</string>
     <string name="library_history_empty_message">Downloads concluídos, cancelados e com erro aparecem aqui.</string>

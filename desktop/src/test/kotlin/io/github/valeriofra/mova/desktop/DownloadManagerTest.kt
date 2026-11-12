@@ -67,7 +67,7 @@ class DownloadManagerTest {
         media = media,
         http = HttpFileDownloader(OkHttpClient()),
         workDirFor = { File(dir, "work/$it") },
-        defaultDownloadsDir = File(dir, "Downloads/MOVA"),
+        defaultDownloadsDir = File(dir, "Downloads"),
         scope = scope,
         clock = clock,
     ).also { it.start() }
@@ -84,8 +84,8 @@ class DownloadManagerTest {
 
     @Test
     fun downloadsAndSavesWithoutOverwriting() {
-        File(dir, "Downloads/MOVA").mkdirs()
-        File(dir, "Downloads/MOVA/Clipe.mp4").writeText("já existia")
+        File(dir, "Downloads").mkdirs()
+        File(dir, "Downloads/Clipe.mp4").writeText("já existia")
         val manager = manager { task, work, progress ->
             progress(YtDlp.Progress(50f, 1000, 100))
             File(work, "${task.title}.mp4").apply { writeText("conteúdo") }
@@ -210,6 +210,16 @@ class LocalizationTest {
 }
 
 class AppPathsTest {
+    @Test
+    fun defaultFolderIsTheSystemDownloadsFolderItself() {
+        val tmp = Files.createTempDirectory("paths").toFile()
+        val env = mapOf("XDG_DATA_HOME" to File(tmp, "data").path, "XDG_DOWNLOAD_DIR" to File(tmp, "Transferências").path)
+        val paths = AppPaths.detect(io.github.valeriofra.mova.desktop.system.OsInfo(io.github.valeriofra.mova.desktop.system.OsInfo.Family.LINUX, io.github.valeriofra.mova.desktop.system.OsInfo.Arch.X64)) { env[it] }
+        assertEquals(File(tmp, "Transferências"), paths.defaultDownloadsDir)
+        assertEquals(File(tmp, "data/mova"), paths.dataDir)
+        assertTrue(tmp.deleteRecursively())
+    }
+
     @Test
     fun readsXdgDownloadFolder() {
         val home = Files.createTempDirectory("home").toFile()
