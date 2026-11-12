@@ -1167,6 +1167,11 @@ Data: 12 de novembro de 2026 · Desktop 0.2.0
     de o Java carregar) e cache de classes (AppCDS), criado na primeira
     execução, que acelera as seguintes. A primeira abertura após instalar
     continua mais lenta (o antivírus examina os arquivos novos).
+-   **Ajustes em abas** (0.2.2): Aparência, Downloads, Armazenamento e
+    Sobre, cada aba com rolagem própria. Barras de rolagem visíveis (no
+    estilo do tema) em todas as telas que rolam: Início (página e itens
+    da playlist), Fila, Biblioteca e Ajustes. Em janelas pequenas nada
+    fica inacessível.
 
 ## 41. Atualizador automático (próximo passo)
 
