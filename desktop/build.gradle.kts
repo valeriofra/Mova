@@ -11,12 +11,9 @@ plugins {
 }
 
 /** Versão exibida no app. */
-val movaDesktopVersion = "0.1.0"
+val movaDesktopVersion = "0.2.0"
 
-/**
- * Número do build (no CI, o número da execução). Entra no terceiro campo da
- * versão do instalador: o MSI só instala por cima de uma versão menor.
- */
+/** Número do build (no CI, o número da execução). */
 val movaBuildNumber: Int = providers.environmentVariable("MOVA_BUILD_NUMBER").orNull?.toIntOrNull() ?: 0
 
 java {
@@ -31,7 +28,7 @@ kotlin {
 }
 
 // Informações do build disponíveis no código (versão e número do build).
-val generateBuildInfo by tasks.registering {
+val generateBuildInfo = tasks.register("generateBuildInfo") {
     val outputDir = layout.buildDirectory.dir("generated/buildinfo")
     val version = movaDesktopVersion
     val build = movaBuildNumber
@@ -70,6 +67,10 @@ dependencies {
     implementation(libs.okhttp)
     // Descompacta o FFmpeg do Linux (.tar.xz) sem depender do tar do sistema (ex.: dentro do Flatpak).
     implementation(libs.xz)
+    // Janelas nativas do sistema para escolher pastas (Windows: IFileDialog; Linux: portal do Flatpak).
+    implementation(libs.filekit.dialogs)
+    // Barra de título integrada (JetBrains Runtime): some a barra branca do Windows.
+    implementation(libs.jbr.api)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -95,6 +96,15 @@ compose.desktop {
     application {
         mainClass = "io.github.valeriofra.mova.desktop.MainKt"
         jvmArgs += listOf("-Dfile.encoding=UTF-8", "-Xmx768m")
+        // Só no app empacotado ($APPDIR existe): tela de abertura imediata e cache de
+        // classes (AppCDS), criado na primeira execução, que acelera as seguintes.
+        if (providers.gradleProperty("mova.release").orNull == "true") {
+            jvmArgs += listOf(
+                "-splash:\$APPDIR/resources/splash.png",
+                "-XX:+AutoCreateSharedArchive",
+                "-XX:SharedArchiveFile=\$APPDIR/mova.jsa",
+            )
+        }
 
         buildTypes.release.proguard {
             // O app é pequeno; o ganho do ProGuard não compensa o risco com reflexão.
@@ -105,10 +115,12 @@ compose.desktop {
             // Linux: o pacote é o Flatpak (desktop/packaging/flatpak), montado a partir do app-image.
             targetFormats(TargetFormat.Msi)
             packageName = "MOVA"
-            packageVersion = "0.1.$movaBuildNumber"
+            packageVersion = "${movaDesktopVersion.substringBeforeLast('.')}.$movaBuildNumber"
             description = "Baixe e organize vídeos e áudios com simplicidade"
             vendor = "MOVA"
             copyright = "© 2026 MOVA"
+            // Arquivos copiados para o app (tela de abertura).
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("packaging/app-resources"))
             // jdk.crypto.ec: HTTPS com servidores modernos; jdk.localedata: datas em pt/es/fr;
             // jdk.accessibility: leitores de tela no Windows.
             modules("java.instrument", "java.naming", "jdk.unsupported", "jdk.crypto.ec", "jdk.localedata", "jdk.accessibility")

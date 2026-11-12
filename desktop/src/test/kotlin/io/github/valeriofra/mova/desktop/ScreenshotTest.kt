@@ -7,6 +7,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import io.github.valeriofra.mova.core.analysis.AnalysisReport
 import io.github.valeriofra.mova.core.analysis.FormatChoice
 import io.github.valeriofra.mova.core.analysis.LinkAnalysis
@@ -94,9 +95,16 @@ class ScreenshotTest {
         )
     }
 
-    private fun shot(name: String, language: String = "pt", dark: Boolean = true, content: @Composable () -> Unit) {
+    private fun shot(
+        name: String,
+        language: String = "pt",
+        dark: Boolean = true,
+        width: Int = 1200,
+        height: Int = 780,
+        content: @Composable () -> Unit,
+    ) {
         Localization.apply(language)
-        val scene = ImageComposeScene(1200, 780, Density(1.25f)) {
+        val scene = ImageComposeScene(width, height, Density(1.25f)) {
             MovaTheme(darkTheme = dark) {
                 CompositionLocalProvider(LocalThumbnails provides null) { content() }
             }
@@ -111,10 +119,10 @@ class ScreenshotTest {
     }
 
     @Composable
-    private fun app(destination: Destination, home: HomeModel? = null) {
+    private fun app(destination: Destination, home: HomeModel? = null, titleBar: Boolean = false) {
         val scope = rememberCoroutineScope()
         val model = home ?: HomeModel(container.analyzer, container.manager, scope)
-        MovaDesktopApp(container, model, destination, {}, SnackbarHostState())
+        MovaDesktopApp(container, model, destination, {}, SnackbarHostState(), if (titleBar) 40.dp else 0.dp)
     }
 
     private fun video(title: String, url: String = "https://www.youtube.com/watch?v=dQw4w9WgXcQ", index: Int? = null) = MediaItem(
@@ -174,6 +182,11 @@ class ScreenshotTest {
         shot("10_inicio_claro", dark = false) { app(Destination.HOME, single) }
         shot("11_fila_claro", dark = false) { app(Destination.QUEUE) }
         shot("12_ajustes_claro", dark = false) { app(Destination.SETTINGS) }
+
+        // Barra de título integrada (Windows) e janela pequena (barra lateral só com ícones).
+        shot("13_barra_integrada") { app(Destination.QUEUE, titleBar = true) }
+        shot("14_janela_pequena", width = 900, height = 620) { app(Destination.HOME, single) }
+        shot("15_ajustes_janela_pequena", width = 900, height = 620) { app(Destination.SETTINGS, titleBar = true) }
 
         shot("20_home_english", language = "en") { app(Destination.HOME) }
         shot("21_ajustes_espanol", language = "es") { app(Destination.SETTINGS) }

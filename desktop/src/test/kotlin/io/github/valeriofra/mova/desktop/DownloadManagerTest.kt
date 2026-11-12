@@ -99,6 +99,16 @@ class DownloadManagerTest {
     }
 
     @Test
+    fun savesInTheFolderChosenForTheDownload() {
+        val chosen = File(dir, "Videos escolhidos")
+        val manager = manager { task, work, _ -> File(work, "${task.title}.mp4").apply { writeText("x") } }
+        manager.enqueue(listOf(item("Escolhido")), FormatChoice.Video(720), saveDir = chosen)
+        val done = waitFor { it.single().status == TaskStatus.COMPLETED }.single()
+        assertEquals(File(chosen, "Escolhido.mp4").absolutePath, done.outputPath)
+        assertEquals(chosen.absolutePath, done.saveDir)
+    }
+
+    @Test
     fun respectsConcurrencyLimit() {
         settings.setMaxConcurrent(1)
         val release = CompletableDeferred<Unit>()

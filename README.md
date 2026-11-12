@@ -6,7 +6,7 @@ Linux)**. Interface dark e minimalista, sem anúncios, sem cadastro e sem
 servidor: tudo roda no próprio aparelho.
 
 > Status: **Android 0.3.1** (download das plataformas via yt-dlp, tema claro e 4 idiomas) e
-> **computador 0.1.0** (primeira versão, Windows e Linux). Ver `docs/planejamento.md`, Atualizações 2 a 4.
+> **computador 0.2.0** (Windows e Linux). Ver `docs/planejamento.md`, Atualizações 2 a 5.
 > Código proprietário. Todos os direitos reservados (a licença ainda será definida).
 
 ## O que já funciona
@@ -76,7 +76,7 @@ sistema quando um download termina.
 
 | Sistema | Arquivo | Observação |
 | --- | --- | --- |
-| Windows 10/11 | `MOVA-Windows-…msi` | Instala só para o usuário (sem administrador) e **por cima** das versões anteriores (código de atualização fixo). Sem certificado de assinatura ainda: o SmartScreen avisa — **Mais informações → Executar assim mesmo**. |
+| Windows 10/11 | `MOVA-Windows-…-instalador.exe` | Instalador em português (Inno Setup): só para o usuário (sem administrador), **por cima** das versões anteriores e com a opção "Abrir o MOVA" no fim. Sem certificado de assinatura ainda: o SmartScreen avisa — **Mais informações → Executar assim mesmo**. |
 | Windows | `MOVA-Windows-…-portatil.zip` | Descompacte e abra `MOVA.exe`. |
 | Linux (qualquer distro) | `MOVA-Linux-….flatpak` | `flatpak install --user MOVA-Linux-….flatpak` (o runtime vem do Flathub; no Ubuntu, ative antes: `flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`). Depois abra pelo menu ou com `flatpak run io.github.valeriofra.Mova`. |
 | Linux | `MOVA-Linux-…-portatil.tar.gz` | Descompacte e rode `MOVA/bin/MOVA`. |
@@ -88,6 +88,14 @@ artefatos da execução; na branch principal viram uma versão em **Releases** (
 projeto yt-dlp) e o QuickJS-ng (resolve os desafios do YouTube) — cerca de 115 MB no Windows. O yt-dlp e o FFmpeg são
 conferidos pelo SHA-256 publicado pelos projetos. No Linux, se o FFmpeg já estiver instalado, ele é usado. O yt-dlp se
 atualiza sozinho 1x por dia.
+
+**Onde salvar:** em Ajustes, "Perguntar onde salvar a cada download" (padrão: abre a janela de pastas do sistema ao
+clicar em Baixar) ou "Salvar sempre nesta pasta". O botão **Abrir pasta de destino** fica na Fila, na Biblioteca e em
+Ajustes.
+
+**Janela:** no Windows a barra de título é integrada ao app (JetBrains Runtime; botões no tema escuro/claro, com
+encaixe de janelas). O tamanho se adapta ao monitor (em telas pequenas abre maximizada; em janelas estreitas a barra
+lateral vira só ícones) e é lembrado ao fechar. Tela de abertura imediata e cache de inicialização (AppCDS).
 
 **Pastas:** dados em `%LOCALAPPDATA%\MOVA` (Windows), `~/.local/share/mova` (Linux portátil) ou
 `~/.var/app/io.github.valeriofra.Mova` (Flatpak); arquivos em `Downloads/MOVA` (pode ser trocada em Ajustes — no Flatpak,
@@ -178,5 +186,6 @@ textos idênticos aos do Android reaproveitam a tradução do Android.
 - Reavaliar o plano comercial à luz dos riscos registrados no planejamento.
 - Distribuir fora da Google Play (site + GitHub Releases); fazer a verificação de desenvolvedor do Android antes de 2027.
 - Decidir licença do código (o yt-dlp é Unlicense; FFmpeg é LGPL/GPL — considerar ao distribuir).
-- Computador: testar no Windows e no Linux com links reais; certificado de assinatura do Windows (evita o aviso do
-  SmartScreen); aviso de versão nova dentro do app; Instagram e Kwai sem login como no Android (navegador embutido).
+- Computador: atualizador automático (exige um lugar público para as versões: repositório público só de releases ou
+  site); certificado de assinatura do Windows (evita o aviso do SmartScreen); Instagram e Kwai sem login como no
+  Android (navegador embutido); testes com mais plataformas no Windows e no Linux.

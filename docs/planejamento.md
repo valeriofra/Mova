@@ -1,7 +1,7 @@
 # MOVA --- Documento de visão e planejamento do projeto
 
-**Versão:** 0.4\
-**Data:** 11 de novembro de 2026\
+**Versão:** 0.5\
+**Data:** 12 de novembro de 2026\
 **Status:** Em desenvolvimento --- app Android 0.3.1; primeira versão
 para computador (Windows e Linux) 0.1.0; distribuição fora da Play
 Store (ver Atualizações 2 a 4)
@@ -1116,3 +1116,65 @@ MOVA não redistribui o FFmpeg (licença GPL) no próprio instalador.
 4.  Certificado de assinatura do Windows, quando houver distribuição a
     terceiros.
 5.  Avaliar macOS.
+
+------------------------------------------------------------------------
+
+# Atualização 5 --- Computador 0.2 (primeiro teste no Windows)
+
+Data: 12 de novembro de 2026 · Desktop 0.2.0
+
+## 39. Resultado do primeiro teste (Windows)
+
+  ---------------------------------------------------------------------
+  Data          Versão    Teste                 Resultado
+  ------------- --------- --------------------- -----------------------
+  12/11/2026    0.1.0     Instalar o MSI        ✅ Instalou (a tela
+                                                fechava sem "Concluído",
+                                                o que confundiu)
+
+  12/11/2026    0.1.0     Playlist do YouTube   ✅ Funciona perfeitamente
+
+  12/11/2026    0.1.0     Abertura do app       ⚠️ Demorada
+  ---------------------------------------------------------------------
+
+## 40. Mudanças da 0.2.0 (pedidos do teste)
+
+-   **Barra de título integrada:** a barra branca do Windows saiu; os
+    botões minimizar/maximizar/fechar ficam no tema do app (escuro ou
+    claro), mantendo arrastar, encaixar janelas e duplo clique. Usa o
+    JetBrains Runtime, que passa a ser o Java incluído no app.
+-   **Onde salvar** (Ajustes): "Perguntar onde salvar a cada download"
+    (padrão --- abre a janela de pastas do próprio Windows ao clicar em
+    Baixar, começando na última pasta usada) ou "Salvar sempre nesta
+    pasta". No Linux/Flatpak a janela é a do portal do sistema, que
+    também libera o acesso à pasta escolhida.
+-   **Abrir pasta de destino:** botão na Fila (e ícone de pasta em cada
+    concluído), na Biblioteca e em Ajustes.
+-   **Adapta-se ao monitor:** tamanho inicial pela área útil da tela
+    (maximizada em telas pequenas), tamanho mínimo menor, tamanho e
+    estado lembrados; em janelas estreitas a barra lateral vira só
+    ícones e os formatos se reorganizam.
+-   **Instalador em português** (Inno Setup) no lugar do MSI: idioma do
+    Windows, sem administrador, tela final com "Abrir o MOVA", instala
+    por cima das próximas versões. Quem instalou o MSI 0.1 deve
+    desinstalá-lo uma vez (Configurações → Aplicativos).
+-   **Abertura mais rápida:** tela de abertura imediata (aparece antes
+    de o Java carregar) e cache de classes (AppCDS), criado na primeira
+    execução, que acelera as seguintes. A primeira abertura após instalar
+    continua mais lenta (o antivírus examina os arquivos novos).
+
+## 41. Atualizador automático (próximo passo)
+
+Pedido do usuário. Requisito: o app instalado precisa consultar as
+versões novas sem login. Com o repositório privado, as Releases do
+GitHub não são acessíveis ao app. Opções:
+
+1.  **Repositório público só para versões** (ex.: `mova-releases`), com
+    os instaladores publicados pelo CI --- simples e gratuito.
+2.  **Site próprio** (seção 10) com um arquivo de versão e os
+    instaladores.
+
+Com isso, o app verifica 1x por dia, avisa "Versão nova disponível",
+baixa o instalador, confere o SHA-256 e o executa (no Windows, o
+instalador fecha o MOVA, instala por cima e reabre). No Flatpak, a
+atualização é pelo próprio Flatpak (repositório remoto).

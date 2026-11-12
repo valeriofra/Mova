@@ -71,15 +71,24 @@ class DownloadManager(
         }
     }
 
-    /** Pasta onde os arquivos concluídos são salvos. */
+    /** Pasta padrão (a fixa dos Ajustes ou Downloads/MOVA). */
     val destination: File get() = settings.current.downloadDir?.let(::File) ?: defaultDownloadsDir
+
+    /**
+     * Pasta de destino atual, para o botão "Abrir pasta": no modo "perguntar", a
+     * última escolhida; no modo "sempre nesta pasta", a dos Ajustes.
+     */
+    val currentDestination: File
+        get() = settings.current.let { prefs ->
+            if (prefs.saveMode == SaveMode.ASK) prefs.lastSaveDir?.let(::File)?.takeIf { it.isDirectory } ?: destination else destination
+        }
 
     // ------------------------------------------------------------------
     // Ações
     // ------------------------------------------------------------------
 
     /** Coloca os itens na fila no formato escolhido. */
-    fun enqueue(items: List<MediaItem>, format: FormatChoice): Int {
+    fun enqueue(items: List<MediaItem>, format: FormatChoice, saveDir: File? = null): Int {
         if (items.isEmpty()) return 0
         val now = clock()
         val tasks = items.mapIndexed { index, item ->
@@ -107,6 +116,7 @@ class DownloadManager(
                 // Mantém a ordem escolhida pelo usuário.
                 createdAt = now + index,
                 updatedAt = now,
+                saveDir = saveDir?.absolutePath,
             )
         }
         return store.insert(tasks).size
@@ -254,7 +264,11 @@ class DownloadManager(
                 ) { done, total -> progress.report(done, total, null) }
                 part
             }
-            val saved = publish(downloaded, if (task.source == MediaSource.EXTRACTOR) downloaded.name else task.fileName)
+            val saved = publish(
+                downloaded,
+                if (task.source == MediaSource.EXTRACTOR) downloaded.name else task.fileName,
+                task.saveDir?.let(::File) ?: destination,
+            )
             // Limpa a pasta de trabalho antes de marcar como concluído.
             workDir.deleteRecursively()
             val done = store.update(id) {
@@ -280,8 +294,8 @@ class DownloadManager(
     }
 
     /** Move o arquivo pronto para a pasta de destino, sem sobrescrever outro com o mesmo nome. */
-    private fun publish(file: File, name: String): File {
-        val dir = destination.also { it.mkdirs() }
+    private fun publish(file: File, name: String, folder: File): File {
+        val dir = folder.also { it.mkdirs() }
         val target = uniqueFile(dir, FileNames.sanitize(name).ifBlank { file.name })
         try {
             Files.move(file.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING)

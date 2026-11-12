@@ -108,6 +108,7 @@
         <item quantity="other">%1$d downloads added to the queue</item>
     </plurals>
     <string name="queue_title">Queue</string>
+    <string name="queue_open_folder">Open destination folder</string>
     <string name="queue_empty_title">No downloads in the queue</string>
     <string name="queue_empty_message">Paste or drag a link on the Home screen to start. Progress appears here.</string>
     <string name="queue_empty_action">Paste a link</string>
@@ -187,8 +188,13 @@
     <string name="settings_language_system">Automatic</string>
     <string name="settings_language_auto_current">Automatic · %1$s</string>
     <string name="settings_language_auto_hint">Automatic uses the system language. If it isn't available, it uses your country's language and, as a last resort, English.</string>
-    <string name="settings_folder">Download folder</string>
     <string name="settings_folder_choose">Choose folder</string>
+    <string name="settings_save_title">Where to save</string>
+    <string name="settings_save_hint">Choose whether MOVA asks for a folder on every download or always saves to the same place.</string>
+    <string name="settings_save_ask">Ask where to save on every download</string>
+    <string name="settings_save_ask_hint">A system window asks for the folder when you click Download.</string>
+    <string name="settings_save_always">Always save to this folder</string>
+    <string name="save_dialog_title">Choose where to save</string>
     <string name="settings_folder_default">Use the default folder</string>
     <string name="settings_concurrent">Simultaneous downloads</string>
     <string name="settings_concurrent_hint">How many files to download at the same time.</string>

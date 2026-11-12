@@ -24,6 +24,8 @@ composeMultiplatform = "1.12.2"
 cmpMaterial3 = "1.9.0"
 cmpMaterialIcons = "1.7.3"
 xz = "1.12"
+filekit = "0.17.0"
+jbrApi = "1.9.0"
 
 junit = "4.13.2"
 robolectric = "4.17"
@@ -35,6 +37,8 @@ cmp-material3 = { module = "org.jetbrains.compose.material3:material3", version.
 cmp-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "cmpMaterialIcons" }
 cmp-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
+filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
+jbr-api = { module = "org.jetbrains.runtime:jbr-api", version.ref = "jbrApi" }
 cmp-ui-test-junit4 = { module = "org.jetbrains.compose.ui:ui-test-junit4", version.ref = "composeMultiplatform" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }

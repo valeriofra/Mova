@@ -1,7 +1,7 @@
 name: Desktop (Windows e Linux)
 
 # Testa e empacota o MOVA para computador:
-#   Windows: instalador MSI (instala por cima: o upgradeUuid é fixo) + versão portátil (ZIP)
+#   Windows: instalador em português (Inno Setup; instala por cima) + versão portátil (ZIP)
 #   Linux:   Flatpak (qualquer distribuição) + versão portátil (tar.gz)
 # Também baixa os componentes reais do mecanismo (yt-dlp, FFmpeg, QuickJS) e
 # executa cada um, nos dois sistemas.
@@ -73,9 +73,10 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v6
+      # JetBrains Runtime: é ele que vai dentro do app (barra de título integrada no Windows).
       - uses: actions/setup-java@v5
         with:
-          distribution: temurin
+          distribution: jetbrains
           java-version: "21"
       - uses: gradle/actions/setup-gradle@v5
 
@@ -90,18 +91,28 @@ jobs:
           MOVA_INTEGRATION: "1"
         run: ./gradlew -Pmova.desktopOnly=true :desktop:test --tests '*EngineIntegrationTest*'
 
-      - name: Windows — instalador MSI e versão portátil
+      - name: Windows — app e versão portátil
         if: runner.os == 'Windows'
         run: |
-          ./gradlew -Pmova.desktopOnly=true :desktop:packageReleaseMsi :desktop:createReleaseDistributable
+          ./gradlew -Pmova.desktopOnly=true -Pmova.release=true :desktop:createReleaseDistributable
           mkdir -p dist
-          cp desktop/build/compose/binaries/main-release/msi/*.msi "dist/MOVA-Windows-$LABEL.msi"
           (cd desktop/build/compose/binaries/main-release/app && 7z a -tzip "$GITHUB_WORKSPACE/dist/MOVA-Windows-$LABEL-portatil.zip" MOVA > /dev/null)
+
+      - name: Windows — instalador (Inno Setup)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; }
+          $app = Join-Path $pwd "desktop\build\compose\binaries\main-release\app\MOVA"
+          & $iscc "/DAppVersion=$env:VERSION" "/DAppImage=$app" "/O$pwd\dist" "/FMOVA-Windows-$env:LABEL-instalador" "desktop\packaging\windows\mova.iss"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-ChildItem dist
 
       - name: Linux — app e versão portátil
         if: runner.os == 'Linux'
         run: |
-          ./gradlew -Pmova.desktopOnly=true :desktop:createReleaseDistributable
+          ./gradlew -Pmova.desktopOnly=true -Pmova.release=true :desktop:createReleaseDistributable
           mkdir -p dist
           tar -czf "dist/MOVA-Linux-$LABEL-portatil.tar.gz" -C desktop/build/compose/binaries/main-release/app MOVA
 
@@ -175,5 +186,5 @@ jobs:
           gh release create "$TAG" dist/* \
             --target "$GITHUB_SHA" \
             --title "MOVA para computador (build $MOVA_BUILD_NUMBER)" \
-            --notes "Windows: MOVA-Windows-*.msi (instala por cima da versão anterior) ou o .zip portátil. Linux: MOVA-Linux-*.flatpak (flatpak install --user MOVA-Linux-*.flatpak) ou o .tar.gz portátil. Branch: ${{ github.ref_name }} · commit ${GITHUB_SHA::7}." \
+            --notes "Windows: MOVA-Windows-*-instalador.exe (em português; instala por cima da versão anterior) ou o .zip portátil. Linux: MOVA-Linux-*.flatpak (flatpak install --user MOVA-Linux-*.flatpak) ou o .tar.gz portátil. Branch: ${{ github.ref_name }} · commit ${GITHUB_SHA::7}." \
             $PRERELEASE

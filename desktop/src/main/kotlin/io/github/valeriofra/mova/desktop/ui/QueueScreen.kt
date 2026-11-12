@@ -17,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Refresh
@@ -26,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,7 +54,9 @@ import io.github.valeriofra.mova.desktop.ui.components.MovaCard
 import io.github.valeriofra.mova.desktop.ui.components.MovaProgressBar
 import io.github.valeriofra.mova.desktop.ui.components.PrimaryButton
 import io.github.valeriofra.mova.desktop.ui.components.ScreenTitle
+import io.github.valeriofra.mova.desktop.ui.components.SecondaryButton
 import io.github.valeriofra.mova.desktop.ui.components.SectionHeader
+import io.github.valeriofra.mova.desktop.ui.components.LocalScreenPadding
 import io.github.valeriofra.mova.desktop.ui.theme.MovaColors
 import org.jetbrains.compose.resources.stringResource
 
@@ -65,7 +70,14 @@ data class QueueActions(
 )
 
 @Composable
-fun QueueScreen(tasks: List<DownloadTask>, actions: QueueActions, onOpenHome: () -> Unit, onOpenLibrary: () -> Unit) {
+fun QueueScreen(
+    tasks: List<DownloadTask>,
+    actions: QueueActions,
+    onOpenHome: () -> Unit,
+    onOpenLibrary: () -> Unit,
+    onOpenFolder: () -> Unit = {},
+    onShowInFolder: (DownloadTask) -> Unit = {},
+) {
     val running = tasks.filter { it.status == TaskStatus.RUNNING }
     val queued = tasks.filter { it.status == TaskStatus.QUEUED }.sortedWith(compareBy({ it.createdAt }, { it.id }))
     val paused = tasks.filter { it.status == TaskStatus.PAUSED }
@@ -73,8 +85,10 @@ fun QueueScreen(tasks: List<DownloadTask>, actions: QueueActions, onOpenHome: ()
     val recent = tasks.filter { it.status == TaskStatus.COMPLETED && !it.fileMissing }.sortedByDescending { it.completedAt }.take(5)
     var confirmCancel by remember { mutableStateOf<DownloadTask?>(null) }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 20.dp)) {
-        ScreenTitle(stringResource(Res.string.queue_title))
+    Column(Modifier.fillMaxSize().padding(horizontal = LocalScreenPadding.current, vertical = 20.dp)) {
+        ScreenTitle(stringResource(Res.string.queue_title)) {
+            SecondaryButton(stringResource(Res.string.queue_open_folder), onOpenFolder, icon = Icons.Rounded.FolderOpen)
+        }
         if (running.isEmpty() && queued.isEmpty() && paused.isEmpty() && failed.isEmpty() && recent.isEmpty()) {
             EmptyState(
                 icon = Icons.Rounded.Download,
@@ -95,7 +109,7 @@ fun QueueScreen(tasks: List<DownloadTask>, actions: QueueActions, onOpenHome: ()
                         AccentTextButton(stringResource(Res.string.home_see_library), onOpenLibrary)
                     }
                 }
-                items(recent, key = { it.id }) { CompletedRow(it) }
+                items(recent, key = { it.id }) { CompletedRow(it, onShowInFolder) }
             }
         }
     }
@@ -190,7 +204,7 @@ private fun subtitle(task: DownloadTask): String {
 }
 
 @Composable
-private fun CompletedRow(task: DownloadTask) {
+private fun CompletedRow(task: DownloadTask, onShowInFolder: (DownloadTask) -> Unit) {
     MovaCard(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             MediaThumbnail(task.thumbnailUrl, task.mediaKind)
@@ -203,6 +217,8 @@ private fun CompletedRow(task: DownloadTask) {
                 )
             }
             Icon(Icons.Rounded.CheckCircle, contentDescription = stringResource(Res.string.status_completed), tint = MovaColors.Success)
+            Spacer(Modifier.width(4.dp))
+            ActionIcon(Icons.Rounded.Folder, stringResource(Res.string.library_show_in_folder)) { onShowInFolder(task) }
         }
     }
 }
@@ -211,7 +227,7 @@ private fun CompletedRow(task: DownloadTask) {
 @Composable
 fun ActionIcon(icon: ImageVector, label: String, tint: androidx.compose.ui.graphics.Color = MovaColors.TextSecondary, onClick: () -> Unit) {
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = { PlainTooltip { Text(label) } },
         state = rememberTooltipState(),
     ) {

@@ -11,10 +11,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Notification
 import androidx.compose.ui.window.Tray
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
@@ -30,13 +32,17 @@ import io.github.valeriofra.mova.desktop.system.SingleInstance
 import io.github.valeriofra.mova.desktop.ui.Destination
 import io.github.valeriofra.mova.desktop.ui.HomeModel
 import io.github.valeriofra.mova.desktop.ui.MovaDesktopApp
+import io.github.valeriofra.mova.desktop.system.OsInfo
+import io.github.valeriofra.mova.desktop.ui.IntegratedTitleBar
+import io.github.valeriofra.mova.desktop.ui.WindowGeometry
+import io.github.valeriofra.mova.desktop.ui.components.LocalAwtWindow
 import io.github.valeriofra.mova.desktop.ui.components.LocalThumbnails
+import io.github.vinceglb.filekit.FileKit
 import io.github.valeriofra.mova.desktop.ui.theme.MovaTheme
 import java.awt.Dimension
 import java.io.File
 import java.time.Instant
 import javax.swing.JOptionPane
-import javax.swing.UIManager
 import kotlin.system.exitProcess
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
@@ -49,8 +55,8 @@ fun main() {
         JOptionPane.showMessageDialog(null, SingleInstance.alreadyRunningMessage(), "MOVA", JOptionPane.INFORMATION_MESSAGE)
         exitProcess(0)
     }
-    // Diálogos do sistema (escolher pasta) com a aparência nativa.
-    runCatching { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()) }
+    // Janelas nativas de escolher pasta (FileKit).
+    runCatching { FileKit.init(appId = "MOVA") }
 
     val container = AppContainer(paths)
     Localization.apply(container.settings.current.language)
@@ -58,7 +64,15 @@ fun main() {
 
     application {
         val settings by container.settings.settings.collectAsState()
-        val windowState = rememberWindowState(width = 1200.dp, height = 800.dp, position = WindowPosition(Alignment.Center))
+        // Tamanho inicial pelo monitor (ou o da última vez, se ainda couber na tela).
+        val initial = remember { WindowGeometry.initial(container.settings.current) }
+        val windowState = rememberWindowState(placement = initial.placement, size = initial.size, position = WindowPosition(Alignment.Center))
+        var floatingSize by remember { mutableStateOf(initial.size) }
+        LaunchedEffect(windowState) {
+            snapshotFlow { windowState.placement to windowState.size }.collect { (placement, size) ->
+                if (placement == WindowPlacement.Floating) floatingSize = size
+            }
+        }
         val trayState = rememberTrayState()
         val homeScope = rememberCoroutineScope()
         val home = remember { HomeModel(container.analyzer, container.manager, homeScope) }
@@ -67,6 +81,13 @@ fun main() {
         val icon = painterResource(Res.drawable.mova_icon)
 
         fun quit() {
+            container.settings.update {
+                it.copy(
+                    windowWidth = floatingSize.width.value.toInt(),
+                    windowHeight = floatingSize.height.value.toInt(),
+                    windowMaximized = windowState.placement == WindowPlacement.Maximized,
+                )
+            }
             container.shutdown()
             exitApplication()
         }
@@ -97,19 +118,24 @@ fun main() {
         }
 
         Window(onCloseRequest = ::quit, state = windowState, title = "MOVA", icon = icon) {
-            LaunchedEffect(Unit) { window.minimumSize = Dimension(1000, 660) }
+            LaunchedEffect(Unit) {
+                window.minimumSize = Dimension(WindowGeometry.MIN.width.value.toInt(), WindowGeometry.MIN.height.value.toInt())
+            }
             val systemDark = isSystemInDarkTheme()
             val dark = when (settings.themeMode) {
                 ThemeMode.DARK -> true
                 ThemeMode.LIGHT -> false
                 ThemeMode.SYSTEM -> systemDark
             }
+            // Windows: barra de título integrada ao layout (botões no tema do app).
+            val titleBar = remember { if (OsInfo.current.isWindows) IntegratedTitleBar.install(window, dark) else null }
+            LaunchedEffect(dark) { titleBar?.setDark(dark) }
             // Trocar o idioma recompõe a interface inteira com os novos textos.
             key(settings.language) {
                 remember(settings.language) { Localization.apply(settings.language) }
                 MovaTheme(darkTheme = dark) {
-                    CompositionLocalProvider(LocalThumbnails provides container.thumbnails) {
-                        MovaDesktopApp(container, home, destination, { destination = it }, snackbar)
+                    CompositionLocalProvider(LocalThumbnails provides container.thumbnails, LocalAwtWindow provides window) {
+                        MovaDesktopApp(container, home, destination, { destination = it }, snackbar, titleBar?.height ?: 0.dp)
                     }
                 }
             }

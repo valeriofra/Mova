@@ -112,6 +112,7 @@
         <item quantity="other">%1$d descargas añadidas a la cola</item>
     </plurals>
     <string name="queue_title">Cola</string>
+    <string name="queue_open_folder">Abrir carpeta de destino</string>
     <string name="queue_empty_title">No hay descargas en la cola</string>
     <string name="queue_empty_message">Pega o arrastra un enlace en Inicio para empezar. El progreso aparece aquí.</string>
     <string name="queue_empty_action">Pegar un enlace</string>
@@ -192,8 +193,13 @@
     <string name="settings_language_system">Automático</string>
     <string name="settings_language_auto_current">Automático · %1$s</string>
     <string name="settings_language_auto_hint">Automático usa el idioma del sistema. Si no está disponible, usa el de tu país y, en último caso, el inglés.</string>
-    <string name="settings_folder">Carpeta de descargas</string>
     <string name="settings_folder_choose">Elegir carpeta</string>
+    <string name="settings_save_title">Dónde guardar</string>
+    <string name="settings_save_hint">Elige si MOVA pregunta la carpeta en cada descarga o guarda siempre en el mismo lugar.</string>
+    <string name="settings_save_ask">Preguntar dónde guardar en cada descarga</string>
+    <string name="settings_save_ask_hint">Una ventana del sistema pide la carpeta al hacer clic en Descargar.</string>
+    <string name="settings_save_always">Guardar siempre en esta carpeta</string>
+    <string name="save_dialog_title">Elige dónde guardar</string>
     <string name="settings_folder_default">Usar la carpeta predeterminada</string>
     <string name="settings_concurrent">Descargas simultáneas</string>
     <string name="settings_concurrent_hint">Cuántos archivos descargar al mismo tiempo.</string>

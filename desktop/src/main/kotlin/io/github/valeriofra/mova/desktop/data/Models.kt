@@ -58,6 +58,8 @@ data class DownloadTask(
     val errorMessage: String? = null,
     /** Caminho do arquivo salvo, depois de concluído. */
     val outputPath: String? = null,
+    /** Pasta escolhida para este download (null = pasta padrão dos Ajustes). */
+    val saveDir: String? = null,
     /** O arquivo foi apagado (pelo app ou por fora). */
     val fileMissing: Boolean = false,
     val supportsResume: Boolean = false,
@@ -71,6 +73,16 @@ data class DownloadTask(
         get() = totalBytes?.takeIf { it > 0 }?.let { (downloadedBytes.toFloat() / it).coerceIn(0f, 1f) }
 }
 
+/** Onde salvar os arquivos baixados. */
+@Serializable
+enum class SaveMode {
+    /** Uma janela do sistema pergunta a pasta a cada download. */
+    ASK,
+
+    /** Sempre na pasta definida em Ajustes. */
+    FOLDER,
+}
+
 /** Tema da interface. O escuro é a identidade principal do MOVA. */
 @Serializable
 enum class ThemeMode { DARK, LIGHT, SYSTEM }
@@ -80,11 +92,19 @@ data class DesktopSettings(
     val themeMode: ThemeMode = ThemeMode.DARK,
     /** Idioma escolhido ("pt", "en", "es", "fr"); null = automático. */
     val language: String? = null,
-    /** Pasta de destino; null = Downloads/MOVA. */
+    /** Perguntar a pasta a cada download ou salvar sempre em [downloadDir]. */
+    val saveMode: SaveMode = SaveMode.ASK,
+    /** Pasta fixa de destino; null = Downloads/MOVA. */
     val downloadDir: String? = null,
+    /** Última pasta escolhida na janela de salvar (ponto de partida da próxima). */
+    val lastSaveDir: String? = null,
     val maxConcurrent: Int = DEFAULT_CONCURRENT,
     /** Exclusão automática depois de N dias (0 = desligada). */
     val autoDeleteDays: Int = 0,
+    /** Tamanho da janela ao fechar (para reabrir igual); null = calcular pelo monitor. */
+    val windowWidth: Int? = null,
+    val windowHeight: Int? = null,
+    val windowMaximized: Boolean? = null,
     /** Última verificação de atualização do yt-dlp (epoch ms). */
     val lastEngineUpdate: Long = 0,
 ) {

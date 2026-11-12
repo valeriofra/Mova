@@ -112,6 +112,7 @@
         <item quantity="other">%1$d téléchargements ajoutés à la file</item>
     </plurals>
     <string name="queue_title">File d'attente</string>
+    <string name="queue_open_folder">Ouvrir le dossier de destination</string>
     <string name="queue_empty_title">Aucun téléchargement en attente</string>
     <string name="queue_empty_message">Collez ou glissez un lien dans Accueil pour commencer. La progression s'affiche ici.</string>
     <string name="queue_empty_action">Coller un lien</string>
@@ -192,8 +193,13 @@
     <string name="settings_language_system">Automatique</string>
     <string name="settings_language_auto_current">Automatique · %1$s</string>
     <string name="settings_language_auto_hint">Automatique utilise la langue du système. Si elle n'est pas disponible, celle de votre pays et, en dernier recours, l'anglais.</string>
-    <string name="settings_folder">Dossier des téléchargements</string>
     <string name="settings_folder_choose">Choisir un dossier</string>
+    <string name="settings_save_title">Où enregistrer</string>
+    <string name="settings_save_hint">Choisissez si MOVA demande le dossier à chaque téléchargement ou enregistre toujours au même endroit.</string>
+    <string name="settings_save_ask">Demander où enregistrer à chaque téléchargement</string>
+    <string name="settings_save_ask_hint">Une fenêtre du système demande le dossier quand vous cliquez sur Télécharger.</string>
+    <string name="settings_save_always">Toujours enregistrer dans ce dossier</string>
+    <string name="save_dialog_title">Choisissez où enregistrer</string>
     <string name="settings_folder_default">Utiliser le dossier par défaut</string>
     <string name="settings_concurrent">Téléchargements simultanés</string>
     <string name="settings_concurrent_hint">Nombre de fichiers téléchargés en même temps.</string>

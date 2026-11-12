@@ -15,7 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoDelete
@@ -47,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import io.github.valeriofra.mova.core.format.Formatters
 import io.github.valeriofra.mova.desktop.BuildInfo
 import io.github.valeriofra.mova.desktop.data.DesktopSettings
+import io.github.valeriofra.mova.desktop.data.SaveMode
 import io.github.valeriofra.mova.desktop.data.ThemeMode
 import io.github.valeriofra.mova.desktop.engine.EngineState
 import io.github.valeriofra.mova.desktop.i18n.Localization
@@ -59,11 +66,14 @@ import io.github.valeriofra.mova.desktop.ui.components.MovaSwitch
 import io.github.valeriofra.mova.desktop.ui.components.ScreenTitle
 import io.github.valeriofra.mova.desktop.ui.components.SectionHeader
 import io.github.valeriofra.mova.desktop.ui.components.TitleAndSubtitle
+import io.github.valeriofra.mova.desktop.ui.components.LocalScreenPadding
 import io.github.valeriofra.mova.desktop.ui.theme.MovaColors
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 data class SettingsActions(
+    val saveMode: (SaveMode) -> Unit = {},
+    val openFolder: () -> Unit = {},
     val themeMode: (ThemeMode) -> Unit = {},
     val language: (String?) -> Unit = {},
     val chooseFolder: () -> Unit = {},
@@ -85,7 +95,7 @@ fun SettingsScreen(
     actions: SettingsActions,
 ) {
     var confirmAutoDelete by remember { mutableStateOf<Int?>(null) }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 32.dp, vertical = 20.dp)) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = LocalScreenPadding.current, vertical = 20.dp)) {
         ScreenTitle(stringResource(Res.string.settings_title))
         Column(Modifier.widthIn(max = 820.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             SectionHeader(stringResource(Res.string.settings_section_appearance))
@@ -109,10 +119,29 @@ fun SettingsScreen(
             }
 
             SectionHeader(stringResource(Res.string.settings_section_downloads), Modifier.padding(top = 12.dp))
-            SettingCard(Icons.Rounded.Folder, stringResource(Res.string.settings_folder), destination) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    AccentTextButton(stringResource(Res.string.settings_folder_choose), actions.chooseFolder)
-                    if (settings.downloadDir != null) AccentTextButton(stringResource(Res.string.settings_folder_default), actions.defaultFolder)
+            SettingCard(
+                Icons.Rounded.Folder,
+                stringResource(Res.string.settings_save_title),
+                stringResource(Res.string.settings_save_hint),
+                trailing = { AccentTextButton(stringResource(Res.string.library_open_folder), actions.openFolder) },
+            ) {
+                Column(Modifier.selectableGroup()) {
+                    SaveOption(
+                        selected = settings.saveMode == SaveMode.ASK,
+                        title = stringResource(Res.string.settings_save_ask),
+                        subtitle = stringResource(Res.string.settings_save_ask_hint),
+                        onSelect = { actions.saveMode(SaveMode.ASK) },
+                    )
+                    SaveOption(
+                        selected = settings.saveMode == SaveMode.FOLDER,
+                        title = stringResource(Res.string.settings_save_always),
+                        subtitle = destination,
+                        onSelect = { actions.saveMode(SaveMode.FOLDER) },
+                    )
+                    FlowRow(Modifier.padding(start = 40.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        AccentTextButton(stringResource(Res.string.settings_folder_choose), actions.chooseFolder)
+                        if (settings.downloadDir != null) AccentTextButton(stringResource(Res.string.settings_folder_default), actions.defaultFolder)
+                    }
                 }
             }
             SettingCard(Icons.Rounded.Layers, stringResource(Res.string.settings_concurrent), stringResource(Res.string.settings_concurrent_hint)) {
@@ -120,7 +149,7 @@ fun SettingsScreen(
                     options = DesktopSettings.CONCURRENT_RANGE.map { it to it.toString() },
                     selected = settings.maxConcurrent,
                     onSelect = actions.maxConcurrent,
-                    modifier = Modifier.width(260.dp),
+                    modifier = Modifier.fillMaxWidth().widthIn(max = 260.dp),
                 )
             }
             SettingCard(
@@ -203,6 +232,26 @@ fun SettingsScreen(
     }
 }
 
+@Composable
+private fun SaveOption(selected: Boolean, title: String, subtitle: String, onSelect: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .selectable(selected = selected, onClick = onSelect, role = Role.RadioButton)
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(selectedColor = MovaColors.Accent, unselectedColor = MovaColors.TextSecondary),
+        )
+        Spacer(Modifier.width(12.dp))
+        TitleAndSubtitle(title, subtitle, Modifier.weight(1f))
+    }
+}
+
 /** Pede confirmação quando a mudança passa a apagar mais arquivos. */
 private fun requestAutoDelete(option: Int, current: Int, actions: SettingsActions, confirm: (Int) -> Unit) {
     val deletesMore = option > 0 && (current == 0 || option < current)
@@ -253,7 +302,7 @@ private fun SettingCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun <T> Segmented(options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit, modifier: Modifier = Modifier.width(420.dp)) {
+private fun <T> Segmented(options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit, modifier: Modifier = Modifier.fillMaxWidth().widthIn(max = 420.dp)) {
     SingleChoiceSegmentedButtonRow(modifier) {
         options.forEachIndexed { index, (value, label) ->
             SegmentedButton(

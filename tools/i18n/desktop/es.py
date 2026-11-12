@@ -53,13 +53,19 @@ S = {
 "settings_engine_update_failed": "No se pudo actualizar ahora. Inténtalo más tarde.",
 "settings_engine_updated": "Motor actualizado: %1$s",
 "settings_engine_updating": "Actualizando el motor…",
-"settings_folder": "Carpeta de descargas",
 "settings_folder_default": "Usar la carpeta predeterminada",
 "settings_language_auto_hint": "Automático usa el idioma del sistema. Si no está disponible, usa el de tu país y, en último caso, el inglés.",
 "settings_version": "Versión %1$s (compilación %2$d)",
 "sidebar_engine_ready": "Motor listo",
 "tray_open": "Abrir MOVA",
 "tray_quit": "Salir",
+"settings_save_title": "Dónde guardar",
+"settings_save_hint": "Elige si MOVA pregunta la carpeta en cada descarga o guarda siempre en el mismo lugar.",
+"settings_save_ask": "Preguntar dónde guardar en cada descarga",
+"settings_save_ask_hint": "Una ventana del sistema pide la carpeta al hacer clic en Descargar.",
+"settings_save_always": "Guardar siempre en esta carpeta",
+"save_dialog_title": "Elige dónde guardar",
+"queue_open_folder": "Abrir carpeta de destino",
 }
 
 P = {

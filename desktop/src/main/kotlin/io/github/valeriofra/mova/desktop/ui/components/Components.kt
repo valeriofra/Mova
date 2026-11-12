@@ -23,7 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.InsertDriveFile
+import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -60,6 +60,12 @@ import io.github.valeriofra.mova.desktop.resources.Res
 import io.github.valeriofra.mova.desktop.resources.mova_logo
 import io.github.valeriofra.mova.desktop.ui.theme.MovaColors
 import org.jetbrains.compose.resources.painterResource
+
+/** Margem lateral das telas (menor em janelas estreitas). */
+val LocalScreenPadding = staticCompositionLocalOf { 32.dp }
+
+/** Janela AWT do app (pai das janelas do sistema, como a de escolher pasta). */
+val LocalAwtWindow = staticCompositionLocalOf<java.awt.Window?> { null }
 
 /** Carregador de capas disponível para toda a interface. */
 val LocalThumbnails = staticCompositionLocalOf<ThumbnailLoader?> { null }
@@ -255,7 +261,7 @@ fun mediaKindIcon(kind: MediaKind): ImageVector = when (kind) {
     MediaKind.AUDIO -> Icons.Rounded.AudioFile
     MediaKind.IMAGE -> Icons.Rounded.Image
     MediaKind.DOCUMENT -> Icons.Rounded.Description
-    MediaKind.OTHER -> Icons.Rounded.InsertDriveFile
+    MediaKind.OTHER -> Icons.AutoMirrored.Rounded.InsertDriveFile
 }
 
 /** Capa remota (quando houver) ou o ícone do tipo de mídia. */

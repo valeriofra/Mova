@@ -1,4 +1,5 @@
-"""Gera os ícones do MOVA para desktop: mova.png (Linux, 512 px) e mova.ico (Windows).
+"""Gera os ícones do MOVA para desktop: mova.png (Linux, 512 px), mova.ico (Windows)
+e a tela de abertura app-resources/common/splash.png.
 
 Usa o mesmo símbolo do Android (app/src/main/res/drawable/ic_mova_logo.xml) sobre
 um quadrado arredondado escuro com brilho azul, como o ícone adaptável.
@@ -68,6 +69,37 @@ grads = re.findall(r'startX="([\d.]+)" android:startY="([\d.]+)" android:endX="(
 for i, d in enumerate(paths):
     sx, sy, ex, ey = map(float, grads[i * 2])
     img = Image.alpha_composite(img, gradient_fill(points(d), colors[i][0], colors[i][1], (sx, sy), (ex, ey)))
+
+# Tela de abertura (aparece antes do Java carregar): cartão escuro com o símbolo e o nome.
+from PIL import ImageFont
+W, H, R = 880, 520, 48                      # 2x; reduzido para 440x260
+splash = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+card = Image.new('RGBA', (W, H), (11, 15, 26, 255))
+glow2 = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+ImageDraw.Draw(glow2).ellipse((W * 0.25, -H * 0.2, W * 0.75, H * 0.75), fill=(37, 99, 235, 70))
+card = Image.alpha_composite(card, glow2.filter(ImageFilter.GaussianBlur(70)))
+cmask = Image.new('L', (W, H), 0)
+ImageDraw.Draw(cmask).rounded_rectangle((0, 0, W - 1, H - 1), radius=R, fill=255)
+splash.paste(card, (0, 0), cmask)
+ImageDraw.Draw(splash).rounded_rectangle((1, 1, W - 2, H - 2), radius=R, outline=(36, 48, 73, 255), width=3)
+symbol = Image.new('RGBA', (S, S), (0, 0, 0, 0))
+for i, d in enumerate(paths):
+    sx, sy, ex, ey = map(float, grads[i * 2])
+    symbol = Image.alpha_composite(symbol, gradient_fill(points(d), colors[i][0], colors[i][1], (sx, sy), (ex, ey)))
+symbol = symbol.crop(symbol.getbbox()).resize((150, 150), Image.LANCZOS)
+splash.alpha_composite(symbol, ((W - 150) // 2, 120))
+font_path = '/usr/share/fonts/opentype/inter/Inter-Bold.otf'
+font = ImageFont.truetype(font_path, 64) if os.path.exists(font_path) else ImageFont.load_default()
+text, spacing = 'MOVA', 10
+widths = [ImageDraw.Draw(splash).textlength(c, font=font) for c in text]
+x = (W - (sum(widths) + spacing * (len(text) - 1))) / 2
+for c, w in zip(text, widths):
+    ImageDraw.Draw(splash).text((x, 320), c, font=font, fill=(232, 236, 244, 255))
+    x += w + spacing
+res = os.path.join(out, 'app-resources', 'common')
+os.makedirs(res, exist_ok=True)
+splash.resize((W // 2, H // 2), Image.LANCZOS).save(os.path.join(res, 'splash.png'))
+print('OK:', os.path.join(res, 'splash.png'))
 
 png = img.resize((512, 512), Image.LANCZOS)
 png.save(os.path.join(out, 'mova.png'))

@@ -22,6 +22,8 @@ class SettingsStore(file: File) {
     fun setThemeMode(mode: ThemeMode) = update { it.copy(themeMode = mode) }
     fun setLanguage(language: String?) = update { it.copy(language = language) }
     fun setDownloadDir(path: String?) = update { it.copy(downloadDir = path) }
+    fun setSaveMode(mode: SaveMode) = update { it.copy(saveMode = mode) }
+    fun setLastSaveDir(path: String?) = update { it.copy(lastSaveDir = path) }
     fun setMaxConcurrent(value: Int) = update { it.copy(maxConcurrent = value.coerceIn(DesktopSettings.CONCURRENT_RANGE)) }
     fun setAutoDeleteDays(days: Int) = update { it.copy(autoDeleteDays = days.coerceAtLeast(0)) }
     fun setLastEngineUpdate(time: Long) = update { it.copy(lastEngineUpdate = time) }

@@ -62,6 +62,7 @@ import io.github.valeriofra.mova.desktop.ui.components.PrimaryButton
 import io.github.valeriofra.mova.desktop.ui.components.ScreenTitle
 import io.github.valeriofra.mova.desktop.ui.components.SecondaryButton
 import io.github.valeriofra.mova.desktop.ui.components.StatusPill
+import io.github.valeriofra.mova.desktop.ui.components.LocalScreenPadding
 import io.github.valeriofra.mova.desktop.ui.theme.MovaColors
 import java.text.DateFormat
 import java.util.Date
@@ -112,7 +113,7 @@ fun LibraryScreen(
     val files = tasks.filter { it.status == TaskStatus.COMPLETED && !it.fileMissing }.sortedByDescending { it.completedAt }
     val history = tasks.filter { it.status.isFinished }.sortedByDescending { it.updatedAt }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 32.dp, vertical = 20.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal = LocalScreenPadding.current, vertical = 20.dp)) {
         ScreenTitle(stringResource(Res.string.library_title)) {
             if (tab == LibraryTab.HISTORY && history.isNotEmpty()) {
                 SecondaryButton(stringResource(Res.string.library_clear_history), { confirmClear = true }, icon = Icons.Rounded.DeleteSweep)
@@ -218,7 +219,7 @@ private fun FilesTab(
                 focusedTextColor = MovaColors.TextPrimary,
                 unfocusedTextColor = MovaColors.TextPrimary,
             ),
-            modifier = Modifier.padding(start = 12.dp).width(220.dp),
+            modifier = Modifier.padding(start = 12.dp).widthIn(min = 150.dp, max = 240.dp),
         )
     }
     Spacer(Modifier.height(12.dp))

@@ -53,13 +53,19 @@ S = {
 "settings_engine_update_failed": "Couldn't update right now. Try again later.",
 "settings_engine_updated": "Engine updated: %1$s",
 "settings_engine_updating": "Updating the engine…",
-"settings_folder": "Download folder",
 "settings_folder_default": "Use the default folder",
 "settings_language_auto_hint": "Automatic uses the system language. If it isn't available, it uses your country's language and, as a last resort, English.",
 "settings_version": "Version %1$s (build %2$d)",
 "sidebar_engine_ready": "Engine ready",
 "tray_open": "Open MOVA",
 "tray_quit": "Quit",
+"settings_save_title": "Where to save",
+"settings_save_hint": "Choose whether MOVA asks for a folder on every download or always saves to the same place.",
+"settings_save_ask": "Ask where to save on every download",
+"settings_save_ask_hint": "A system window asks for the folder when you click Download.",
+"settings_save_always": "Always save to this folder",
+"save_dialog_title": "Choose where to save",
+"queue_open_folder": "Open destination folder",
 }
 
 P = {

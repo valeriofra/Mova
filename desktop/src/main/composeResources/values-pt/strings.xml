@@ -120,6 +120,7 @@
     </plurals>
 
     <string name="queue_title">Fila</string>
+    <string name="queue_open_folder">Abrir pasta de destino</string>
     <string name="queue_empty_title">Nenhum download na fila</string>
     <string name="queue_empty_message">Cole ou arraste um link na tela Início para começar. O progresso aparece aqui.</string>
     <string name="queue_empty_action">Colar um link</string>
@@ -204,8 +205,13 @@
     <string name="settings_language_system">Automático</string>
     <string name="settings_language_auto_current">Automático · %1$s</string>
     <string name="settings_language_auto_hint">Automático usa o idioma do sistema. Se ele não estiver disponível, usa o do seu país e, por último, o inglês.</string>
-    <string name="settings_folder">Pasta dos downloads</string>
     <string name="settings_folder_choose">Escolher pasta</string>
+    <string name="settings_save_title">Onde salvar</string>
+    <string name="settings_save_hint">Escolha se o MOVA pergunta a pasta a cada download ou salva sempre no mesmo lugar.</string>
+    <string name="settings_save_ask">Perguntar onde salvar a cada download</string>
+    <string name="settings_save_ask_hint">Uma janela do sistema pede a pasta ao clicar em Baixar.</string>
+    <string name="settings_save_always">Salvar sempre nesta pasta</string>
+    <string name="save_dialog_title">Escolha onde salvar</string>
     <string name="settings_folder_default">Usar a pasta padrão</string>
     <string name="settings_concurrent">Downloads simultâneos</string>
     <string name="settings_concurrent_hint">Quantos arquivos baixar ao mesmo tempo.</string>

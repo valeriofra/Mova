@@ -8,6 +8,7 @@ import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -100,6 +101,7 @@ import io.github.valeriofra.mova.desktop.ui.components.MovaProgressBar
 import io.github.valeriofra.mova.desktop.ui.components.PrimaryButton
 import io.github.valeriofra.mova.desktop.ui.components.SecondaryButton
 import io.github.valeriofra.mova.desktop.ui.components.TitleAndSubtitle
+import io.github.valeriofra.mova.desktop.ui.components.LocalScreenPadding
 import io.github.valeriofra.mova.desktop.ui.theme.MovaColors
 import java.awt.datatransfer.DataFlavor
 import kotlinx.coroutines.CancellationException
@@ -175,9 +177,10 @@ class HomeModel(
     fun chooseFormat(format: FormatChoice) = updateDone { it.copy(format = format) }
 
     /** Coloca os itens escolhidos na fila; devolve quantos entraram. */
-    fun enqueue(): Int {
+    /** Coloca os itens escolhidos na fila, salvando em [saveDir] (null = pasta padrão). */
+    fun enqueue(saveDir: java.io.File? = null): Int {
         val done = analysis as? Analysis.Done ?: return 0
-        val count = manager.enqueue(done.chosen, done.format)
+        val count = manager.enqueue(done.chosen, done.format, saveDir)
         if (count > 0) {
             input = ""
             analysis = Analysis.Idle
@@ -192,7 +195,7 @@ class HomeModel(
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun HomeScreen(model: HomeModel, engineState: EngineState, onEnqueued: (Int) -> Unit) {
+fun HomeScreen(model: HomeModel, engineState: EngineState, onDownload: () -> Unit) {
     val recognizer = remember { LinkRecognizer() }
     val analysis = model.analysis
     val dropTarget = remember(model) {
@@ -208,17 +211,19 @@ fun HomeScreen(model: HomeModel, engineState: EngineState, onEnqueued: (Int) -> 
             }
         }
     }
-    Box(
+    BoxWithConstraints(
         Modifier.fillMaxSize().dragAndDropTarget(shouldStartDragAndDrop = { true }, target = dropTarget),
         contentAlignment = Alignment.TopCenter,
     ) {
+        // Monitores baixos: menos espaço acima do campo.
+        val short = maxHeight < 620.dp
         Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 32.dp, vertical = 28.dp),
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = LocalScreenPadding.current, vertical = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             val idle = analysis is HomeModel.Analysis.Idle
-            Spacer(Modifier.height(if (idle) 48.dp else 8.dp))
-            MovaLogo(if (idle) 96.dp else 56.dp)
+            Spacer(Modifier.height(if (idle && !short) 48.dp else 8.dp))
+            MovaLogo(if (idle && !short) 96.dp else 56.dp)
             Spacer(Modifier.height(18.dp))
             Text(
                 stringResource(Res.string.home_title),
@@ -258,7 +263,7 @@ fun HomeScreen(model: HomeModel, engineState: EngineState, onEnqueued: (Int) -> 
                 when (analysis) {
                     HomeModel.Analysis.Idle -> Unit
                     HomeModel.Analysis.Loading -> AnalyzingCard(engineState)
-                    is HomeModel.Analysis.Done -> ResultContent(analysis, model, onEnqueued)
+                    is HomeModel.Analysis.Done -> ResultContent(analysis, model, onDownload)
                 }
             }
         }
@@ -371,7 +376,7 @@ fun EnginePreparing(state: EngineState.Preparing) {
 }
 
 @Composable
-private fun ResultContent(done: HomeModel.Analysis.Done, model: HomeModel, onEnqueued: (Int) -> Unit) {
+private fun ResultContent(done: HomeModel.Analysis.Done, model: HomeModel, onDownload: () -> Unit) {
     val report = done.report
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         if (report.isEmpty) {
@@ -399,7 +404,7 @@ private fun ResultContent(done: HomeModel.Analysis.Done, model: HomeModel, onEnq
         val count = done.chosen.size
         PrimaryButton(
             text = if (items.size == 1) stringResource(Res.string.options_download_now) else pluralStringResource(Res.plurals.selection_download, count, count),
-            onClick = { onEnqueued(model.enqueue()) },
+            onClick = onDownload,
             enabled = count > 0,
             icon = Icons.Rounded.Download,
             modifier = Modifier.fillMaxWidth(),
@@ -539,20 +544,42 @@ private fun FormatCard(
         highlighted = selected,
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).selectable(selected = selected, onClick = onSelect, role = Role.RadioButton),
     ) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = if (selected) MovaColors.Accent else MovaColors.TextSecondary)
-            Spacer(Modifier.width(14.dp))
-            TitleAndSubtitle(title, subtitle, Modifier.width(260.dp))
-            Spacer(Modifier.width(12.dp))
-            Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                chips.forEach { (choice, label) -> MovaChip(label, choice == selectedChip, onClick = { onChip(choice) }) }
-            }
-            Spacer(Modifier.width(8.dp))
+        val radio: @Composable () -> Unit = {
             RadioButton(
                 selected = selected,
                 onClick = null,
                 colors = RadioButtonDefaults.colors(selectedColor = MovaColors.Accent, unselectedColor = MovaColors.TextSecondary),
             )
+        }
+        val chipRow: @Composable (Modifier) -> Unit = { modifier ->
+            Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                chips.forEach { (choice, label) -> MovaChip(label, choice == selectedChip, onClick = { onChip(choice) }) }
+            }
+        }
+        BoxWithConstraints {
+            if (maxWidth >= 640.dp) {
+                Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(icon, contentDescription = null, tint = if (selected) MovaColors.Accent else MovaColors.TextSecondary)
+                    Spacer(Modifier.width(14.dp))
+                    TitleAndSubtitle(title, subtitle, Modifier.weight(0.45f))
+                    Spacer(Modifier.width(12.dp))
+                    chipRow(Modifier.weight(0.55f))
+                    Spacer(Modifier.width(8.dp))
+                    radio()
+                }
+            } else {
+                // Janela estreita: os formatos ficam abaixo do título.
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(icon, contentDescription = null, tint = if (selected) MovaColors.Accent else MovaColors.TextSecondary)
+                        Spacer(Modifier.width(14.dp))
+                        TitleAndSubtitle(title, subtitle, Modifier.weight(1f))
+                        radio()
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    chipRow(Modifier.padding(start = 38.dp))
+                }
+            }
         }
     }
 }

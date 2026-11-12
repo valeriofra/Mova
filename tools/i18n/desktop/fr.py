@@ -53,13 +53,19 @@ S = {
 "settings_engine_update_failed": "Mise à jour impossible pour le moment. Réessayez plus tard.",
 "settings_engine_updated": "Moteur mis à jour : %1$s",
 "settings_engine_updating": "Mise à jour du moteur…",
-"settings_folder": "Dossier des téléchargements",
 "settings_folder_default": "Utiliser le dossier par défaut",
 "settings_language_auto_hint": "Automatique utilise la langue du système. Si elle n'est pas disponible, celle de votre pays et, en dernier recours, l'anglais.",
 "settings_version": "Version %1$s (build %2$d)",
 "sidebar_engine_ready": "Moteur prêt",
 "tray_open": "Ouvrir MOVA",
 "tray_quit": "Quitter",
+"settings_save_title": "Où enregistrer",
+"settings_save_hint": "Choisissez si MOVA demande le dossier à chaque téléchargement ou enregistre toujours au même endroit.",
+"settings_save_ask": "Demander où enregistrer à chaque téléchargement",
+"settings_save_ask_hint": "Une fenêtre du système demande le dossier quand vous cliquez sur Télécharger.",
+"settings_save_always": "Toujours enregistrer dans ce dossier",
+"save_dialog_title": "Choisissez où enregistrer",
+"queue_open_folder": "Ouvrir le dossier de destination",
 }
 
 P = {
