@@ -35,6 +35,9 @@ env:
   # Número do build: terceiro campo da versão do instalador (sempre crescente).
   MOVA_BUILD_NUMBER: ${{ github.run_number }}
   GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3g
+  # JetBrains Runtime incluído no app (atualizar junto: versão e build).
+  JBR_VERSION: "21.0.11"
+  JBR_BUILD: "1163.125"
 
 jobs:
   test:
@@ -74,10 +77,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       # JetBrains Runtime: é ele que vai dentro do app (barra de título integrada no Windows).
+      # Versão fixa, baixada direto da JetBrains (sem consultar a API do GitHub, que tem limite).
+      - name: Baixar o JetBrains Runtime
+        run: |
+          case "$RUNNER_OS" in Windows) PLATFORM=windows-x64 ;; *) PLATFORM=linux-x64 ;; esac
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/jbrsdk.tar.gz" \
+            "https://cache-redirector.jetbrains.com/intellij-jbr/jbrsdk-${JBR_VERSION}-${PLATFORM}-b${JBR_BUILD}.tar.gz"
       - uses: actions/setup-java@v5
         with:
-          distribution: jetbrains
-          java-version: "21"
+          distribution: jdkfile
+          jdkFile: ${{ runner.temp }}/jbrsdk.tar.gz
+          java-version: ${{ env.JBR_VERSION }}
+          architecture: x64
       - uses: gradle/actions/setup-gradle@v5
 
       - name: Versão
